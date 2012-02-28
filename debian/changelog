@@ -1,0 +1,5 @@
+freefoam (0.1.0-1)  unstable; urgency=low
+
+   * Initial Release. Closes: #528662
+
+ -- Gerber van der Graaf <gerber_graaf@users.sourceforge.net>  Tuesday, 28 Feb 2012 10:27:00 +0100

@@ -1,0 +1,2 @@
+debian/tmp/usr/share/doc/freefoam/tutorials/* /usr/share/doc/freefoam-user-doc/tutorials/
+debian/tmp/usr/share/doc/freefoam/UserGuide.pdf /usr/share/doc/freefoam-user-doc/

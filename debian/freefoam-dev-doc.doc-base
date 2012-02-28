@@ -1,0 +1,9 @@
+Document: freefoam-dev-doc
+Title: FreeFOAM developers manual
+Author: Michael Wild, Gerber van der Graaf
+Abstract: This manual describes the internal library structures of FreeFOAM, generated with Doxygen.
+Section: Programming
+
+Format: html
+Index: /usr/share/doc/freefoam-dev-doc/api/index.html
+Files: /usr/share/doc/freefoam-dev-doc/api/*.html

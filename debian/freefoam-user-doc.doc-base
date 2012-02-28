@@ -1,0 +1,9 @@
+Document: freefoam-users-doc
+Title: FreeFOAM users manual
+Author: Open CFD 
+Abstract: This manual describes how to use the FreeFOAM software.
+Section: Science/Physics
+
+Format: PDF
+Files: 
+  /usr/share/doc/freefoam-user-doc/UserGuide.pdf.gz

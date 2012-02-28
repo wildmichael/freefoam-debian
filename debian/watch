@@ -1,0 +1,2 @@
+version=3
+http://sf.net/freefoam/freefoam-(.*)\.tar\.bz2 debian uupdate

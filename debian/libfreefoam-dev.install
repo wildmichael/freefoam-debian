@@ -1,0 +1,2 @@
+debian/tmp/usr/include/* /usr/include
+debian/tmp/usr/share/freefoam/* /usr/share/freefoam/
