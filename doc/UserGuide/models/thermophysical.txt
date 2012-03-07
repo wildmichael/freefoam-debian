@@ -1,0 +1,259 @@
+=== Thermophysical models
+
+Thermophysical models are concerned with the energy, heat and physical
+properties.
+
+The filename:thermophysicalProperties[]
+(((filename:thermophysicalProperties[],dictionary)))
+(((dictionary,filename:thermophysicalProperties[]))) dictionary is read by any
+solver that uses the `thermophysical`(((`thermophysical`,library)))
+(((library,`thermophysical`))) model library. A thermophysical model is
+constructed in {project} as a pressure-temperature math:[p-T] system from
+which other properties are computed. There is one compulsory dictionary entry
+called `thermoType`(((`thermoType` keyword)))(((keyword,`thermoType`))) which
+specifies the complete thermophysical model that is used in the simulation. The
+thermophysical modelling starts with a layer that defines the basic equation of
+state and then adds more layers of modelling that derive properties from the
+previous layer(s). The naming of the `thermoType`(((`thermoType`
+keyword)))(((keyword,`thermoType`))) reflects these multiple layers of
+modelling as listed in <<tab_thermoTypeLayers>>.
+
+[[tab_thermoTypeLayers]]
+.Layers of thermophysical modelling
+[grid="none",frame="topbot",cols="1,2"]
+|==============================================================================
+2+h| Equation of State &mdash; `equationOfState`
+| `icoPolynomial`(((`icoPolynomial` model)))(((model,`icoPolynomial`))) |
+Incompressible polynomial equation of state, 'e.g.' for liquids
+| `perfectGas`(((`perfectGas` model)))(((model,`perfectGas`))) | Perfect gas
+equation of state
+
+2+h| Basic thermophysical properties &mdash; `thermo`
+| `eConstThermo`(((`eConstThermo` model)))(((model,`eConstThermo`))) | Constant
+specific heat math:[c_p] model with evaluation of internal energy math:[e] and
+entropy math:[s]
+| `hConstThermo`(((`hConstThermo` model)))(((model,`hConstThermo`))) | Constant
+specific heat math:[c_p] model with evaluation of enthalpy math:[h] and entropy
+math:[s]
+| `hPolynomialThermo`(((`hPolynomialThermo` model)))
+(((model,`hPolynomialThermo`))) | math:[c_p] evaluated by a function with
+coefficients from polynomials, from which math:[h], math:[s] are evaluated
+| `janafThermo`(((`janafThermo` model)))(((model,`janafThermo`))) | math:[c_p]
+evaluated by a function with coefficients from 'JANAF' thermodynamic tables,
+from which math:[h], math:[s] are evaluated
+
+2+h| Derived thermophysical properties &mdash; `specieThermo`
+| `specieThermo`(((`specieThermo` model)))(((model,`specieThermo`))) |
+Thermophysical properties of species, derived from math:[c_p], math:[h] and/or
+math:[s]
+
+2+h| Transport properties &mdash; `transport`
+| `constTransport`(((`constTransport` model)))(((model,`constTransport`))) |
+Constant transport properties
+| `polynomialTransport`(((`polynomialTransport` model)))
+(((model,`polynomialTransport`))) | Polynomial based temperature-dependent
+transport properties
+| `sutherlandTransport`(((`sutherlandTransport` model)))
+(((model,`sutherlandTransport`))) | Sutherland's formula for
+temperature-dependent transport properties
+
+2+h| Mixture properties &mdash; `mixture`
+| `pureMixture`(((`pureMixture` model)))(((model,`pureMixture`))) | General
+thermophysical model calculation for passive gas mixtures
+| `homogeneousMixture`(((`homogeneousMixture` model)))
+(((model,`homogeneousMixture`))) | Combustion mixture based on normalised fuel
+mass fraction math:[b]
+| `inhomogeneousMixture`(((`inhomogeneousMixture` model)))
+(((model,`inhomogeneousMixture`))) | Combustion mixture based on math:[b] and
+total fuel mass fraction math:[f_t]
+| `veryInhomogeneousMixture`(((`veryInhomogeneousMixture` model)))
+(((model,`veryInhomogeneousMixture`))) | Combustion mixture based on math:[b],
+math:[f_t] and unburnt fuel mass fraction math:[f_u]
+| `dieselMixture`(((`dieselMixture` model)))(((model,`dieselMixture`))) |
+Combustion mixture based on math:[f_t] and math:[f_u]
+| `basicMultiComponentMixture`(((`basicMultiComponentMixture` model)))
+(((model,`basicMultiComponentMixture`))) | Basic mixture based on multiple
+components
+| `multiComponentMixture`(((`multiComponentMixture` model)))
+(((model,`multiComponentMixture`))) | Derived mixture based on multiple
+components
+| `reactingMixture`(((`reactingMixture` model)))(((model,`reactingMixture`))) |
+Combustion mixture using thermodynamics and reaction schemes
+| `egrMixture`(((`egrMixture` model)))(((model,`egrMixture`))) | Exhaust gas
+recirculation mixture
+
+2+h| Thermophysical model &mdash; `thermoModel`
+| `hPsiThermo`(((`hPsiThermo` model)))(((model,`hPsiThermo`))) | General
+thermophysical model calculation based on enthalpy math:[h] and compressibility
+math:[\psi]
+| `hsPsiThermo`(((`hsPsiThermo` model)))(((model,`hsPsiThermo`))) | General
+thermophysical model calculation based on sensible enthalpy math:[h_s] and
+compressibility math:[\psi]
+| `ePsiThermo`(((`ePsiThermo` model)))(((model,`ePsiThermo`))) | General
+thermophysical model calculation based on internal energy math:[e] and
+compressibility math:[\psi]
+| `hRhoThermo`(((`hRhoThermo` model)))(((model,`hRhoThermo`))) | General
+thermophysical model calculation based on enthalpy math:[h]
+| `hRhoThermo`(((`hRhoThermo` model)))(((model,`hRhoThermo`))) | General
+thermophysical model calculation based on sensible enthalpy math:[h_s]
+| `hPsiMixtureThermo`(((`hPsiMixtureThermo` model)))
+(((model,`hPsiMixtureThermo`))) | Calculates enthalpy for combustion mixture
+based on enthalpy math:[h] and math:[\psi]
+| `hsPsiMixtureThermo`(((`hsPsiMixtureThermo` model)))
+(((model,`hsPsiMixtureThermo`))) | Calculates enthalpy for combustion mixture
+based on sensible enthalpy math:[h_s] and math:[\psi]
+| `hRhoMixtureThermo`(((`hRhoMixtureThermo` model)))
+(((model,`hRhoMixtureThermo`))) | Calculates enthalpy for combustion mixture
+based on enthalpy math:[h] and math:[\rho]
+| `hsRhoMixtureThermo`(((`hsRhoMixtureThermo` model)))
+(((model,`hsRhoMixtureThermo`))) | Calculates enthalpy for combustion mixture
+based on sensible enthalpy math:[h_s] and math:[\rho]
+| `hhuMixtureThermo`(((`hhuMixtureThermo` model)))
+(((model,`hhuMixtureThermo`))) | Calculates enthalpy for unburnt gas and
+combustion mixture
+|==============================================================================
+
+The `thermoType` entry typically takes the form:
+
+-------------------------------------------------------------------------------
+thermoModel<mixture<transport<specieThermo<thermo<equationOfState>>>>>
+-------------------------------------------------------------------------------
+
+so that the following is an example entry for `thermoType`:
+
+-------------------------------------------------------------------------------
+hThermo<pureMixture<constTransport<specieThermo<hConstThermo<perfectGas>>>>>
+-------------------------------------------------------------------------------
+
+==== Thermophysical property data
+
+The basic thermophysical properties are specified for each species from input
+data. The data is specified using a compound entry with the following format
+for a specie accessed through the keyword `mixture`:
+
+-------------------------------------------------------------------------------
+mixture '<specieCoeffs>' '<thermoCoeffs>' '<transportCoeffs>'
+-------------------------------------------------------------------------------
+
+The specie coefficients '<specieCoeffs>' contains the entries listed in
+<<tab_specieCoeffs>> in the order that they are specified in input.
+
+[[tab_specieCoeffs]]
+.Specie coefficients
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Description | Entry
+| String name | 'e.g.' `mixture`
+| Number of moles of this specie | math:[n_\text{moles}]
+| Molecular weight | math:[\unit{W}\left(\unitfrac{kg}{kmol}\right)]
+|==============================================================================
+
+The thermodynamic coefficients '<thermoCoeffs>' are ostensibly concerned with
+evaluating the specific heat math:[c_p] from which other properties are
+derived.  The current `thermo` models are described as follows:
+
+
+`hConstThermo`::
+  assumes a constant math:[c_p] and a heat of fusion math:[H_f] which is simply
+  specified by a two values math:[c_p] math:[H_f] following the
+  '<specieCoeffs>'.
+`eConstThermo`::
+  assumes a constant math:[c_v] and a heat of fusion math:[H_f] which is simply
+  specified by a two values math:[c_v] math:[H_f] following the
+  '<specieCoeffs>'.
+`janafThermo`::
+  calculates math:[c_p] as a function of temperature math:[T] from a set of
+  coefficients taken from 'JANAF' tables of thermodynamics. The ordered list of
+  coefficients is given in <<tab_janafThermoCoeffs>>. The function is valid
+  between a lower and upper limit in temperature math:[T_l] and math:[T_h]
+  respectively. Two sets of coefficients are specified, the first set for
+  temperatures above a common temperature math:[T_c] (and below math:[T_h], the
+  second for temperatures below math:[T_c] (and above math:[T_l]). The function
+  relating math:[c_p] to temperature is:
++
+--
+[math]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\begin{align*}
+  c_p = R\left(\left(\left(\left(a_4 T + a_3\right)T + a_2\right)T
+         + a_1\right)T + a_0\right)
+\end{align*}
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+--
++
+In addition, there are constants of integration, math:[a_5] and math:[a_6],
+both at high and low temperature, used to evaluating math:[h] and math:[s]
+respectively.
+
+`hPolynomialThermo`::
+  calculates math:[C_p] as a function of temperature by a polynomial of any
+  order. The following case provides an example of its use:
+  dirname:<tutorials>/lagrangian/porousExplicitSourceReactingParcelFoam/filter[]
+
+[[tab_janafThermoCoeffs]]
+.'JANAF' thermodynamics coefficients
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Description | Entry
+| Lower temperature limit | math:[T_l\,\left(\unit{K}\right)]
+| Upper temperature limit | math:[T_h\,\left(\unit{K}\right)]
+| Common temperature | math:[T_c\,\left(\unit{K}\right)]
+| High temperature coefficients | math:[a_0...a_4]
+| High temperature enthalpy offset | math:[a_5]
+| High temperature entropy offset | math:[a_6]
+| Low temperature coefficients | math:[a_0...a_4]
+| Low temperature enthalpy offset | math:[a_5]
+| Low temperature entropy offset | math:[a_6]
+|==============================================================================
+
+The transport coefficients '<transportCoeffs>' are used to to evaluate dynamic
+viscosity math:[\mu], thermal conductivity math:[\kappa] and laminar thermal
+conductivity (for enthalpy equation) math:[\alpha]. The current `transport`
+models are described as follows:
+
+`constTransport`::
+  assumes a constant math:[\mu] and Prandtl number
+  math:[Pr=\nicefrac{c_p\mu}{\kappa}] which is simply specified by two values
+  math:[\mu] math:[Pr] following the '<thermoCoeffs>'.
+`sutherlandTransport`::
+  calculates math:[\mu] as a function of temperature math:[T] from a Sutherland
+  coefficient math:[A_s] and Sutherland temperature math:[T_s], specified by
+  values following the '<thermoCoeffs>'; math:[\mu] is calculated according to:
++
+--
+[math]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\begin{align*}
+  \mu = \frac{A_s\sqrt{T}}{1+\frac{T_s}{T}}
+\end{align*}
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+--
++
+`polynomialTransport`::
+  calculates math:[\mu] and math:[\kappa] as a function of temperature math:[T]
+  from a polynomial of any order.
+
+
+The following is an example entry for a specie named `fuel` modelled using
+`sutherlandTransport` and `janafThermo`, with comments to explain the entries:
+
+-------------------------------------------------------------------------------
+fuel                                           // keyword
+fuel 1 44.0962                                 // specie
+200 5000 1000                                  // -- janafThermo --
+7.53414 0.0188722 -6.27185e-06 9.14756e-10 -4.78381e-14
+-16467.5 -17.8923
+0.933554 0.0264246 6.10597e-06 -2.19775e-08 9.51493e-12
+-13958.5 19.2017                               // -----------------
+1.67212e-06 170.672;                           // sutherlandTransport
+-------------------------------------------------------------------------------
+
+The following is an example entry for a specie named `air` modelled using
+`constTransport` and `hConstThermo`, with comments to explain the entries:
+
+-------------------------------------------------------------------------------
+mixture                                        // keyword
+air 1 28.9                                     // specie
+1000 2.544e+06                                 // hConstThermo
+1.8e-05 0.7;                                   // constTransport
+-------------------------------------------------------------------------------

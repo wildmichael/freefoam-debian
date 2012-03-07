@@ -1,0 +1,163 @@
+#!@PYTHON_EXECUTABLE@
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#    checkVersionInfo [--warn]
+#
+# Description
+#    Verifies the version information contained in various files.
+#
+#    Requires the source directory to be a git checkout
+#
+#------------------------------------------------------------------------------
+
+"""Usage: checkVersionInfo.py
+
+Verifies the version information contained in various files.
+
+Options
+-------
+--warn Only warn about version information issues, don't treat them as errors.
+
+"""
+
+import sys
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import os
+import os.path as op
+import re
+import subprocess
+
+# parse --warn argument if present
+warnOnly = False
+errText = 'ERROR:'
+if len(sys.argv) == 2:
+   if sys.argv[1] == '--warn':
+      warnOnly = True
+      errText = 'WARNING:'
+   else:
+      echo('ERROR: unknown option "%s"'%sys.argv[1], file=sys.stderr)
+      sys.exit(1)
+elif len(sys.argv) > 2:
+   echo('ERROR: too many arguments', file=sys.stderr)
+   sys.exit(1)
+
+
+SOURCE_DIR = '@CMAKE_SOURCE_DIR@'
+GIT_EXECUTABLE = '@GIT_EXECUTABLE@'
+UPSTREAM_VERSION = '1.7.x'
+
+os.chdir(SOURCE_DIR)
+
+# get version info, output is of the form vX.Y.Z
+v = subprocess.check_output(
+      [GIT_EXECUTABLE, 'describe', '--abbrev=0'])[1:].decode().strip()
+major, minor, patch = v.split('.')
+rc = ''
+idx = patch.find('rc', 1)
+if idx > 0:
+   rc = patch[idx:]
+   patch = patch[:idx]
+
+# get upstream info
+h = subprocess.check_output(
+      [GIT_EXECUTABLE, 'merge-base', 'HEAD',
+         'origin/upstream/OpenFOAM-'+UPSTREAM_VERSION]).decode().strip()
+u = UPSTREAM_VERSION+'-'+subprocess.check_output(
+      [GIT_EXECUTABLE, 'log', '-1', '--pretty=format:%h', h]).decode().strip()
+
+# checks to perform
+retcode = 0
+checks = {
+      op.join(SOURCE_DIR, 'CMakeLists.txt'): {
+         'FOAM_VERSION_MAJOR': {
+            'regex': re.compile(r'set\(FOAM_VERSION_MAJOR\s+"?(\d+)'),
+            'value': major,
+            'found': False,
+            },
+         'FOAM_VERSION_MINOR': {
+            'regex': re.compile(r'set\(FOAM_VERSION_MINOR\s+"?(\d+)'),
+            'value': minor,
+            'found': False,
+            },
+         'FOAM_VERSION_PATCH': {
+            'regex': re.compile(r'set\(FOAM_VERSION_PATCH\s+"?(\d+)'),
+            'value': patch,
+            'found': False,
+            },
+         'FOAM_VERSION_SUFFIX': {
+            'regex': re.compile(r'set\(FOAM_VERSION_SUFFIX\s*"?([^\")]*)'),
+            'value': rc,
+            'found': False,
+            },
+         },
+      op.join(SOURCE_DIR, 'data', 'asciidoc', 'common.conf'): {
+         'shortver': {
+            'regex': re.compile(r'^shortver=(\d+\.\d+)$'),
+            'value': '%s.%s'%(major, minor),
+            'found': False,
+            },
+         'ver': {
+            'regex': re.compile(r'^ver=(\d+\.\d+\.\d+)$'),
+            'value': '%s.%s.%s'%(major, minor, patch),
+            'found': False,
+            },
+         'fullver': {
+            'regex': re.compile(r'^fullver=(\d+\.\d+\.\d+\S*)$'),
+            'value': '%s.%s.%s%s'%(major, minor, patch, rc),
+            'found': False,
+            },
+         },
+      }
+
+# run checks
+for fname, items in checks.items():
+   for l in open(fname, 'rt'):
+      for var, ctrl in items.items():
+         m = ctrl['regex'].search(l)
+         if m is not None:
+            ctrl['found'] = True
+            if m.group(1) != ctrl['value']:
+               retcode = 1
+               echo('%s: %s in file %s is out of date. Should be "%s".'%(
+                  errText, var, fname, ctrl['value']), file=sys.stderr)
+
+# verify that we found all version info
+for fname, items in checks.items():
+   for var, ctrl in items.items():
+      if not ctrl['found']:
+         retcode = 1
+         echo('%s: Failed to parse %s in file %s.'%(errText, var, fname))
+
+if(not warnOnly):
+   sys.exit(retcode)
+
+# ------------------------- vim: set sw=3 sts=3 et: --------------- end-of-file

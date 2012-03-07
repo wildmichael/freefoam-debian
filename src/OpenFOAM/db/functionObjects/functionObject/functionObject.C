@@ -1,0 +1,130 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 1991-2010 OpenCFD Ltd.
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "functionObject.H"
+#include <OpenFOAM/dictionary.H>
+#include <OpenFOAM/dlLibraryTable.H>
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+defineRunTimeSelectionTable(Foam::functionObject, dictionary);
+int Foam::functionObject::debug(Foam::debug::debugSwitch("functionObject", 0));
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::functionObject::functionObject(const word& name)
+:
+    name_(name)
+{}
+
+
+// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
+
+Foam::autoPtr<Foam::functionObject> Foam::functionObject::New
+(
+    const word& name,
+    const Time& t,
+    const dictionary& functionDict
+)
+{
+    word functionType(functionDict.lookup("type"));
+
+    if (debug)
+    {
+        Info<< "Selecting function " << functionType << endl;
+    }
+
+    dlLibraryTable::open
+    (
+        functionDict,
+        "functionObjectLibs",
+        dictionaryConstructorTablePtr_
+    );
+
+    if (!dictionaryConstructorTablePtr_)
+    {
+        FatalErrorIn
+        (
+            "functionObject::New"
+            "(const word& name, const Time&, const dictionary&)"
+        )   << "Unknown function type "
+            << functionType << nl << nl
+            << "Table of functionObjects is empty" << endl
+            << exit(FatalError);
+    }
+
+    dictionaryConstructorTable::iterator cstrIter =
+        dictionaryConstructorTablePtr_->find(functionType);
+
+    if (cstrIter == dictionaryConstructorTablePtr_->end())
+    {
+        FatalErrorIn
+        (
+            "functionObject::New"
+            "(const word& name, const Time&, const dictionary&)"
+        )   << "Unknown function type "
+            << functionType << nl << nl
+            << "Valid functions are : " << nl
+            << dictionaryConstructorTablePtr_->sortedToc() << endl
+            << exit(FatalError);
+    }
+
+    return autoPtr<functionObject>(cstrIter()(name, t, functionDict));
+}
+
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::functionObject::~functionObject()
+{}
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+const Foam::word& Foam::functionObject::name() const
+{
+    return name_;
+}
+
+
+bool Foam::functionObject::end()
+{
+    return execute();
+}
+
+
+Foam::autoPtr<Foam::functionObject> Foam::functionObject::iNew::operator()
+(
+    const word& name,
+    Istream& is
+) const
+{
+    dictionary dict(is);
+    return functionObject::New(name, time_, dict);
+}
+
+
+// ************************ vim: set sw=4 sts=4 et: ************************ //

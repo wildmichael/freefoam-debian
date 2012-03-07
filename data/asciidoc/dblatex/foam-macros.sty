@@ -1,0 +1,38 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{foam-macros}[2010/01/04 FreeFOAM Macros]
+
+%% Nicely formatted physical units
+\RequirePackage{units}
+
+% Custom commands
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+
+% -- differential operators --
+\newcommand{\de}{\textrm{d}}
+\newcommand{\ddt}{\frac{\de}{\de t}}
+\newcommand{\ddtp}{\frac{\partial}{\partial t}}
+
+% -- Roman letters used in subscripts
+\newcommand{\arm}{\textrm{a}}
+\newcommand{\brm}{\textrm{b}}
+\newcommand{\drm}{\textrm{d}}
+\newcommand{\frm}{\textrm{f}}
+\newcommand{\lrm}{\textrm{l}}
+\newcommand{\rrm}{\textrm{r}}
+\newcommand{\eff}{\textrm{eff}}
+
+\newcommand{\Drm}{\textrm{D}}
+\newcommand{\Crm}{\textrm{C}}
+\newcommand{\Trm}{\textrm{T}}
+
+% -- Some symbol for physical quantities
+\newcommand{\diam}{\textrm{d}}
+\newcommand{\eye}{\mathbf{I}}
+\newcommand{\grav}{\mathbf{g}}
+\newcommand{\Hbf}{\mathbf{H}}
+\newcommand{\tke}{\kappa}
+\newcommand{\tdr}{\varepsilon}
+\newcommand{\stress}{\boldsymbol{\tau}}
+\newcommand{\Rstress}{\mathbf{R}}
+\newcommand{\Sbf}{\mathbf{S}}
+\newcommand{\U}{\mathbf{U}}

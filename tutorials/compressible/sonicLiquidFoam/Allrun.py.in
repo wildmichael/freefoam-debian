@@ -1,0 +1,37 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+
+class sonicLiquidDecompressionTankRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self,
+            'sonicLiquid_decompressionTank', 'decompressionTank')
+      self.add_app_step('blockMesh')
+      self.add_app_step('sonicLiquid')
+
+class sonicLiquidDecompressionTankFineRunner(
+      FreeFOAM.tutorial.ClonedCaseRunner):
+   def __init__(self, tank_runner):
+      FreeFOAM.tutorial.ClonedCaseRunner.__init__(self,
+            'sonicLiquid_decompressionTankFine', tank_runner,
+            'decompressionTankFine')
+      self.add_app_step('blockMesh')
+      self.add_app_step('sonicLiquid')
+
+def register_cases(manager):
+   tank_runner = sonicLiquidDecompressionTankRunner()
+   manager.add_case(tank_runner)
+   manager.add_case(sonicLiquidDecompressionTankFineRunner(tank_runner))
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   register_cases(runner)
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

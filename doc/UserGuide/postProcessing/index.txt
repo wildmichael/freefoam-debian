@@ -1,0 +1,23 @@
+[[chap_postProcessing]]
+== Post-processing
+(((post-processing)))
+
+This chapter describes options for post-processing with {project}. {project} is
+supplied with a post-processing utility `para` that uses 'ParaView', an open
+source visualisation application described in <<sec_paraFoam>>.
+
+Other methods of post-processing using third party products are offered,
+including 'EnSight', 'Fieldview' and the post-processing supplied with
+'Fluent'.
+
+include::para.txt[]
+
+include::fluent.txt[]
+
+include::fieldview.txt[]
+
+include::ensight.txt[]
+
+include::sample.txt[]
+
+include::monitoring.txt[]

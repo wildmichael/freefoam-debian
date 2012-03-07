@@ -1,0 +1,19 @@
+    Info<< "Reading boxTurbDict\n" << endl;
+
+    IOdictionary boxTurbDict
+    (
+        IOobject
+        (
+            "boxTurbDict",
+            runTime.constant(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    );
+
+    scalar Ea(readScalar(boxTurbDict.lookup("Ea")));
+
+    scalar k0(readScalar(boxTurbDict.lookup("k0")));
+
+// ************************ vim: set sw=4 sts=4 et: ************************ //

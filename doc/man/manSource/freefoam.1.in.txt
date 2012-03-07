@@ -1,0 +1,354 @@
+= FREEFOAM(1) =
+:mansource: @PROJECT_NAME@
+:manversion: @FOAM_VERSION_FULL@
+:manmanual: @PROJECT_NAME@ Manual
+
+NAME
+----
+@LOWER_PROJECT_NAME@ - The Cross-Platform CFD Toolkit
+
+SYNOPSIS
+--------
+*@LOWER_PROJECT_NAME@* [-b '<baseDir>'] [-P] [-V | -version] [-h | -help] [--]
+           '<application>' ['<args>']
+
+DESCRIPTION
+-----------
+FreeFOAM is a cross-platform toolkit for computational fluid dynamics (CFD). It
+consists of a large collection of C++ libraries, allowing the user to write
+new solvers for partial differential equations using a notation very close to
+the mathematical one. FreeFOAM comes with a comprehensive set of solvers for a
+wide range of problems and accompanying pre-/and post-processing utilities.
+
+FreeFOAM is based on the fantastic Open-Source OpenFOAM software. The goal
+of the FreeFOAM project is to remove the system-dependencies from OpenFOAM and
+make it generally more useable and easier to install.
+
+The linkff:@LOWER_PROJECT_NAME@[1] command is used to invoke the actual FreeFOAM
+applications. It was mainly created to avoid putting a large number of
+binaries on the system +PATH+, cluttering the namespace unnecessarily. It also
+allows for the user to easily add her own applications to the search path,
+without having to extend the +PATH+ variable or being root.
+
+linkff:@LOWER_PROJECT_NAME@[1] uses the following mechanism to find the
+application '<name>':
+
+- It searches in the directory '<libexecDir>' for an executable with the name
+  '@FOAM_EXE_PREFIX@<name>'. '<libexecDir>' defaults to '@FOAM_INSTALL_LIBEXEC_PATH@'.
+  This can be overriden using the '-b' option.
+- If the +FREEFOAM_PATH+ variable is set, it is prepended to the above
+  described search path. It is a colon-separated list of directories.
+- The '-P' option can be used to append the system +PATH+ to the search path.
+
+OPTIONS
+-------
+*-b* '<baseDir>'::
+  Specify a different directory to search for applications
+  (default is @FOAM_INSTALL_LIBEXEC_PATH@)
+*-P*::
+  Also search the system PATH variable first
+*--*::
+  Separates options for this program from the application and its arguments
+  (useful if the application name should start with a -)
+*-V | -version*::
+  Display the version of FreeFOAM and exit
+*-h | -help*::
+  Display an option summary
+'<application>'::
+  The short name of the application to run (i.e. for the '@FOAM_EXE_PREFIX@ico'
+  application the short name would be 'ico')
+'<args>'::
+  Arguments and options to be passed to the application
+
+environment variables:
+  FREEFOAM_PATH specify an alternative path where to search for applications
+
+FREEFOAM STANDARD APPLICATIONS
+------------------------------
+The following sections give a short description for all the available standard
+solvers and utilities. More information is available from the individual manual
+pages.
+
+include::brief_app_doc.txt[]
+
+FreeFOAM Helper Scripts
+~~~~~~~~~~~~~~~~~~~~~~~
+Below you find an overview of the small helper scripts provided by FreeFOAM.
+
+*linkff:freefoam-clearPolyMesh[1]*::
+  Remove the contents of the constant/polyMesh directory.
+
+*linkff:freefoam-copySettings[1]*::
+  Copy settings from one case directory to another, without copying the mesh or
+  results.
+
+*linkff:freefoam-graphExecTime[1]*::
+  Computes the time used per iteration.
+
+*linkff:freefoam-graphResKE[1]*::
+  Extract the residuals of k and epsilon at each time step.
+
+*linkff:freefoam-graphResUVWP[1]*::
+  Extract the residuals of 'U', 'V', 'W' and 'p' at each time step.
+
+*linkff:freefoam-job[1]*::
+  Runs a @PROJECT_NAME@ job in the background.
+
+*linkff:freefoam-log[1]*::
+  Extracts xy files from Foam logs.
+
+*linkff:freefoam-para[1]*::
+  Start ParaView3 to visualize a case.
+
+*linkff:freefoam-solverSweeps[1]*::
+  Extract solver statistics from a log file.
+
+CONFIGURATION MECHANISM
+-----------------------
+FreeFOAM offers a number of global configuration options. These include
+
+- location of the API documentation and the method to display it
+- debug, info and optimisation switches
+- physical constants
+- plugin search paths
+- parallel communications method
+- starting of a parallel job
+
+Global Configuration Files
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Unfortunately the OpenFOAM library (on which FreeFOAM builds) and some
+applications require the following files to be present for start-up:
+
+- 'cellModels'
+- 'controlDict'
+- 'thermoData/BurcatCpData'
+- 'thermoData/therm.dat'
+
+It finds them in the following places
+(in the specified order, picking the first hit):
+
+1. Under the directory specified in the +$FREEFOAM_CONFIG_DIR+ environment
+   variable
+2. In '$HOME/.FreeFOAM/{shortver}'
+3. In '$HOME/.FreeFOAM'
+4. In the installation directory of the configuration files,
+   '@FOAM_INSTALL_CONFIG_PATH@'
+
+where the versions in above directory names depend on the version of the
+FreeFOAM application to be run.
+
+Locating the API documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All FreeFOAM applications accept the options '-doc' and '-srcDoc'. The former
+locates and displays the API documentation of the application, the latter the
+source code. This, however, requires that FreeFOAM is able to locate the API
+documentation and knows which program to use for display.
+
+By default FreeFOAM uses the API documentation provided on
+http://freefoam.sf.net/doc/API because most users will not want to
+install the sizeable documentation package. The method FreeFOAM uses to locate
+the documentation files is via index files which are conventional FreeFOAM
+dictionaries. Each of them contains an entry 'docDir' specifying the documentation
+root location (such as http://freefoam.sf.net/doc/API) and a
+dictionary called 'docFiles' mapping the application name to the names of the
+corresponding HTML documentation and source page.
+
+These documentation indices are found by querying the list
+'Documentation::doxyDocIndices' in the global 'controlDict' file. If multiple
+documentation indices are specified, the first index that provides documentation
+for the given application is picked.
+
+Displaying the API documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FreeFOAM can automatically open a browser window displaying the HTML documentation
+for you. The entry 'Documentation::docBrowser' in the global 'controlDict' can be
+used to change which program is used for this. In this string the token '%f' gets
+replaced by the filename to open.
+
+Debug, Info and Optimisation Switches
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The lists 'DebugSwitches', 'InfoSwitches' and 'OptimisationSwitches' in the
+global 'controlDict' file determine some global run-time behaviour of FreeFOAM.
+The entries in 'DebugSwitches' can be set to '1' for more verbose output in the
+specified class.
+
+The 'InfoSwitches::writePrecision' setting determines the write precision in
+the output to the terminal (i.e. not the output written to files).  Whether a
+job-info file should be created can be specified by enabling
+'InfoSwitches::writeJobeInfo'.
+
+For files that are modifieable during run-time (e.g. to change the interval at
+which the output is created), FreeFOAM compares the modification times of these
+files in order to determine whether they have to be re-read. The setting
+'OptimisationSwitches::fileModificationSkew' determines the minimum
+modification-time difference in seconds for a file to be considered changed.
+
+The setting 'OptimisationSwitches::commsType' determines whether inter-process
+communications are either 'blocking', 'scheduled' or 'nonBlocking'.
+
+'OptimisationSwitches::floatTransfer' causes to convert 'double' values to
+'float' before transferring them through the communications library. This saves
+some bandwidth at the loss of accuracy.
+
+The sum operation across processors can be executed either in a linear or a
+tree fashion. Especially for a large number of processors, tree-summation is
+significantly faster. The threshold at which to switch from linear to
+tree-summation is determined by 'OptimisationSwitches::nProcsSimpleSum'.
+
+Physical Constants
+~~~~~~~~~~~~~~~~~~
+'DimensionedConstants::R'::
+  Universal gas constant
+
+'DimensionedConstants::Pstd'::
+  Standard pressure
+
+'DimensionedConstants::Tstd'::
+  Standard temperature
+
+'DimensionedConstants::sigmaSB'::
+  Stefan-Boltzmann constant
+
+Plugin Search Path
+~~~~~~~~~~~~~~~~~~
+FreeFOAM very often relies on dynamically loading libraries (a.k.a plugins).
+If the library name is given as an absolute path, FreeFOAM tries to load it
+directly. To locate libraries specified just by their name or with a relative
+path, FreeFOAM first tries to find the library in one of the directories
+specified in the list 'LibrarySearchPaths' in the global 'controlDict' and, if
+the library was not found, falls back to the mechanism provided by your
+operating system (i.e. for Linux systems this would be the +LD_LIBRARY_PATH+
+and the default search path).
+
+Selecting the Parallel Communications Library
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Both, FreeFOAM and OpenFOAM abstract the parallel operations into the 'Pstream'
+library, making it rather simple to firstly switch between parallel
+implementations and secondly port the software to a new communications library.
+However, FreeFOAM uses a much more flexible mechanism of determining which
+'Pstream' implementation library to use than OpenFOAM. The latter does this by
+adjusting the +LD_LIBRARY_PATH+ environment variable.  As FreeFOAM wants to be a
+well behaved Linux citizen, this is not an option. Instead, FreeFOAM dynamically
+loads the desired 'Pstream' library at startup (i.e. as a plug-in).  The
+following list details how FreeFOAM determines what library to load (if at all):
+
+1. If the environment variable +FREEFOAM_PSTREAM_LIBRARY+ is set,
+   FreeFOAM will try to load the library specified by it.
+2. If the sub-dictionary +PstreamImplementation+ exists in the global
+   'controlDict' file (see above), it reads the value of the entry
+   +PstreamImplementation::configName+ therein. This entry can be overriden by
+   setting the +FREEFOAM_PSTREAM_CONFIG+ environment variable. It then expects
+   that a sub-dictionary of +PstreamImplementation+ with the name specified in
+   +FREEFOAM_PSTREAM_CONFIG+ or +PstreamImplementation::configName+ exists. If
+   that sub-dictionary contains the entry +PstreamImplementation::library+, it
+   will try to load a library specified by the value of that entry.
+
+Please note that this library is also considered to be a plugin, and thus
+is located in the same way as described above.
+
+After FreeFOAM (possibly) loaded the library, it will try to instantiate
+concrete implementations of the abstract base classes +PstreamImpl+,
++IPstreamImpl+ and +OPstreamImpl+. Which classes are to be instantiated
+is determined as follows:
+
+1. FreeFOAM queries the environment variables +FREEFOAM_PSTREAM_CLASS+,
+   +FREEFOAM_IPSTREAM_CLASS+ and +FREEFOAM_OPSTREAM_CLASS+ for the class
+   names to be instantiated.
+2. For any of the variables not set,  it requires the sub-dictionary
+   +PstreamImplementation+ to be present in the global 'controlDict', reads the
+   value of +FREEFOAM_PSTREAM_CONFIG+ or the entry
+   +PstreamImplementation::configName+ and similarly to the library loading,
+   loads the sub-dictionary specified by that value. It then expects to find
+   the entries +PstreamImplementation::Pstream+,
+   +PstreamImplementation::IPstream+ and +PstreamImplementation::OPstream+
+   which specify the names of the classes to load.
+
+This means that one can create a global 'controlDict' file containing
+(among other things) something like the following:
+=========
+---------
+PstreamImplementation
+{
+    //configName dummy;
+    configName mpi;
+
+    dummy
+    {
+        library libdummyPstream.so;
+        Pstream dummyPstreamImpl;
+        OPstream dummyOPstreamImpl;
+        IPstream dummyIPstreamImpl;
+    }
+
+    mpi
+    {
+        library libmpiPstream.so;
+        Pstream mpiPstreamImpl;
+        OPstream mpiOPstreamImpl;
+        IPstream mpiIPstreamImpl;
+    }
+}
+---------
+=========
+
+This way the administrator can provide a global 'controlDict' in the FreeFOAM
+installation. Every user can then override that 'controlDict' by supplying her
+own file in her home directory as detailed above. In order to select a
+particular 'Pstream' implementation for a specific communications library, the
+user can then either adjust the +PstreamImplementation::configName+ entry in
+the global 'controlDict' file, set the +FREEFOAM_PSTREAM_CONFIG+ variable or,
+for full control, set the variables +FREEFOAM_PSTREAM_LIBRARY+,
++FREEFOAM_PSTREAM_CLASS+, +FREEFOAM_IPSTREAM_CLASS+ and
++FREEFOAM_OPSTREAM_CLASS+.
+
+Starting of a Parallel Job
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some of the tutorial scripts need to run FreeFOAM applications in parallel.
+However, how to do so differs strongly from system to system and between
+parallel communication libraries. This is why the command line to start an
+application in parallel is configureable in the +parRunTemplate+ setting.
+'$\{NPROCS\}', '$\{PAROPTS\}', '$\{APPLICATION\}' and '$\{ARGS\}' are
+placeholders for the number of processors to use, options for the parallel
+communications system, the application to run and its arguments, respectively.
+Note that the '-parallel' option is *NOT* included in '$\{ARGS\}'.
+
+ENVIRONMENT VARIABLES
+---------------------
++FREEFOAM_CONFIG_DIR+::
+  Directory containing the global configuration files
++FREEFOAM_PATH+::
+  Additional, colon separated paths in which to first search for FreeFOAM
+  executables
++FREEFOAM_PSTREAM_CONFIG+::
+  Name of the 'Pstream' configuration in the global 'controlDict' file to use
++FREEFOAM_PSTREAM_LIBRARY+::
+  The 'Pstream' library to load
++FREEFOAM_PSTREAM_CLASS+::
+  Name of the concrete 'PstreamImpl' class to instantiate
++FREEFOAM_IPSTREAM_CLASS+::
+  Name of the concrete 'IPstreamImpl' class to instantiate
++FREEFOAM_OPSTREAM_CLASS+::
+  Name of the concrete 'OPstreamImpl' class to instantiate
+
+SEE ALSO
+--------
+The user guide is available from http://freefoam.sourceforge.net/doc/UserGuide
+and the Doxygen-generated API documentation can be accessed at
+http://freefoam.sourceforge.net/doc/API.
+
+AUTHOR
+------
+Michael Wild <themiwi@users.sourceforge.net>
+
+FREEFOAM
+--------
+Part of the linkff:freefoam[1] suite
+
+COPYRIGHT
+---------
+* Copyright (C) 1991-2010 OpenCFD Ltd.
+* Copyright (C) 2008-2012 Michael Wild.
+
+////////////////////////////////////////////////////////
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+////////////////////////////////////////////////////////

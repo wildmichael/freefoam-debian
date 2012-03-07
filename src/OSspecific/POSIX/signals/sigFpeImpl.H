@@ -1,0 +1,125 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 1991-2010 OpenCFD Ltd.
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Class
+    Foam::sigFpeImpl
+
+Description
+    Set up trapping for floating point exceptions (signal FPE).
+
+    Controlled by two env vars:
+    @param FOAM_SIGFPE \n
+        exception trapping
+    @param FOAM_SETNAN \n
+        initialization of all malloced memory to NaN. If FOAM_SIGFPE
+        also set, this will cause usage of uninitialized scalars to trigger
+        an abort.
+
+    This is the platform specific opaque implementation for class sigFpe.
+
+SourceFiles
+    sigFpeImpl.C
+
+\*---------------------------------------------------------------------------*/
+
+#ifndef sigFpeImpl_H
+#define sigFpeImpl_H
+
+#include <OpenFOAM/OSspecific.H>
+#include "FOAMConfig.h"
+#include <signal.h>
+
+#if (defined(FOAM_HAVE_FENV_H) && defined(FOAM_HAVE_FEENABLEEXCEPT)) || \
+    (defined(FOAM_HAVE_SIGFPE_H) && defined(FOAM_HAVE_HANDLE_SIGFPES))
+#    define FOAM_USE_FPE_HANDLING
+#endif
+
+#if defined(FOAM_HAVE_MALLOC_HOOK) && defined(FOAM_USE_FPE_HANDLING)
+#    define FOAM_USE_MALLOC_HOOK
+#endif
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+
+/*---------------------------------------------------------------------------*\
+                           Class sigFpeImpl Declaration
+\*---------------------------------------------------------------------------*/
+
+class sigFpeImpl
+{
+    // Private data
+
+        //- Saved old signal trapping setting
+        static struct sigaction oldAction_;
+
+#       ifdef FOAM_USE_MALLOC_HOOK
+
+            //- Saved old malloc
+            static void *(*old_malloc_hook)(size_t, const void *);
+
+            //- nan malloc function. From malloc_hook manpage.
+            static void* my_malloc_hook(size_t size, const void *caller);
+
+#       endif
+
+
+    // Static data members
+
+#   ifdef FOAM_USE_FPE_HANDLING
+
+        //- Handler for caught signals
+        static void sigFpeHandler(int);
+
+#   endif
+
+
+public:
+
+
+    // Constructors
+
+        sigFpeImpl();
+
+
+    // Destructor
+
+        ~sigFpeImpl();
+
+
+    // Member functions
+
+        void set(const bool verbose);
+};
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+
+// ************************ vim: set sw=4 sts=4 et: ************************ //

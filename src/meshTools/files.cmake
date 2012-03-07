@@ -1,0 +1,306 @@
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
+
+set(SRCS
+  cellClassification/cellClassification.C
+  cellClassification/cellInfo.C
+  cellQuality/cellQuality.C
+  cellDist/cellDistFuncs.C
+  cellDist/patchWave/patchWave.C
+  cellDist/wallPoint/wallPoint.C
+  cellFeatures/cellFeatures.C
+  coordinateSystems/coordinateSystem.C
+  coordinateSystems/coordinateSystemNew.C
+  coordinateSystems/coordinateSystems.C
+  coordinateSystems/cylindricalCS.C
+  coordinateSystems/sphericalCS.C
+  coordinateSystems/parabolicCylindricalCS.C
+  coordinateSystems/toroidalCS.C
+  coordinateSystems/coordinateRotation/coordinateRotation.C
+  coordinateSystems/coordinateRotation/EulerCoordinateRotation.C
+  coordinateSystems/coordinateRotation/STARCDCoordinateRotation.C
+  edgeFaceCirculator/edgeFaceCirculator.C
+  polyMeshZipUpCells/polyMeshZipUpCells.C
+  primitiveMeshGeometry/primitiveMeshGeometry.C
+  meshSearch/meshSearch.C
+  meshTools/meshTools.C
+  PointEdgeWave/PointEdgeWaveName.C
+  PointEdgeWave/pointEdgePoint.C
+  regionSplit/regionSplit.C
+  octree/octreeName.C
+  octree/octreeDataPoint.C
+  octree/octreeDataPointTreeLeaf.C
+  octree/octreeDataEdges.C
+  octree/octreeDataCell.C
+  octree/octreeDataFace.C
+  octree/treeBoundBox.C
+  octree/treeNodeName.C
+  octree/treeLeafName.C
+  octree/pointIndexHitIOList.C
+  indexedOctree/indexedOctreeName.C
+  indexedOctree/treeDataCell.C
+  indexedOctree/treeDataEdge.C
+  indexedOctree/treeDataFace.C
+  indexedOctree/treeDataPoint.C
+  indexedOctree/treeDataTriSurface.C
+  searchableSurface/distributedTriSurfaceMesh.C
+  searchableSurface/searchableBox.C
+  searchableSurface/searchableCylinder.C
+  searchableSurface/searchablePlane.C
+  searchableSurface/searchablePlate.C
+  searchableSurface/searchableSphere.C
+  searchableSurface/searchableSurface.C
+  searchableSurface/searchableSurfaceCollection.C
+  searchableSurface/searchableSurfaces.C
+  searchableSurface/searchableSurfacesQueries.C
+  searchableSurface/searchableSurfaceWithGaps.C
+  searchableSurface/triSurfaceMesh.C
+  sets/topoSets/cellSet.C
+  sets/topoSets/topoSet.C
+  sets/topoSets/faceSet.C
+  sets/topoSets/pointSet.C
+  sets/topoSets/cellZoneSet.C
+  sets/topoSets/faceZoneSet.C
+  sets/topoSets/pointZoneSet.C
+  sets/topoSetSource/topoSetSource.C
+  sets/cellSources/faceToCell/faceToCell.C
+  sets/cellSources/fieldToCell/fieldToCell.C
+  sets/cellSources/pointToCell/pointToCell.C
+  sets/cellSources/shapeToCell/shapeToCell.C
+  sets/cellSources/boxToCell/boxToCell.C
+  sets/cellSources/regionToCell/regionToCell.C
+  sets/cellSources/rotatedBoxToCell/rotatedBoxToCell.C
+  sets/cellSources/labelToCell/labelToCell.C
+  sets/cellSources/surfaceToCell/surfaceToCell.C
+  sets/cellSources/cellToCell/cellToCell.C
+  sets/cellSources/nearestToCell/nearestToCell.C
+  sets/cellSources/nbrToCell/nbrToCell.C
+  sets/cellSources/zoneToCell/zoneToCell.C
+  sets/cellSources/sphereToCell/sphereToCell.C
+  sets/cellSources/cylinderToCell/cylinderToCell.C
+  sets/cellSources/faceZoneToCell/faceZoneToCell.C
+  sets/cellSources/cylinderAnnulusToCell/cylinderAnnulusToCell.C
+  sets/faceSources/faceToFace/faceToFace.C
+  sets/faceSources/labelToFace/labelToFace.C
+  sets/faceSources/cellToFace/cellToFace.C
+  sets/faceSources/normalToFace/normalToFace.C
+  sets/faceSources/pointToFace/pointToFace.C
+  sets/faceSources/patchToFace/patchToFace.C
+  sets/faceSources/boundaryToFace/boundaryToFace.C
+  sets/faceSources/zoneToFace/zoneToFace.C
+  sets/faceSources/boxToFace/boxToFace.C
+  sets/pointSources/labelToPoint/labelToPoint.C
+  sets/pointSources/pointToPoint/pointToPoint.C
+  sets/pointSources/cellToPoint/cellToPoint.C
+  sets/pointSources/faceToPoint/faceToPoint.C
+  sets/pointSources/boxToPoint/boxToPoint.C
+  sets/pointSources/surfaceToPoint/surfaceToPoint.C
+  sets/pointSources/zoneToPoint/zoneToPoint.C
+  sets/pointSources/nearestToPoint/nearestToPoint.C
+  sets/faceZoneSources/faceZoneToFaceZone/faceZoneToFaceZone.C
+  sets/faceZoneSources/setsToFaceZone/setsToFaceZone.C
+  sets/faceZoneSources/setToFaceZone/setToFaceZone.C
+  sets/cellZoneSources/setToCellZone/setToCellZone.C
+  sets/pointZoneSources/setToPointZone/setToPointZone.C
+  surfaceSets/surfaceSets.C
+  triSurface/orientedSurface/orientedSurface.C
+  triSurface/surfaceLocation/surfaceLocation.C
+  triSurface/booleanOps/surfaceIntersection/surfaceIntersection.C
+  triSurface/booleanOps/surfaceIntersection/surfaceIntersectionFuncs.C
+  triSurface/booleanOps/surfaceIntersection/edgeIntersections.C
+  triSurface/booleanOps/booleanSurface/booleanSurface.C
+  triSurface/booleanOps/intersectedSurface/intersectedSurface.C
+  triSurface/booleanOps/intersectedSurface/edgeSurface.C
+  triSurface/triSurfaceSearch/triSurfaceSearch.C
+  triSurface/octreeData/octreeDataTriSurface.C
+  triSurface/octreeData/octreeDataTriSurfaceTreeLeaf.C
+  triSurface/triangleFuncs/triangleFuncs.C
+  triSurface/surfaceFeatures/surfaceFeatures.C
+  triSurface/triSurfaceTools/triSurfaceTools.C
+  triSurface/triSurfaceTools/geompack/geompack.C
+  twoDPointCorrector/twoDPointCorrector.C
+  directMapped/directMappedPolyPatch/directMappedPatchBase.C
+  directMapped/directMappedPolyPatch/directMappedPolyPatch.C
+  directMapped/directMappedPolyPatch/directMappedWallPolyPatch.C
+  directMapped/directMappedPointPatch/directMappedPointPatch.C
+  directMapped/directMappedPointPatch/directMappedWallPointPatch.C
+  )
+
+set(HDRS
+  PointEdgeWave/PointEdgeWave.C
+  PointEdgeWave/PointEdgeWave.H
+  PointEdgeWave/pointEdgePoint.H
+  PointEdgeWave/pointEdgePointI.H
+  cellClassification/cellClassification.H
+  cellClassification/cellInfo.H
+  cellClassification/cellInfoI.H
+  cellDist/cellDistFuncs.H
+  cellDist/cellDistFuncsTemplates.C
+  cellDist/patchWave/patchDataWave.C
+  cellDist/patchWave/patchDataWave.H
+  cellDist/patchWave/patchWave.H
+  cellDist/wallPoint/wallPoint.H
+  cellDist/wallPoint/wallPointData.C
+  cellDist/wallPoint/wallPointData.H
+  cellDist/wallPoint/wallPointDataI.H
+  cellDist/wallPoint/wallPointI.H
+  cellFeatures/cellFeatures.H
+  cellQuality/cellQuality.H
+  coordinateSystems/coordinateRotation/EulerCoordinateRotation.H
+  coordinateSystems/coordinateRotation/STARCDCoordinateRotation.H
+  coordinateSystems/coordinateRotation/coordinateRotation.H
+  coordinateSystems/coordinateSystem.H
+  coordinateSystems/coordinateSystems.H
+  coordinateSystems/cylindricalCS.H
+  coordinateSystems/parabolicCylindricalCS.H
+  coordinateSystems/sphericalCS.H
+  coordinateSystems/toroidalCS.H
+  directMapped/directMappedPointPatch/directMappedPointPatch.H
+  directMapped/directMappedPointPatch/directMappedWallPointPatch.H
+  directMapped/directMappedPolyPatch/directMappedPatchBase.H
+  directMapped/directMappedPolyPatch/directMappedPolyPatch.H
+  directMapped/directMappedPolyPatch/directMappedWallPolyPatch.H
+  edgeFaceCirculator/edgeFaceCirculator.H
+  edgeFaceCirculator/edgeFaceCirculatorI.H
+  indexedOctree/indexedOctree.C
+  indexedOctree/indexedOctree.H
+  indexedOctree/labelBits.H
+  indexedOctree/treeDataCell.H
+  indexedOctree/treeDataEdge.H
+  indexedOctree/treeDataFace.H
+  indexedOctree/treeDataPoint.H
+  indexedOctree/treeDataTriSurface.H
+  meshSearch/meshSearch.H
+  meshTools/meshTools.H
+  octree/PointIndexHit_.H
+  octree/octree.C
+  octree/octree.H
+  octree/octreeDataCell.H
+  octree/octreeDataEdges.H
+  octree/octreeDataFace.H
+  octree/octreeDataPoint.H
+  octree/octreeDataPointTreeLeaf.H
+  octree/octreeLine.C
+  octree/octreeLine.H
+  octree/pointHitSort.H
+  octree/pointIndexHit.H
+  octree/pointIndexHitIOList.H
+  octree/treeBoundBox.H
+  octree/treeBoundBoxI.H
+  octree/treeBoundBoxList.H
+  octree/treeElem.H
+  octree/treeLeaf.C
+  octree/treeLeaf.H
+  octree/treeNode.C
+  octree/treeNode.H
+  octree/treeNodeI.H
+  polyMeshZipUpCells/polyMeshZipUpCells.H
+  primitiveMeshGeometry/primitiveMeshGeometry.H
+  regionSplit/regionSplit.H
+  searchableSurface/distributedTriSurfaceMesh.H
+  searchableSurface/distributedTriSurfaceMeshTemplates.C
+  searchableSurface/searchableBox.H
+  searchableSurface/searchableCylinder.H
+  searchableSurface/searchablePlane.H
+  searchableSurface/searchablePlate.H
+  searchableSurface/searchableSphere.H
+  searchableSurface/searchableSurface.H
+  searchableSurface/searchableSurfaceCollection.H
+  searchableSurface/searchableSurfaceWithGaps.H
+  searchableSurface/searchableSurfaces.H
+  searchableSurface/searchableSurfacesQueries.H
+  searchableSurface/triSurfaceMesh.H
+  sets/cellSources/boxToCell/boxToCell.H
+  sets/cellSources/cellToCell/cellToCell.H
+  sets/cellSources/cylinderToCell/cylinderToCell.H
+  sets/cellSources/faceToCell/faceToCell.H
+  sets/cellSources/faceZoneToCell/faceZoneToCell.H
+  sets/cellSources/cylinderAnnulusToCell/cylinderAnnulusToCell.H
+  sets/cellSources/fieldToCell/fieldToCell.H
+  sets/cellSources/labelToCell/labelToCell.H
+  sets/cellSources/nbrToCell/nbrToCell.H
+  sets/cellSources/nearestToCell/nearestToCell.H
+  sets/cellSources/pointToCell/pointToCell.H
+  sets/cellSources/regionToCell/regionToCell.H
+  sets/cellSources/rotatedBoxToCell/rotatedBoxToCell.H
+  sets/cellSources/shapeToCell/shapeToCell.H
+  sets/cellSources/sphereToCell/sphereToCell.H
+  sets/cellSources/surfaceToCell/surfaceToCell.H
+  sets/cellSources/zoneToCell/zoneToCell.H
+  sets/faceSources/boundaryToFace/boundaryToFace.H
+  sets/faceSources/boxToFace/boxToFace.H
+  sets/faceSources/cellToFace/cellToFace.H
+  sets/faceSources/faceToFace/faceToFace.H
+  sets/faceSources/labelToFace/labelToFace.H
+  sets/faceSources/normalToFace/normalToFace.H
+  sets/faceSources/patchToFace/patchToFace.H
+  sets/faceSources/pointToFace/pointToFace.H
+  sets/faceSources/zoneToFace/zoneToFace.H
+  sets/pointSources/boxToPoint/boxToPoint.H
+  sets/pointSources/cellToPoint/cellToPoint.H
+  sets/pointSources/faceToPoint/faceToPoint.H
+  sets/pointSources/labelToPoint/labelToPoint.H
+  sets/pointSources/nearestToPoint/nearestToPoint.H
+  sets/faceZoneSources/faceZoneToFaceZone/faceZoneToFaceZone.H
+  sets/faceZoneSources/setsToFaceZone/setsToFaceZone.H
+  sets/faceZoneSources/setToFaceZone/setToFaceZone.H
+  sets/cellZoneSources/setToCellZone/setToCellZone.H
+  sets/pointZoneSources/setToPointZone/setToPointZone.H
+  sets/pointSources/pointToPoint/pointToPoint.H
+  sets/pointSources/surfaceToPoint/surfaceToPoint.H
+  sets/pointSources/zoneToPoint/zoneToPoint.H
+  sets/topoSetSource/topoSetSource.H
+  sets/topoSets/cellSet.H
+  sets/topoSets/faceSet.H
+  sets/topoSets/pointSet.H
+  sets/topoSets/cellZoneSet.H
+  sets/topoSets/faceZoneSet.H
+  sets/topoSets/pointZoneSet.H
+  sets/topoSets/topoSet.H
+  surfaceSets/surfaceSets.H
+  triSurface/booleanOps/booleanSurface/booleanSurface.H
+  triSurface/booleanOps/intersectedSurface/edgeSurface.H
+  triSurface/booleanOps/intersectedSurface/intersectedSurface.H
+  triSurface/booleanOps/surfaceIntersection/edgeIntersections.H
+  triSurface/booleanOps/surfaceIntersection/surfaceIntersection.H
+  triSurface/booleanOps/surfaceIntersection/surfaceIntersectionTemplates.C
+  triSurface/octreeData/octreeDataTriSurface.H
+  triSurface/octreeData/octreeDataTriSurfaceTreeLeaf.H
+  triSurface/orientedSurface/orientedSurface.H
+  triSurface/surfaceFeatures/surfaceFeatures.H
+  triSurface/surfaceLocation/surfaceLocation.H
+  triSurface/triSurfaceSearch/triSurfaceSearch.H
+  triSurface/triSurfaceTools/geompack/geompack.H
+  triSurface/triSurfaceTools/triSurfaceTools.H
+  triSurface/triangleFuncs/triangleFuncs.H
+  twoDPointCorrector/twoDPointCorrector.H
+  )
+
+# ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file

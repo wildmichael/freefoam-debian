@@ -1,0 +1,37 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+
+class sonicNacaAirfoilRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'sonic_ras_nacaAirfoil')
+      self.add_app_step('starToFoam',
+            args=[os.path.join(self.case_dir, 'prostar', 'nacaAirfoil')])
+      self.add_step('prepareMesh', self._prepareMesh)
+      self.add_app_step('sonic')
+
+   def _prepareMesh(self, case_dir, stamp_file, test_mode):
+      stamp_file.write('Modifying boundary file\n')
+      try:
+         FreeFOAM.tutorial.modify_file(
+               os.path.join(case_dir, 'constant', 'polyMesh', 'boundary'),
+               [(r'(\s*type\s+)symmetryPlane', r'\g<1>empty')])
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(sonicNacaAirfoilRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

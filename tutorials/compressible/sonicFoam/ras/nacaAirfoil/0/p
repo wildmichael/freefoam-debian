@@ -1,0 +1,52 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 100000;
+
+boundaryField
+{
+    INLE1           
+    {
+        type            zeroGradient;
+    }
+
+    OUTL2           
+    {
+        type            waveTransmissive;
+        field           p;
+        phi             phi;
+        rho             rho;
+        psi             psi;
+        gamma           1.3;
+        fieldInf        100000;
+        lInf            1;
+        value           uniform 100000;
+    }
+
+    SYMP3           
+    {
+        type            empty;
+    }
+
+    WALL10          
+    {
+        type            zeroGradient;
+    }
+}
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

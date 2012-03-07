@@ -1,0 +1,203 @@
+=== Standard solvers
+
+The solvers with the {project} distribution are in the
+dirname:applications/solvers[] directory of the {project} distribution. This
+directory is further subdivided into several directories by category of
+continuum mechanics, 'e.g.' incompressible flow, combustion and solid body
+stress analysis. Each solver is given a name that is reasonably descriptive,
+'e.g.' `ico` solves incompressible, laminar flow. The current list of solvers
+distributed with {project} is given in <<tab_standardSolvers>>.
+
+[[tab_standardSolvers]]
+.Standard library solvers
+[grid="none",frame="topbot",cols="1,2"]
+|==============================================================================
+2+h| `Basic' CFD codes
+| `laplacian`(((`laplacian` solver)))(((solver,`laplacian`))) | Solves a simple
+Laplace equation, 'e.g.' for thermal diffusion in a solid
+| `potential`(((`potential` solver)))(((solver,`potential`))) | Simple
+potential flow solver which can be used to generate starting fields for full
+Navier-Stokes codes
+| `scalarTransport`(((`scalarTransport` solver)))(((solver,`scalarTransport`)))
+| Solves a transport equation for a passive scalar
+
+2+h| Incompressible flow
+| `boundary`(((`boundary` solver)))(((solver,`boundary`))) | Steady-state
+solver for 1D turbulent flow, typically to generate boundary layer conditions
+at an inlet, for use in a simulation
+| `channel`(((`channel` solver)))(((solver,`channel`))) | Incompressible LES
+solver for flow in a channel
+| `ico`(((`ico` solver)))(((solver,`ico`))) | Transient solver for
+incompressible, laminar flow of Newtonian fluids
+| `nonNewtonianIco`(((`nonNewtonianIco` solver)))(((solver,`nonNewtonianIco`)))
+| Transient solver for incompressible, laminar flow of non-Newtonian fluids
+| `pimpleDyM`(((`pimpleDyM` solver)))(((solver,`pimpleDyM`))) | Transient
+solver for incompressible, flow of Newtonian fluids on a moving mesh using the
+PIMPLE (merged PISO-SIMPLE) algorithm
+| `pimple`(((`pimple` solver)))(((solver,`pimple`))) | Large time-step
+transient solver for incompressible, flow using the PIMPLE (merged PISO-SIMPLE)
+algorithm
+| `piso`(((`piso` solver)))(((solver,`piso`))) | Transient solver for
+incompressible flow
+| `porousSimple`(((`porousSimple` solver)))(((solver,`porousSimple`))) |
+Steady-state solver for incompressible, turbulent flow with implicit or
+explicit porosity treatment
+| `shallowWater`(((`shallowWater` solver)))(((solver,`shallowWater`))) |
+Transient solver for inviscid shallow-water equations with rotation
+| `simple`(((`simple` solver)))(((solver,`simple`))) | Steady-state solver for
+incompressible, turbulent flow
+
+2+h| Compressible flow
+| `rhoCentral`(((`rhoCentral` solver)))(((solver,`rhoCentral`))) |
+Density-based compressible flow solver based on central-upwind schemes of
+Kurganov and Tadmor
+| `rhoPimple`(((`rhoPimple` solver)))(((solver,`rhoPimple`))) | Transient
+solver for laminar or turbulent flow of compressible fluids for HVAC and
+similar applications
+| `rhoPiso`(((`rhoPiso` solver)))(((solver,`rhoPiso`))) | Transient PISO solver
+for compressible, laminar or turbulent flow
+| `rhoPorousMRFPimple`(((`rhoPorousMRFPimple` solver)))
+(((solver,`rhoPorousMRFPimple`))) | Transient solver for laminar or turbulent
+flow of compressible fluids with support for porous media and MRF for HVAC and
+similar applications
+| `rhoPorousSimple`(((`rhoPorousSimple` solver)))(((solver,`rhoPorousSimple`)))
+| Steady-state solver for turbulent flow of compressible fluids with RANS
+turbulence modelling, and implicit or explicit porosity treatment
+| `rhoSimple`(((`rhoSimple` solver)))(((solver,`rhoSimple`))) | Steady-state
+SIMPLE solver for laminar or turbulent RANS flow of compressible fluids
+| `sonicDyM`(((`sonicDyM` solver)))(((solver,`sonicDyM`))) | Transient solver
+for trans-sonic/supersonic, laminar or turbulent flow of a compressible gas
+with mesh motion
+| `sonic`(((`sonic` solver)))(((solver,`sonic`))) | Transient solver for
+trans-sonic/supersonic, laminar or turbulent flow of a compressible gas
+| `sonicLiquid`(((`sonicLiquid` solver)))(((solver,`sonicLiquid`))) | Transient
+solver for trans-sonic/supersonic, laminar flow of a compressible liquid
+
+2+h| Multiphase flow
+| `bubble`(((`bubble` solver)))(((solver,`bubble`))) | Solver for a system of 2
+incompressible fluid phases with one phase dispersed, 'e.g.' gas bubbles in a
+liquid
+| `cavitating`(((`cavitating` solver)))(((solver,`cavitating`))) | Transient
+cavitation code based on the homogeneous equilibrium model from which the
+compressibility of the liquid/vapour ''mixture'' is obtained
+| `compressibleInter`(((`compressibleInter` solver)))
+(((solver,`compressibleInter`))) | Solver for 2 compressible, isothermal
+immiscible fluids using a VOF (volume of fluid) phase-fraction based interface
+capturing approach
+| `inter`(((`inter` solver)))(((solver,`inter`))) | Solver for 2
+incompressible, isothermal immiscible fluids using a VOF (volume of fluid)
+phase-fraction based interface capturing approach
+| `interMixing`(((`interMixing` solver)))(((solver,`interMixing`))) | Solver
+for 3 incompressible fluids, two of which are miscible, using a VOF method to
+capture the interface
+| `interPhaseChange`(((`interPhaseChange` solver)))
+(((solver,`interPhaseChange`))) | Solver for 2 incompressible, isothermal
+immiscible fluids with phase-change ('e.g.' cavitation). Uses a VOF (volume of
+fluid) phase-fraction based interface capturing approach
+| `multiphaseInter`(((`multiphaseInter` solver)))(((solver,`multiphaseInter`)))
+| Solver for math:[n] incompressible fluids which captures the interfaces and
+includes surface-tension and contact-angle effects for each phase
+| `settling`(((`settling` solver)))(((solver,`settling`))) | Solver for 2
+incompressible fluids for simulating the settling of the dispersed phase
+| `twoLiquidMixing`(((`twoLiquidMixing` solver)))(((solver,`twoLiquidMixing`)))
+| Solver for mixing 2 incompressible fluids
+| `twoPhaseEuler`(((`twoPhaseEuler` solver)))(((solver,`twoPhaseEuler`))) |
+Solver for a system of 2 incompressible fluid phases with one phase dispersed,
+'e.g.' gas bubbles in a liquid
+
+2+h| Direct numerical simulation (DNS)
+| `dns`(((`dns` solver)))(((solver,`dns`))) | Direct numerical simulation
+solver for boxes of isotropic turbulence
+
+2+h| Combustion
+| `coldEngine`(((`coldEngine` solver)))(((solver,`coldEngine`))) | Solver for
+cold-flow in internal combustion engines
+| `dieselEngine`(((`dieselEngine` solver)))(((solver,`dieselEngine`))) | Solver
+for diesel engine spray and combustion
+| `diesel`(((`diesel` solver)))(((solver,`diesel`))) | Solver for diesel spray
+and combustion
+| `engine`(((`engine` solver)))(((solver,`engine`))) | Solver for internal
+combustion engines
+| `fire`(((`fire` solver)))(((solver,`fire`))) | Transient Solver for Fires and
+turbulent diffusion flames
+| `PDR`(((`PDR` solver)))(((solver,`PDR`))) | Solver for compressible
+premixed/partially-premixed combustion with turbulence modelling
+| `reacting`(((`reacting` solver)))(((solver,`reacting`))) | Solver for
+combustion with chemical reactions
+| `rhoReacting`(((`rhoReacting` solver)))(((solver,`rhoReacting`))) | Solver
+for combustion with chemical reactions using density based thermodynamics
+package
+| `Xi`(((`Xi` solver)))(((solver,`Xi`))) | Solver for compressible
+premixed/partially-premixed combustion with turbulence modelling
+
+2+h| Heat transfer and buoyancy-driven flows
+| `buoyantBoussinesqPimple`(((`buoyantBoussinesqPimple` solver)))
+(((solver,`buoyantBoussinesqPimple`))) | Transient solver for buoyant,
+turbulent flow of incompressible fluids
+| `buoyantBoussinesqSimple`(((`buoyantBoussinesqSimple` solver)))
+(((solver,`buoyantBoussinesqSimple`))) | Steady-state solver for buoyant,
+turbulent flow of incompressible fluids
+| `buoyantPimple`(((`buoyantPimple` solver)))(((solver,`buoyantPimple`))) |
+Transient solver for buoyant, turbulent flow of compressible fluids for
+ventilation and heat-transfer
+| `buoyantSimple`(((`buoyantSimple` solver)))(((solver,`buoyantSimple`))) |
+Steady-state solver for buoyant, turbulent flow of compressible fluids
+| `buoyantSimpleRadiation`(((`buoyantSimpleRadiation` solver)))
+(((solver,`buoyantSimpleRadiation`))) | Steady-state solver for buoyant,
+turbulent flow of compressible fluids, including radiation, for ventilation and
+heat-transfer
+| `chtMultiRegion`(((`chtMultiRegion` solver)))(((solver,`chtMultiRegion`))) |
+Combination of `heatConduction` and `buoyant` for conjugate heat transfer
+between a solid region and fluid region
+| `chtMultiRegionSimple`(((`chtMultiRegionSimple` solver)))
+(((solver,`chtMultiRegionSimple`))) | Steady-state version of
+`chtMultiRegion`
+
+2+h| Particle-tracking flows
+| `coalChemistry`(((`coalChemistry` solver)))(((solver,`coalChemistry`))) |
+Transient solver for: - compressible, - turbulent flow, with - coal and
+limestone parcel injections, - energy source, and - combustion
+| `porousExplicitSourceReactingParcel`
+(((`porousExplicitSourceReactingParcel` solver)))
+(((solver,`porousExplicitSourceReactingParcel`))) | +
+Transient PISO solver for compressible, laminar or turbulent flow with reacting
+multiphase Lagrangian parcels for porous media, including explicit sources for
+mass, momentum and energy
+| `reactingParcel`(((`reactingParcel` solver)))(((solver,`reactingParcel`))) |
+Transient PISO solver for compressible, laminar or turbulent flow with reacting
+Lagrangian parcels
+| `uncoupledKinematicParcel`(((`uncoupledKinematicParcel` solver)))
+(((solver,`uncoupledKinematicParcel`))) | Transient solver for the passive
+transport of a single kinematic particle could
+
+2+h| Molecular dynamics methods
+| `mdEquilibration`(((`mdEquilibration` solver)))(((solver,`mdEquilibration`)))
+| Equilibrates and/or preconditions molecular dynamics systems
+| `md`(((`md` solver)))(((solver,`md`))) | Molecular dynamics solver for fluid
+dynamics
+
+2+h| Direct simulation Monte Carlo methods
+| `dsmc`(((`dsmc` solver)))(((solver,`dsmc`))) | Direct simulation Monte Carlo
+(DSMC) solver for 3D, transient, multi- species flows
+
+2+h| Electromagnetics
+| `electrostatic`(((`electrostatic` solver)))(((solver,`electrostatic`))) |
+Solver for electrostatics
+| `mhd`(((`mhd` solver)))(((solver,`mhd`))) | Solver for magnetohydrodynamics
+(MHD): incompressible, laminar flow of a conducting fluid under the influence
+of a magnetic field
+
+2+h| Stress analysis of solids
+| `solidDisplacement`(((`solidDisplacement` solver)))
+(((solver,`solidDisplacement`))) | Transient segregated finite-volume solver of
+linear-elastic, small-strain deformation of a solid body, with optional thermal
+diffusion and thermal stresses
+| `solidEquilibriumDisplacement`(((`solidEquilibriumDisplacement` solver)))
+(((solver,`solidEquilibriumDisplacement`))) | Steady-state segregated
+finite-volume solver of linear-elastic, small-strain deformation of a solid
+body, with optional thermal diffusion and thermal stresses
+
+2+h| Finance
+| `financial`(((`financial` solver)))(((solver,`financial`))) | Solves the
+Black-Scholes equation to price commodities
+|==============================================================================

@@ -1,0 +1,1698 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..6b564c5
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,78 @@
++#-------------------------------------------------------------------------------
++#               ______                _     ____          __  __
++#              |  ____|             _| |_  / __ \   /\   |  \/  |
++#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
++#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
++#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
++#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
++#
++#                   FreeFOAM: The Cross-Platform CFD Toolkit
++#
++# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
++#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
++#-------------------------------------------------------------------------------
++# License
++#   This file is part of FreeFOAM.
++#
++#   FreeFOAM is free software: you can redistribute it and/or modify it
++#   under the terms of the GNU General Public License as published by the
++#   Free Software Foundation, either version 3 of the License, or (at your
++#   option) any later version.
++#
++#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
++#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++#   for more details.
++#
++#   You should have received a copy of the GNU General Public License
++#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
++#
++#-------------------------------------------------------------------------------
++
++cmake_minimum_required(VERSION 2.8)
++project(ParMetis)
++
++# gcc > 4.3 fails when using -O3
++if(CMAKE_COMPILER_IS_GNUCC)
++  string(REPLACE "-O3" "-O2" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
++  foreach(config DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
++    string(REPLACE "-O3" "-O2" CMAKE_C_FLAGS_${config}
++      "${CMAKE_C_FLAGS_${config}}")
++  endforeach()
++endif()
++
++find_package(MPI REQUIRED)
++
++include(files.cmake)
++
++include_directories(
++  ${CMAKE_SOURCE_DIR}
++  ${MPI_INCLUDE_PATH}
++  )
++add_library(foam_parmetis ${METISLIB_SRCS} ${PARMETIS_SRCS})
++
++target_link_libraries(foam_parmetis ${MPI_LIBRARIES})
++
++if(MPI_COMPILE_FLAGS)
++  set_target_properties(foam_parmetis PROPERTIES
++    COMPILE_FLAGS ${MPI_COMPILE_FLAGS}
++    )
++endif()
++
++if(MPI_LINK_FLAGS)
++  set_target_properties(foam_parmetis PROPERTIES
++    LINK_FLAGS ${MPI_LINK_FLAGS}
++    )
++endif()
++
++install(TARGETS foam_parmetis
++  LIBRARY DESTINATION lib
++  ARCHIVE DESTINATION lib
++  RUNTIME DESTINATION bin
++  )
++
++install(FILES parmetis.h
++  DESTINATION include
++  )
++
++# ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file
+diff --git a/METISLib/NEW_checkgraph.c b/METISLib/NEW_checkgraph.c
+index aea0094..656779b 100644
+--- a/METISLib/NEW_checkgraph.c
++++ b/METISLib/NEW_checkgraph.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ 
+diff --git a/METISLib/NEW_memory.c b/METISLib/NEW_memory.c
+index aa03b9d..e9e4768 100644
+--- a/METISLib/NEW_memory.c
++++ b/METISLib/NEW_memory.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/NEW_mfm.c b/METISLib/NEW_mfm.c
+index 9f37848..1b1f39b 100644
+--- a/METISLib/NEW_mfm.c
++++ b/METISLib/NEW_mfm.c
+@@ -11,7 +11,7 @@
+  * $Id: NEW_mfm.c,v 1.1 2003/07/16 15:55:13 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/NEW_mrefine.c b/METISLib/NEW_mrefine.c
+index 9cea995..b2c4d5a 100644
+--- a/METISLib/NEW_mrefine.c
++++ b/METISLib/NEW_mrefine.c
+@@ -11,7 +11,7 @@
+  * $Id: NEW_mrefine.c,v 1.1 2003/07/16 15:55:14 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/NEW_parmetis.c b/METISLib/NEW_parmetis.c
+index bd97917..36ea0fd 100644
+--- a/METISLib/NEW_parmetis.c
++++ b/METISLib/NEW_parmetis.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/NEW_stats.c b/METISLib/NEW_stats.c
+index 9e04b23..9c9417a 100644
+--- a/METISLib/NEW_stats.c
++++ b/METISLib/NEW_stats.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/balance.c b/METISLib/balance.c
+index ac951da..a345da0 100644
+--- a/METISLib/balance.c
++++ b/METISLib/balance.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ /*************************************************************************
+ * This function is the entry point of the bisection balancing algorithms.
+diff --git a/METISLib/bucketsort.c b/METISLib/bucketsort.c
+index 14aa213..f6ef140 100644
+--- a/METISLib/bucketsort.c
++++ b/METISLib/bucketsort.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ 
+diff --git a/METISLib/ccgraph.c b/METISLib/ccgraph.c
+index 3485ab0..6eaeff3 100644
+--- a/METISLib/ccgraph.c
++++ b/METISLib/ccgraph.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ 
+diff --git a/METISLib/checkgraph.c b/METISLib/checkgraph.c
+index 0134ec1..5c68fb5 100644
+--- a/METISLib/checkgraph.c
++++ b/METISLib/checkgraph.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ 
+diff --git a/METISLib/coarsen.c b/METISLib/coarsen.c
+index 15f06d3..f6b44d8 100644
+--- a/METISLib/coarsen.c
++++ b/METISLib/coarsen.c
+@@ -10,7 +10,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/compress.c b/METISLib/compress.c
+index 6b1cf13..f7f7c97 100644
+--- a/METISLib/compress.c
++++ b/METISLib/compress.c
+@@ -12,7 +12,7 @@
+  * $Id: compress.c,v 1.1 2003/07/16 15:55:01 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ /*************************************************************************
+ * This function compresses a graph by merging identical vertices
+diff --git a/METISLib/debug.c b/METISLib/debug.c
+index b71fe2f..4224567 100644
+--- a/METISLib/debug.c
++++ b/METISLib/debug.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ /*************************************************************************
+ * This function computes the cut given the graph and a where vector
+diff --git a/METISLib/estmem.c b/METISLib/estmem.c
+index 82b9ac9..67c6cb5 100644
+--- a/METISLib/estmem.c
++++ b/METISLib/estmem.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ /*************************************************************************
+ * This function computes how much memory will be required by the various
+diff --git a/METISLib/fm.c b/METISLib/fm.c
+index 2fc08d2..633b5fa 100644
+--- a/METISLib/fm.c
++++ b/METISLib/fm.c
+@@ -11,7 +11,7 @@
+  * $Id: fm.c,v 1.1 2003/07/16 15:55:02 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/fortran.c b/METISLib/fortran.c
+index 46ebefd..980393c 100644
+--- a/METISLib/fortran.c
++++ b/METISLib/fortran.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/frename.c b/METISLib/frename.c
+index 5cde8b6..007b494 100644
+--- a/METISLib/frename.c
++++ b/METISLib/frename.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ void METIS_PARTGRAPHRECURSIVE(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vwgt, idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts, int *options, int *edgecut, idxtype *part)
+diff --git a/METISLib/graph.c b/METISLib/graph.c
+index 9a93784..8aa548a 100644
+--- a/METISLib/graph.c
++++ b/METISLib/graph.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ /*************************************************************************
+ * This function sets up the graph from the user input
+diff --git a/METISLib/initpart.c b/METISLib/initpart.c
+index 075cfb9..2e13c1f 100644
+--- a/METISLib/initpart.c
++++ b/METISLib/initpart.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ /*************************************************************************
+ * This function computes the initial bisection of the coarsest graph
+diff --git a/METISLib/kmetis.c b/METISLib/kmetis.c
+index 87c3a59..84451db 100644
+--- a/METISLib/kmetis.c
++++ b/METISLib/kmetis.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/kvmetis.c b/METISLib/kvmetis.c
+index 5bc0a67..5b569cc 100644
+--- a/METISLib/kvmetis.c
++++ b/METISLib/kvmetis.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/kwayfm.c b/METISLib/kwayfm.c
+index 170dcf3..296f0c5 100644
+--- a/METISLib/kwayfm.c
++++ b/METISLib/kwayfm.c
+@@ -10,7 +10,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/kwayrefine.c b/METISLib/kwayrefine.c
+index a6d58f7..ea3ee05 100644
+--- a/METISLib/kwayrefine.c
++++ b/METISLib/kwayrefine.c
+@@ -11,7 +11,7 @@
+  * $Id: kwayrefine.c,v 1.1 2003/07/16 15:55:05 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/kwayvolfm.c b/METISLib/kwayvolfm.c
+index 4e1112d..57efbc6 100644
+--- a/METISLib/kwayvolfm.c
++++ b/METISLib/kwayvolfm.c
+@@ -10,7 +10,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/kwayvolrefine.c b/METISLib/kwayvolrefine.c
+index 7cf248d..3a91bf2 100644
+--- a/METISLib/kwayvolrefine.c
++++ b/METISLib/kwayvolrefine.c
+@@ -11,7 +11,7 @@
+  * $Id: kwayvolrefine.c,v 1.1 2003/07/16 15:55:05 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/match.c b/METISLib/match.c
+index 509f457..865bf92 100644
+--- a/METISLib/match.c
++++ b/METISLib/match.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/mbalance.c b/METISLib/mbalance.c
+index 65e9961..78fde7f 100644
+--- a/METISLib/mbalance.c
++++ b/METISLib/mbalance.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/mbalance2.c b/METISLib/mbalance2.c
+index d39f1e0..8db86ab 100644
+--- a/METISLib/mbalance2.c
++++ b/METISLib/mbalance2.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/mcoarsen.c b/METISLib/mcoarsen.c
+index 336e6c6..e38b6cf 100644
+--- a/METISLib/mcoarsen.c
++++ b/METISLib/mcoarsen.c
+@@ -10,7 +10,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/memory.c b/METISLib/memory.c
+index 0082b8c..8d69913 100644
+--- a/METISLib/memory.c
++++ b/METISLib/memory.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/mesh.c b/METISLib/mesh.c
+index 3d93628..478cc81 100644
+--- a/METISLib/mesh.c
++++ b/METISLib/mesh.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ /*****************************************************************************
+ * This function creates a graph corresponding to the dual of a finite element
+diff --git a/METISLib/meshpart.c b/METISLib/meshpart.c
+index 4ca3a2a..51a62cf 100644
+--- a/METISLib/meshpart.c
++++ b/METISLib/meshpart.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/metis.h b/METISLib/metis.h
+index b655d90..dbbf502 100644
+--- a/METISLib/metis.h
++++ b/METISLib/metis.h
+@@ -16,16 +16,16 @@
+ #define	DMALLOC		1
+ */
+ 
+-#include <stdheaders.h>
++#include <METISLib/stdheaders.h>
+ 
+ #ifdef DMALLOC
+ #include <dmalloc.h>
+ #endif
+ 
+ #include "../parmetis.h"  /* Get the idxtype definition */
+-#include <defs.h>
+-#include <struct.h>
+-#include <macros.h>
+-#include <rename.h>
+-#include <proto.h>
++#include <METISLib/defs.h>
++#include <METISLib/struct.h>
++#include <METISLib/macros.h>
++#include <METISLib/rename.h>
++#include <METISLib/proto.h>
+ 
+diff --git a/METISLib/mfm.c b/METISLib/mfm.c
+index d0047e5..1060233 100644
+--- a/METISLib/mfm.c
++++ b/METISLib/mfm.c
+@@ -11,7 +11,7 @@
+  * $Id: mfm.c,v 1.1 2003/07/24 18:39:09 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/mfm2.c b/METISLib/mfm2.c
+index ce4eb8b..e922a56 100644
+--- a/METISLib/mfm2.c
++++ b/METISLib/mfm2.c
+@@ -11,7 +11,7 @@
+  * $Id: mfm2.c,v 1.1 2003/07/16 15:55:09 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/mincover.c b/METISLib/mincover.c
+index 789022b..2d67768 100644
+--- a/METISLib/mincover.c
++++ b/METISLib/mincover.c
+@@ -11,7 +11,7 @@
+  * $Id: mincover.c,v 1.1 2003/07/16 15:55:09 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ /*************************************************************************
+ * Constants used by mincover algorithm
+diff --git a/METISLib/minitpart.c b/METISLib/minitpart.c
+index 58dfcea..2e6be46 100644
+--- a/METISLib/minitpart.c
++++ b/METISLib/minitpart.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ /*************************************************************************
+ * This function computes the initial bisection of the coarsest graph
+diff --git a/METISLib/minitpart2.c b/METISLib/minitpart2.c
+index 4c1e1b1..6b60c7d 100644
+--- a/METISLib/minitpart2.c
++++ b/METISLib/minitpart2.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ /*************************************************************************
+ * This function computes the initial bisection of the coarsest graph
+diff --git a/METISLib/mkmetis.c b/METISLib/mkmetis.c
+index 55c7c9b..66d9e1b 100644
+--- a/METISLib/mkmetis.c
++++ b/METISLib/mkmetis.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ 
+diff --git a/METISLib/mkwayfmh.c b/METISLib/mkwayfmh.c
+index 69a781a..0c4405a 100644
+--- a/METISLib/mkwayfmh.c
++++ b/METISLib/mkwayfmh.c
+@@ -10,7 +10,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ 
+diff --git a/METISLib/mkwayrefine.c b/METISLib/mkwayrefine.c
+index 15836db..7665020 100644
+--- a/METISLib/mkwayrefine.c
++++ b/METISLib/mkwayrefine.c
+@@ -11,7 +11,7 @@
+  * $Id: mkwayrefine.c,v 1.1 2003/07/16 15:55:11 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/mmatch.c b/METISLib/mmatch.c
+index 2666dd3..3d23b7a 100644
+--- a/METISLib/mmatch.c
++++ b/METISLib/mmatch.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/mmd.c b/METISLib/mmd.c
+index 1b43618..a2a790b 100644
+--- a/METISLib/mmd.c
++++ b/METISLib/mmd.c
+@@ -19,7 +19,7 @@
+  * $Id: mmd.c,v 1.1 2003/07/16 15:55:11 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/mpmetis.c b/METISLib/mpmetis.c
+index 3b7aa9f..e7db307 100644
+--- a/METISLib/mpmetis.c
++++ b/METISLib/mpmetis.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ 
+diff --git a/METISLib/mrefine.c b/METISLib/mrefine.c
+index 3e28dc7..5d35f73 100644
+--- a/METISLib/mrefine.c
++++ b/METISLib/mrefine.c
+@@ -11,7 +11,7 @@
+  * $Id: mrefine.c,v 1.1 2003/07/24 18:39:10 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/mrefine2.c b/METISLib/mrefine2.c
+index 91ad0b5..fe6d8ef 100644
+--- a/METISLib/mrefine2.c
++++ b/METISLib/mrefine2.c
+@@ -11,7 +11,7 @@
+  * $Id: mrefine2.c,v 1.1 2003/07/16 15:55:12 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/mutil.c b/METISLib/mutil.c
+index 68dc5c5..1d0d773 100644
+--- a/METISLib/mutil.c
++++ b/METISLib/mutil.c
+@@ -11,7 +11,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/myqsort.c b/METISLib/myqsort.c
+index a6939ce..1523608 100644
+--- a/METISLib/myqsort.c
++++ b/METISLib/myqsort.c
+@@ -12,7 +12,7 @@
+  * $Id: myqsort.c,v 1.1 2003/07/16 15:55:13 karypis Exp $
+  */
+ 
+-#include <metis.h>			/* only for type declarations */
++#include <METISLib/metis.h>			/* only for type declarations */
+ 
+ #define		THRESH		1	/* threshold for insertion */
+ #define		MTHRESH		6	/* threshold for median */
+diff --git a/METISLib/ometis.c b/METISLib/ometis.c
+index e972e88..3b1e83d 100644
+--- a/METISLib/ometis.c
++++ b/METISLib/ometis.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/parmetis.c b/METISLib/parmetis.c
+index d183082..c8d9ff3 100644
+--- a/METISLib/parmetis.c
++++ b/METISLib/parmetis.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/pmetis.c b/METISLib/pmetis.c
+index 9212cd7..997a6bc 100644
+--- a/METISLib/pmetis.c
++++ b/METISLib/pmetis.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/pqueue.c b/METISLib/pqueue.c
+index 6a1986f..ff02b72 100644
+--- a/METISLib/pqueue.c
++++ b/METISLib/pqueue.c
+@@ -14,7 +14,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/refine.c b/METISLib/refine.c
+index f479298..08175a0 100644
+--- a/METISLib/refine.c
++++ b/METISLib/refine.c
+@@ -11,7 +11,7 @@
+  * $Id: refine.c,v 1.1 2003/07/16 15:55:17 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/separator.c b/METISLib/separator.c
+index 380d4f4..b8ab43a 100644
+--- a/METISLib/separator.c
++++ b/METISLib/separator.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ /*************************************************************************
+ * This function takes a bisection and constructs a minimum weight vertex 
+diff --git a/METISLib/sfm.c b/METISLib/sfm.c
+index eece33f..c05cb58 100644
+--- a/METISLib/sfm.c
++++ b/METISLib/sfm.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/srefine.c b/METISLib/srefine.c
+index cd02cb9..c9f1169 100644
+--- a/METISLib/srefine.c
++++ b/METISLib/srefine.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/stat.c b/METISLib/stat.c
+index 6156d6d..b76004b 100644
+--- a/METISLib/stat.c
++++ b/METISLib/stat.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/stats.c b/METISLib/stats.c
+index 4f6b548..e13d6d5 100644
+--- a/METISLib/stats.c
++++ b/METISLib/stats.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/subdomains.c b/METISLib/subdomains.c
+index 6fc65e7..b439dd7 100644
+--- a/METISLib/subdomains.c
++++ b/METISLib/subdomains.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/timing.c b/METISLib/timing.c
+index a9d0910..9e70ff4 100644
+--- a/METISLib/timing.c
++++ b/METISLib/timing.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/METISLib/util.c b/METISLib/util.c
+index 5d2e739..faf780b 100644
+--- a/METISLib/util.c
++++ b/METISLib/util.c
+@@ -11,7 +11,7 @@
+  * $Id: util.c,v 1.2 2003/07/21 18:53:41 karypis Exp $
+  */
+ 
+-#include <metis.h>
++#include <METISLib/metis.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/adrivers.c b/ParMETISLib/adrivers.c
+index e9c5fe0..1f34302 100644
+--- a/ParMETISLib/adrivers.c
++++ b/ParMETISLib/adrivers.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/akwayfm.c b/ParMETISLib/akwayfm.c
+index 7579d8b..4ca3826 100644
+--- a/ParMETISLib/akwayfm.c
++++ b/ParMETISLib/akwayfm.c
+@@ -11,7 +11,7 @@
+  * $Id: akwayfm.c,v 1.3 2003/07/22 22:58:18 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ #define ProperSide(c, from, other) \
+               (((c) == 0 && (from)-(other) < 0) || ((c) == 1 && (from)-(other) > 0))
+diff --git a/ParMETISLib/ametis.c b/ParMETISLib/ametis.c
+index 6fac271..2c86ab3 100644
+--- a/ParMETISLib/ametis.c
++++ b/ParMETISLib/ametis.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/backcompat.c b/ParMETISLib/backcompat.c
+index b62d4bb..5f691e5 100644
+--- a/ParMETISLib/backcompat.c
++++ b/ParMETISLib/backcompat.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ /*****************************************************************************
+ *  This function computes a partitioning.
+diff --git a/ParMETISLib/balancemylink.c b/ParMETISLib/balancemylink.c
+index dd944d1..d1a8664 100644
+--- a/ParMETISLib/balancemylink.c
++++ b/ParMETISLib/balancemylink.c
+@@ -11,7 +11,7 @@
+  * $Id: balancemylink.c,v 1.2 2003/07/21 17:18:48 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ #define	PE	0
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/coarsen.c b/ParMETISLib/coarsen.c
+index 70f48c2..ed3a3f9 100644
+--- a/ParMETISLib/coarsen.c
++++ b/ParMETISLib/coarsen.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/comm.c b/ParMETISLib/comm.c
+index fb18789..fa1826a 100644
+--- a/ParMETISLib/comm.c
++++ b/ParMETISLib/comm.c
+@@ -8,7 +8,7 @@
+  * $Id: comm.c,v 1.2 2003/07/21 17:18:48 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/csrmatch.c b/ParMETISLib/csrmatch.c
+index ace7998..6b0bede 100644
+--- a/ParMETISLib/csrmatch.c
++++ b/ParMETISLib/csrmatch.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/debug.c b/ParMETISLib/debug.c
+index ebdf69c..6c8dcf4 100644
+--- a/ParMETISLib/debug.c
++++ b/ParMETISLib/debug.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/diffutil.c b/ParMETISLib/diffutil.c
+index f31da64..d0b1751 100644
+--- a/ParMETISLib/diffutil.c
++++ b/ParMETISLib/diffutil.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/fpqueue.c b/ParMETISLib/fpqueue.c
+index 11c617f..634c8fb 100644
+--- a/ParMETISLib/fpqueue.c
++++ b/ParMETISLib/fpqueue.c
+@@ -14,7 +14,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/frename.c b/ParMETISLib/frename.c
+index 551dd59..ba88e88 100644
+--- a/ParMETISLib/frename.c
++++ b/ParMETISLib/frename.c
+@@ -11,7 +11,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/gkmetis.c b/ParMETISLib/gkmetis.c
+index 8eb2382..d645376 100644
+--- a/ParMETISLib/gkmetis.c
++++ b/ParMETISLib/gkmetis.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/grsetup.c b/ParMETISLib/grsetup.c
+index 7f10a8f..c7f0474 100644
+--- a/ParMETISLib/grsetup.c
++++ b/ParMETISLib/grsetup.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/iidxsort.c b/ParMETISLib/iidxsort.c
+index 869748c..e879037 100644
+--- a/ParMETISLib/iidxsort.c
++++ b/ParMETISLib/iidxsort.c
+@@ -1,4 +1,4 @@
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /* Byte-wise swap two items of size SIZE. */
+diff --git a/ParMETISLib/iintsort.c b/ParMETISLib/iintsort.c
+index fb0e840..3bf1247 100644
+--- a/ParMETISLib/iintsort.c
++++ b/ParMETISLib/iintsort.c
+@@ -1,4 +1,4 @@
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /* Byte-wise swap two items of size SIZE. */
+diff --git a/ParMETISLib/ikeysort.c b/ParMETISLib/ikeysort.c
+index 14b4241..a64c1b3 100644
+--- a/ParMETISLib/ikeysort.c
++++ b/ParMETISLib/ikeysort.c
+@@ -1,4 +1,4 @@
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /* Byte-wise swap two items of size SIZE. */
+diff --git a/ParMETISLib/ikeyvalsort.c b/ParMETISLib/ikeyvalsort.c
+index 59dce52..3a821b4 100644
+--- a/ParMETISLib/ikeyvalsort.c
++++ b/ParMETISLib/ikeyvalsort.c
+@@ -1,4 +1,4 @@
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /* Byte-wise swap two items of size SIZE. */
+diff --git a/ParMETISLib/initbalance.c b/ParMETISLib/initbalance.c
+index 9ec7a31..3f67d2d 100644
+--- a/ParMETISLib/initbalance.c
++++ b/ParMETISLib/initbalance.c
+@@ -11,7 +11,7 @@
+  * $Id: initbalance.c,v 1.4 2003/07/30 21:18:52 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/initmsection.c b/ParMETISLib/initmsection.c
+index 63c7c35..1c2823e 100644
+--- a/ParMETISLib/initmsection.c
++++ b/ParMETISLib/initmsection.c
+@@ -11,7 +11,7 @@
+  * $Id: initmsection.c,v 1.2 2003/07/21 17:18:49 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ #define DEBUG_IPART_
+diff --git a/ParMETISLib/initpart.c b/ParMETISLib/initpart.c
+index 40b8d95..a14a926 100644
+--- a/ParMETISLib/initpart.c
++++ b/ParMETISLib/initpart.c
+@@ -12,7 +12,7 @@
+  * $Id: initpart.c,v 1.2 2003/07/21 17:18:49 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ #define DEBUG_IPART_
+diff --git a/ParMETISLib/kmetis.c b/ParMETISLib/kmetis.c
+index 2ad20e3..7d3bb4d 100644
+--- a/ParMETISLib/kmetis.c
++++ b/ParMETISLib/kmetis.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /***********************************************************************************
+diff --git a/ParMETISLib/kwaybalance.c b/ParMETISLib/kwaybalance.c
+index 003ec7c..6d5a72b 100644
+--- a/ParMETISLib/kwaybalance.c
++++ b/ParMETISLib/kwaybalance.c
+@@ -11,7 +11,7 @@
+  * $Id: kwaybalance.c,v 1.2 2003/07/21 17:18:49 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ #define ProperSide(c, from, other) \
+               (((c) == 0 && (from)-(other) < 0) || ((c) == 1 && (from)-(other) > 0))
+diff --git a/ParMETISLib/kwayfm.c b/ParMETISLib/kwayfm.c
+index 4d0849b..830b35a 100644
+--- a/ParMETISLib/kwayfm.c
++++ b/ParMETISLib/kwayfm.c
+@@ -11,7 +11,7 @@
+  * $Id: kwayfm.c,v 1.3 2003/07/22 20:29:05 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ #define ProperSide(c, from, other) \
+               (((c) == 0 && (from)-(other) < 0) || ((c) == 1 && (from)-(other) > 0))
+diff --git a/ParMETISLib/kwayrefine.c b/ParMETISLib/kwayrefine.c
+index e4b776e..fa65691 100644
+--- a/ParMETISLib/kwayrefine.c
++++ b/ParMETISLib/kwayrefine.c
+@@ -11,7 +11,7 @@
+  * $Id: kwayrefine.c,v 1.2 2003/07/21 17:18:49 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ #define ProperSide(c, from, other) \
+               (((c) == 0 && (from)-(other) < 0) || ((c) == 1 && (from)-(other) > 0))
+diff --git a/ParMETISLib/lmatch.c b/ParMETISLib/lmatch.c
+index d8601ef..7252917 100644
+--- a/ParMETISLib/lmatch.c
++++ b/ParMETISLib/lmatch.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/match.c b/ParMETISLib/match.c
+index 89bfa62..828347b 100644
+--- a/ParMETISLib/match.c
++++ b/ParMETISLib/match.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/mdiffusion.c b/ParMETISLib/mdiffusion.c
+index 6c02138..c9773c7 100644
+--- a/ParMETISLib/mdiffusion.c
++++ b/ParMETISLib/mdiffusion.c
+@@ -10,7 +10,7 @@
+  * $Id: mdiffusion.c,v 1.2 2003/07/21 17:18:50 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ #define PE	-1
+ 
+diff --git a/ParMETISLib/mdrivers.c b/ParMETISLib/mdrivers.c
+index 467df79..2d47f5c 100644
+--- a/ParMETISLib/mdrivers.c
++++ b/ParMETISLib/mdrivers.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/memory.c b/ParMETISLib/memory.c
+index a8eeaff..e81c843 100644
+--- a/ParMETISLib/memory.c
++++ b/ParMETISLib/memory.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/mesh.c b/ParMETISLib/mesh.c
+index 57a80c0..9d1551c 100644
+--- a/ParMETISLib/mesh.c
++++ b/ParMETISLib/mesh.c
+@@ -13,7 +13,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/mmetis.c b/ParMETISLib/mmetis.c
+index b262ed1..29475b3 100644
+--- a/ParMETISLib/mmetis.c
++++ b/ParMETISLib/mmetis.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /***********************************************************************************
+diff --git a/ParMETISLib/move.c b/ParMETISLib/move.c
+index 06a8e5c..e0140ee 100644
+--- a/ParMETISLib/move.c
++++ b/ParMETISLib/move.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ /*************************************************************************
+ * This function moves the graph, and returns a new graph.
+diff --git a/ParMETISLib/node_refine.c b/ParMETISLib/node_refine.c
+index 3f57aa7..8781b66 100644
+--- a/ParMETISLib/node_refine.c
++++ b/ParMETISLib/node_refine.c
+@@ -11,7 +11,7 @@
+  * $Id: node_refine.c,v 1.2 2003/07/21 17:18:50 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ #define PackWeightWhereInfo(a, b) (((a)<<10) + (b))
+ #define SelectWhere(a) ((a)%1024)
+diff --git a/ParMETISLib/ometis.c b/ParMETISLib/ometis.c
+index 1a461f1..afed696 100644
+--- a/ParMETISLib/ometis.c
++++ b/ParMETISLib/ometis.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/order.c b/ParMETISLib/order.c
+index a73c87b..b660d5f 100644
+--- a/ParMETISLib/order.c
++++ b/ParMETISLib/order.c
+@@ -14,7 +14,7 @@
+ 
+ #define DEBUG_ORDER_
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ /*************************************************************************
+ * This is the top level ordering routine
+diff --git a/ParMETISLib/parmetislib.h b/ParMETISLib/parmetislib.h
+index 36c1041..553bc52 100644
+--- a/ParMETISLib/parmetislib.h
++++ b/ParMETISLib/parmetislib.h
+@@ -16,16 +16,16 @@
+ #define DMALLOC			1
+ */
+ 
+-#include <stdheaders.h>
++#include <ParMETISLib/stdheaders.h>
+ #include "../parmetis.h"
+ 
+ #ifdef DMALLOC
+ #include <dmalloc.h>
+ #endif
+ 
+-#include <rename.h>
+-#include <defs.h>
+-#include <struct.h>
+-#include <macros.h>
+-#include <proto.h>
++#include <ParMETISLib/rename.h>
++#include <ParMETISLib/defs.h>
++#include <ParMETISLib/struct.h>
++#include <ParMETISLib/macros.h>
++#include <ParMETISLib/proto.h>
+ 
+diff --git a/ParMETISLib/pspases.c b/ParMETISLib/pspases.c
+index 8b7a182..66b8ccf 100644
+--- a/ParMETISLib/pspases.c
++++ b/ParMETISLib/pspases.c
+@@ -11,7 +11,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /***********************************************************************************
+diff --git a/ParMETISLib/redomylink.c b/ParMETISLib/redomylink.c
+index 98b6810..0e0411d 100644
+--- a/ParMETISLib/redomylink.c
++++ b/ParMETISLib/redomylink.c
+@@ -11,7 +11,7 @@
+  * $Id: redomylink.c,v 1.2 2003/07/21 17:18:53 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ #define	PE	0
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/remap.c b/ParMETISLib/remap.c
+index 31f186b..7e9a9cb 100644
+--- a/ParMETISLib/remap.c
++++ b/ParMETISLib/remap.c
+@@ -11,7 +11,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ /*************************************************************************
+ * This function remaps that graph so that it will minimize the 
+diff --git a/ParMETISLib/rmetis.c b/ParMETISLib/rmetis.c
+index 3755209..398f0ae 100644
+--- a/ParMETISLib/rmetis.c
++++ b/ParMETISLib/rmetis.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/selectq.c b/ParMETISLib/selectq.c
+index 5ec9109..ce52809 100644
+--- a/ParMETISLib/selectq.c
++++ b/ParMETISLib/selectq.c
+@@ -11,7 +11,7 @@
+  * $Id: selectq.c,v 1.2 2003/07/21 17:18:53 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ /*************************************************************************
+ *  This stuff is hardcoded for up to four constraints
+diff --git a/ParMETISLib/serial.c b/ParMETISLib/serial.c
+index 630d4e5..4b0299a 100644
+--- a/ParMETISLib/serial.c
++++ b/ParMETISLib/serial.c
+@@ -10,7 +10,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/setup.c b/ParMETISLib/setup.c
+index 682a31d..6a2c113 100644
+--- a/ParMETISLib/setup.c
++++ b/ParMETISLib/setup.c
+@@ -14,7 +14,7 @@
+  */
+ 
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ #define DEBUG_SETUPINFO_
+ 
+diff --git a/ParMETISLib/stat.c b/ParMETISLib/stat.c
+index 4a32bc8..413ec12 100644
+--- a/ParMETISLib/stat.c
++++ b/ParMETISLib/stat.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/stdheaders.h b/ParMETISLib/stdheaders.h
+index e30f989..0bf179e 100644
+--- a/ParMETISLib/stdheaders.h
++++ b/ParMETISLib/stdheaders.h
+@@ -14,7 +14,6 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <malloc.h>
+ #include <string.h>
+ #include <ctype.h>
+ #include <math.h>
+diff --git a/ParMETISLib/timer.c b/ParMETISLib/timer.c
+index 73cc11a..d86d9ba 100644
+--- a/ParMETISLib/timer.c
++++ b/ParMETISLib/timer.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/util.c b/ParMETISLib/util.c
+index 34c657d..a27ee49 100644
+--- a/ParMETISLib/util.c
++++ b/ParMETISLib/util.c
+@@ -11,7 +11,7 @@
+  * $Id: util.c,v 1.2 2003/07/21 17:18:54 karypis Exp $
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/ParMETISLib/wave.c b/ParMETISLib/wave.c
+index 0f1cb3f..8e8252f 100644
+--- a/ParMETISLib/wave.c
++++ b/ParMETISLib/wave.c
+@@ -11,7 +11,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ /*************************************************************************
+ * This function performs a k-way directed diffusion
+diff --git a/ParMETISLib/weird.c b/ParMETISLib/weird.c
+index 69d0e5d..9a679db 100644
+--- a/ParMETISLib/weird.c
++++ b/ParMETISLib/weird.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ 
+diff --git a/ParMETISLib/xyzpart.c b/ParMETISLib/xyzpart.c
+index e538034..0cca89c 100644
+--- a/ParMETISLib/xyzpart.c
++++ b/ParMETISLib/xyzpart.c
+@@ -12,7 +12,7 @@
+  *
+  */
+ 
+-#include <parmetislib.h>
++#include <ParMETISLib/parmetislib.h>
+ 
+ 
+ /*************************************************************************
+diff --git a/files.cmake b/files.cmake
+new file mode 100644
+index 0000000..9f85b90
+--- /dev/null
++++ b/files.cmake
+@@ -0,0 +1,137 @@
++#-------------------------------------------------------------------------------
++#               ______                _     ____          __  __
++#              |  ____|             _| |_  / __ \   /\   |  \/  |
++#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
++#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
++#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
++#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
++#
++#                   FreeFOAM: The Cross-Platform CFD Toolkit
++#
++# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
++#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
++#-------------------------------------------------------------------------------
++# License
++#   This file is part of FreeFOAM.
++#
++#   FreeFOAM is free software: you can redistribute it and/or modify it
++#   under the terms of the GNU General Public License as published by the
++#   Free Software Foundation, either version 3 of the License, or (at your
++#   option) any later version.
++#
++#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
++#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++#   for more details.
++#
++#   You should have received a copy of the GNU General Public License
++#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
++#-------------------------------------------------------------------------------
++
++set(PARMETIS_SRCS
++  ParMETISLib/comm.c
++  ParMETISLib/util.c
++  ParMETISLib/debug.c
++  ParMETISLib/setup.c
++  ParMETISLib/grsetup.c
++  ParMETISLib/timer.c
++  ParMETISLib/node_refine.c
++  ParMETISLib/initmsection.c
++  ParMETISLib/order.c
++  ParMETISLib/xyzpart.c
++  ParMETISLib/pspases.c
++  ParMETISLib/frename.c
++  ParMETISLib/iintsort.c
++  ParMETISLib/iidxsort.c
++  ParMETISLib/ikeysort.c
++  ParMETISLib/ikeyvalsort.c
++  ParMETISLib/kmetis.c
++  ParMETISLib/gkmetis.c
++  ParMETISLib/ometis.c
++  ParMETISLib/initpart.c
++  ParMETISLib/match.c
++  ParMETISLib/coarsen.c
++  ParMETISLib/kwayfm.c
++  ParMETISLib/kwayrefine.c
++  ParMETISLib/kwaybalance.c
++  ParMETISLib/remap.c
++  ParMETISLib/stat.c
++  ParMETISLib/fpqueue.c
++  ParMETISLib/ametis.c
++  ParMETISLib/rmetis.c
++  ParMETISLib/lmatch.c
++  ParMETISLib/initbalance.c
++  ParMETISLib/mdiffusion.c
++  ParMETISLib/diffutil.c
++  ParMETISLib/wave.c
++  ParMETISLib/csrmatch.c
++  ParMETISLib/redomylink.c
++  ParMETISLib/balancemylink.c
++  ParMETISLib/selectq.c
++  ParMETISLib/akwayfm.c
++  ParMETISLib/serial.c
++  ParMETISLib/move.c
++  ParMETISLib/mmetis.c
++  ParMETISLib/mesh.c
++  ParMETISLib/memory.c
++  ParMETISLib/weird.c
++  ParMETISLib/backcompat.c
++  )
++
++set(METISLIB_SRCS
++  METISLib/coarsen.c
++  METISLib/fm.c
++  METISLib/initpart.c
++  METISLib/match.c
++  METISLib/ccgraph.c
++  METISLib/pmetis.c
++  METISLib/pqueue.c
++  METISLib/refine.c
++  METISLib/util.c
++  METISLib/timing.c
++  METISLib/debug.c
++  METISLib/bucketsort.c
++  METISLib/graph.c
++  METISLib/stat.c
++  METISLib/kmetis.c
++  METISLib/kwayrefine.c
++  METISLib/kwayfm.c
++  METISLib/balance.c
++  METISLib/ometis.c
++  METISLib/srefine.c
++  METISLib/sfm.c
++  METISLib/separator.c
++  METISLib/mincover.c
++  METISLib/mmd.c
++  METISLib/mesh.c
++  METISLib/meshpart.c
++  METISLib/frename.c
++  METISLib/fortran.c
++  METISLib/myqsort.c
++  METISLib/compress.c
++  METISLib/parmetis.c
++  METISLib/estmem.c
++  METISLib/mpmetis.c
++  METISLib/mcoarsen.c
++  METISLib/mmatch.c
++  METISLib/minitpart.c
++  METISLib/mbalance.c
++  METISLib/mutil.c
++  METISLib/mkmetis.c
++  METISLib/mkwayrefine.c
++  METISLib/mkwayfmh.c
++  METISLib/mrefine2.c
++  METISLib/minitpart2.c
++  METISLib/mbalance2.c
++  METISLib/mfm2.c
++  METISLib/kvmetis.c
++  METISLib/kwayvolrefine.c
++  METISLib/kwayvolfm.c
++  METISLib/subdomains.c
++  METISLib/mfm.c
++  METISLib/memory.c
++  METISLib/mrefine.c
++  METISLib/checkgraph.c
++  )
++
++# ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file

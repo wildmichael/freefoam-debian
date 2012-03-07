@@ -1,0 +1,34 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class mdEquilibrationPeriodicCubeArgonRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'mdEquilibration_periodicCubeArgon')
+      self.add_app_step('blockMesh')
+      self.add_app_step('mdInitialise')
+      self.add_app_step('mdEquilibration')
+
+   def clean(self):
+      FreeFOAM.util.rmtree('0')
+      os.mkdir('0')
+      FreeFOAM.util.rmtree('Ar-Ar')
+      FreeFOAM.util.rmtree('electrostatic')
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, 'constant', 'idList'))
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, 'constant',
+         'polyMesh/sets'))
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(mdEquilibrationPeriodicCubeArgonRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

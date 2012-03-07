@@ -1,0 +1,115 @@
+#!@PYTHON_EXECUTABLE@
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#    postProcFreeFOAMDeps
+#
+# Description
+#    Patches up the dependency files generated when compiling with -MD.
+#
+#------------------------------------------------------------------------------
+
+"""Usage: generateOpenFOAMDeps
+
+Patches up the dependency files generated when compiling with -MD.
+
+"""
+
+import sys
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import re
+import os
+import os.path as op
+
+blacklistPatterns = (
+      re.compile(r'^/usr/'),
+      re.compile(r'ImplI?\.[CH]'),
+      )
+
+def checkBlacklistPatterns(f):
+   for p in blacklistPatterns:
+      if p.search(f) is not None:
+         return True
+   return False
+
+substPatterns = (
+      (re.compile(r'_(\.[CH]|/)'), r'\1'),
+      (re.compile(r'_subst(\.[CH]|/)'), r'\1'),
+      (re.compile(r'(src/OSspecific)/OSspecific/(sig\w+\.[CH])'), r'\1/POSIX/signals/\2'),
+      (re.compile(r'(src/OSspecific)/OSspecific/((\w+)\.[CH])'), r'\1/POSIX/\3/\2'),
+      )
+
+SOURCE_DIR = "@CMAKE_SOURCE_DIR@"
+BINARY_DIR = "@CMAKE_BINARY_DIR@"
+incdir = op.join(BINARY_DIR, 'include')
+
+for parent, dirs, files in os.walk(BINARY_DIR):
+   for f in filter(lambda f: op.splitext(f)[1]=='.d', files):
+      f = op.join(parent, f)
+      # skip blacklisted files
+      if checkBlacklistPatterns(f):
+         continue
+      lines = []
+      # sanitize strings
+      for l in open(f, 'rt'):
+         lines += l.strip().replace(' \\', '').split()
+      # remove first entry
+      del lines[0]
+      length = len(lines)
+      # resolve wrapper entries, remove blacklisted files, perform
+      # substitutions and strip prefix
+      for i, l in enumerate(reversed(lines)):
+         i = length-i-1
+            # resolve wrapped entries
+         l = op.normpath(l)
+         # remove the wrappers
+         if l.startswith(incdir):
+            del lines[i]
+            continue
+         # remove blacklisted files
+         if checkBlacklistPatterns(l):
+            del lines[i]
+            continue
+         # strip SOURCE_DIR
+         if l.startswith(SOURCE_DIR):
+            l = op.relpath(l, SOURCE_DIR)
+         # perform substitutions
+         for p, r in substPatterns:
+            l = p.sub(r, l)
+         # write back
+         lines[i] = l
+      # remove duplicates and sort
+      src = lines[0]
+      lines = sorted(set(lines[1:]))
+      lines.insert(0, src)
+      open(op.splitext(f)[0]+'.ffd', 'wt').write(('\n'.join(lines))+'\n')
+
+# ------------------------- vim: set sw=3 sts=3 et: --------------- end-of-file

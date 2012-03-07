@@ -1,0 +1,122 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class snappyHexMeshWingMotionRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'snappyHexMesh_wingMotion',
+            case_dir='wingMotion_snappyHexMesh', skip_test=True)
+      self.add_app_step('blockMesh')
+      self.add_app_step('snappyHexMesh')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, 'front.sMesh'))
+
+class simpleWingMotion2DRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self, snappy_runner):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'simple_wingMotion2D',
+            case_dir='wingMotion2D_simpleFoam', skip_test=True)
+      self._snappy_runner = snappy_runner
+      self.add_step('prepare', self._prepare)
+      self.add_app_step('extrudeMesh')
+      self.add_app_step('autoPatch', args='90 -overwrite'.split())
+      self.add_app_step('createPath', args=['-overwrite'])
+      self.add_app_step('simple')
+
+   def _prepare(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Modifying constant/extrudeProperties\n')
+         if test_mode:
+            snappy_case = self._snappy_runner.test_dir
+         else:
+            snappy_case = self._snappy_runner.case_dir
+         FreeFOAM.tutorial.change_file(
+               os.path.join(case_dir, 'constant', 'extrudeProperties'),
+               [(r'"\.\./wingMotion_snappyHexMesh"', '"%s"'%snappy_case)])
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+class pimpleDyMFoamWingMotion2DRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self, simple_runner):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'pimpleDyM_wingMotion2D',
+            case_dir='wingMotion2D_pimpleDyMFoam', skip_test=True)
+      self._simple_runner = simple_runner
+      self.add_step('prepare.1', self._prepare1)
+      self.add_step('mapFields', self._mapFields)
+      self.add_step('prepare.2', self._prepare2)
+      self.add_app_step('decomposePar')
+      self.add_app_step('pimpleDyMFoam', parallel=True)
+      self.add_app_step('reconstructPar')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, '0'))
+
+   def _prepare1(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Copying mesh from steady to mesh-motion case\n')
+         polyMesh = os.path.join(case_dir, 'constant', 'polyMesh')
+         if test_mode:
+            simple_case = self._simple_runner.test_dir
+         else:
+            simple_case = self._simple_runner.case_dir
+         FreeFOAM.util.copytree(
+               os.path.join(simple_case, polyMesh),
+               os.path.join(case_dir, polyMesh))
+         stamp_file.write('Copying 0.org to 0\n')
+         FreeFOAM.util.copytree(
+               os.path.join(case_dir, '0.org'),
+               os.path.join(case_dir, '0'))
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+   def _prepare2(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Renaming unmapped pointDisplacement\n')
+         pointDisplacement = os.path.join(case_dir, '0', 'pointDisplacement')
+         FreeFOAM.util.rename(pointDisplacement+'unmapped', pointDisplacement)
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+   def _mapFields(self, case_dir, stamp_file, test_mode):
+      if test_mode:
+         src = self._simple_runner.test_dir
+      else:
+         src = self._simple_runner.case_dir
+      runner = RunApp('mapFields', args=[src, '-sourceTime', 'latestTime',
+         '-consistent'])
+      runner(case_dir, stamp_file, test_mode)
+
+def register_cases(manager):
+   snappy_runner = snappyHexMeshWingMotionRunner()
+   manager.add_case(snappy_runner)
+   simple_runner = simpleWingMotion2DRunner(snappy_runner)
+   manager.add_case(simple_runner)
+   manager.add_case(pimpleDyMFoamWingMotion2DRunner(simple_runner))
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   register_cases(runner)
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

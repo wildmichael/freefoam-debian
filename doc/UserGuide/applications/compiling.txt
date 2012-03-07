@@ -1,0 +1,312 @@
+=== Compiling applications and libraries
+
+Compilation is an integral part of application development that requires
+careful management since every piece of code requires its own set of
+instructions to access dependent components of the {project} library. In
+`UNIX/Linux` systems these instructions are often organised and delivered to
+the compiler using the standard `Make` (((`make` script/alias)))
+(((script/alias,`make`))) utility. {project}, however, is based
+on the http://www.cmake.org['CMake'] ((('CMake' script/alias)))
+(((script/alias,'CMake'))) build system that is considerably more versatile and
+easier to use. To understand the compilation process, we first need to explain
+certain aspects of {cpp} and its file structure, shown schematically in
+<<fig_compilingCode>>. A class is defined through a set of instructions such as
+object construction, data storage and class member functions. The file
+containing the class 'definition' takes a filename:.C[] extension, 'e.g.' a
+class `nc` would be written in the file filename:nc.C[]. This file can be
+compiled independently of other code into a binary executable library file
+known as a shared object library with a filename:lib[] prefix and a
+filename:.so[] file extension, 'i.e.' filename:libnc.so[]. When compiling a
+piece of code, say filename:newApp.C[], that uses the `nc` class,
+filename:nc.C[] need not be recompiled, rather filename:newApp.C[] calls
+filename:libnc.so[] at runtime. This is known as 'dynamic linking'.
+
+[[fig_compilingCode]]
+.Header files, source files, compilation and linking
+image::images/app_compiling.{gfx-fmt}[scaledwidth="40%"]
+
+==== Header filename:.H[] files
+
+As a means of checking errors, the piece of code being compiled must know that
+the classes it uses and the operations they perform actually exist. Therefore
+each class requires a class 'declaration', contained in a header file with a
+filename:.H[] file extension, 'e.g.' filename:nc.H[], that includes the names
+of the class and its functions. This file is included at the beginning of any
+piece of code using the class, including the class definition code itself. Any
+piece of filename:.C[] code can resource any number of classes and must begin
+with all the filename:.H[] files required to declare these classes. The classes
+in turn can resource other classes and begin with the relevant filename:.H[]
+files. By searching recursively down the class hierarchy we can produce a
+complete list of header files for all the classes on which the top level
+filename:.C[] code ultimately depends; these filename:.H[] files are known as
+the 'dependencies'. With a dependency list, the build system check whether the
+source files have been updated since their last compilation and selectively
+compile only those that need to be.
+
+Header files are included in the code using `#include`
+(((`#include`,{cpp} syntax)))((({cpp} syntax,`#include`))) statements, 'e.g.'
+
+[source,c++]
+-------------------------------------------------------------------------------
+#include <someHeader.H>
+#include "someHeader.H"
+-------------------------------------------------------------------------------
+
+causes the compiler to suspend reading from the current file to read the file
+specified. The difference between the two forms is that the second one (with
+the straight quotation marks) causes the compiler to additionally first search
+the directory containing the including file for the specified header, and only
+then proceed to directories specified via compiler flags and system
+directories.
+
+Any self-contained piece of code can be put into a header file and included at
+the relevant location in the main code in order to improve code readability.
+For example, in most {project} applications the code for creating fields and
+reading field input data is included in a file filename:createFields.H[] which
+is called at the beginning of the code. In this way, header files are not
+solely used as class declarations. It is 'CMake' that performs the task of
+maintaining file dependency lists amongst other functions listed below.
+
+- Automatic generation and maintenance of file dependency lists,
+  (((dependency lists)))(((dependencies))) 'i.e.' lists of files which are
+  included in the source files and hence on which they depend.
+- Multi-platform compilation and linkage, handled through appropriate directory
+  structure.
+- Multi-language compilation and linkage,'e.g.' C, {cpp}, Java.
+- Multi-option compilation and linkage, 'e.g.' debug, optimised, parallel and
+  profiling.
+- Support for source code generation programs, 'e.g.' lex, yacc, IDL, MOC.
+- Simple syntax for source file lists.
+- Automatic creation of source file lists for new codes.
+- Simple handling of multiple shared or static libraries.
+- Extensible to new machine types.
+- Extremely portable.
+
+==== Compiling with 'CMake'
+
+{project} applications are organised using a standard convention that the
+source code of each application is placed in a directory whose name is that of
+the application with the word 'Foam' appended. The notable exception to this
+rule are applications whose name already ends on 'Foam'. Usually these are
+conversion-utilities, such as `cfx4ToFoam`. The top level source file takes the
+same name with the filename:.C[] extension. For example, the source code for a
+simple solver called `T`, solving the heat transport problem, would reside is a
+directory filename:TFoam[] and the top level file would be filename:TFoam.C[]
+as shown in <<fig_applicationDirectoryStructure>>.
+
+[[fig_applicationDirectoryStructure]]
+.Directory structure for the `T` solver
+image::images/app_directoryStructure.{gfx-fmt}[]
+
+The directory must also contain the filename:CMakeLists.txt[]
+(((filename:CMakeListst.txt[] file)))(((file,filename:CMakeLists.txt[]))) file
+and, optionally, the filename:files.cmake[](((filename:files.cmake[] file)))
+(((file,filename:files.cmake[]))) file, which are described in the following
+sections.
+
+===== Running 'CMake'
+
+With 'CMake' it is common to do a (('out-of-source' build)), 'i.e.' the build
+is started in a separate, empty directory. This ensures that the (('source
+tree')) does not get polluted and that all the build products can easily be
+removed by deleting that directory. In this section we will use 'CMake' from
+the command line only, refer to the official 'CMake' documentation on how to
+use the other interfaces.
+
+It is often easiest to just create an empty directory, 'e.g.' called `build`
+inside the source directory, change directory to it and then invoke 'CMake' as
+illustrated below.
+
+------------------------------------------------------------------------------
+$ cd '<path/to/source>'
+$ mkdir build
+$ cd build
+$ cmake ..
+------------------------------------------------------------------------------
+
+On `UNIX`/`Linux` operating systems, 'CMake' will generate standard
+__Makefile__'s.(((Makefile))) The build can then be started by typing
+
+------------------------------------------------------------------------------
+$ make
+------------------------------------------------------------------------------
+
+==== Compilation example: the `simpleWind` application
+
+The source code for application `simpleWind` is in the
+dirname:<tutorials>/incompressible/simpleWindFoam/simpleWindFoam[] directory
+and the top level source file is named filename:simpleWindFoam.C[]. The
+filename:simpleWindFoam.C[] source code is:
+
+[source,c++]
+-------------------------------------------------------------------------------
+/*---------------------------------------------------------------------------*\
+[... omitted ...]
+
+Application
+    simpleWindFoam
+
+Description
+    Steady-state solver for incompressible, turbulent flow with external
+    source in the momentum equation to approximate, e.g. wind turbines.
+
+[... omitted ...]
+\*---------------------------------------------------------------------------*/
+include::{builddir}applications/assets/simpleWindFoam.C[]
+-------------------------------------------------------------------------------
+
+The code begins with a brief description of the application contained within
+((comments)) over 1 line (++//++)(((`//`,{cpp} syntax)))((({cpp} syntax,`//`)))
+and multiple lines (`/*...*/`). (((`/*...*/`,{cpp} syntax)))
+((({cpp} syntax,`/*...*/`))) Following that, the code contains several
+`#include`(((`#include`,{cpp} syntax)))((({cpp} syntax,`#include`)))
+statements, 'e.g.' `#include <finiteVolume/fvCFD.H>`, which causes the compiler
+to suspend reading from the current file, filename:simpleWindFoam.C[] to read
+the filename:finiteVolume/fvCFD.H[].
+
+`simpleWind` includes headers from the `finiteVolume`,
+`incompressibleTransportModels` and `incompressibleRASModels` libraries and
+therefore requires to be linked against them. The filename:CMakeLists.txt[]
+file contains the following:
+
+[subs='verbatim']
+-------------------------------------------------------------------------------
+cmake_minimum_required(VERSION 2.8)               <1>
+project(simpleWind)                               <2>
+
+find_package(FreeFOAM REQUIRED)                   <3>
+include(${FOAM_USE_FILE})                         <4>
+
+foam_add_executable(simpleWind simpleWindFoam.C   <5>
+  ${FOAM_FORCE_LINK_INCOMPRESSIBLE_RAS_MODELS})   <6>
+target_link_libraries(simpleWind                  <7>
+  FOAM_incompressibleTransportModels
+  FOAM_incompressibleRASModels
+  FOAM_finiteVolume
+  )
+-------------------------------------------------------------------------------
+<1> Require that 'CMake' is version 2.8 or newer
+<2> Declare a new 'CMake' project named `simpleWind`
+<3> Find the `FreeFOAM` package
+<4> Include a file that provides useful functions used later on
+<5> Compile filename:simpleWindFoam.C[] into the executable `simpleWind`
+<6> Since `FOAM_incompressibleRASModels` only contains implementation of the
+abstract base class `Foam::incompressible::RASModel` and `simpleWindFoam` never
+references these concrete classes directly, but only through the abstract base
+class, some linkers decide to drop the `FOAM_incompressibleRASModels` library
+from the command line, since it is apparently not used due to the dynamic
+instantiation method used in {project} footnote:[This is e.g. the case if
+`--as-needed` has been added to the link command of `GNU ld`. On recent Linux
+systems, this has become the default.]. This, however, would lead to run-time
+errors since none of the incompressible RAS models would be available. To
+resolve this situation without requiring platform-specific linker flags,
+{project} offers special source files that can be added to the target which
+will force the linker to use the corresponding library. Namely, these are:
++
+--
+[grid="none",frame="topbot",cols="2,3",options="header"]
+|===============
+| Library                      | Variable
+| FOAM_compressibleRASModels   | FOAM_FORCE_LINK_COMPRESSIBLE_RAS_MODELS
+| FOAM_compressibleLESModels   | FOAM_FORCE_LINK_COMPRESSIBLE_LES_MODELS
+| FOAM_incompressibleRASModels | FOAM_FORCE_LINK_INCOMPRESSIBLE_RAS_MODELS
+| FOAM_incompressibleLESModels | FOAM_FORCE_LINK_INCOMPRESSIBLE_LES_MODELS
+| FOAM_genericPatchFields      | FOAM_FORCE_LINK_GENERIC_PATCH_FIELDS
+| FOAM_radiation               | FOAM_FORCE_LINK_RADIATION
+| FOAM_coalCombustion          | FOAM_FORCE_LINK_COAL_COMBUSTION
+| FOAM_interfaceProperties     | FOAM_FORCE_LINK_INTERFACE_PROPERTIES
+|==================
+--
++
+<7> Link the target `simpleWind` against the listed libraries. Although the
+`FOAM_finiteVolume` library would get automatically pulled in by the other
+libraries, it is still listed here because filename:simpleWindFoam.C[] still
+directly includes a header from the `FOAM_finiteVolume` library.
+
+The user can compile `simpleWind` by going to the
+filename:<tutorials>/incompressible/simpleWindFoam/simpleWindFoam[] directory
+and typing:
+
+-------------------------------------------------------------------------------
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+-------------------------------------------------------------------------------
+
+==== Debug messaging and optimisation switches
+
+{project} provides a system of messaging that is
+written during runtime, most of which are to help debugging
+problems encountered during running of a {project} case. The
+switches are listed in the
+filename:<prefix>/etc/{project}-{fullver}/controlDict[] file; should the user
+wish to change the settings they should make a copy to their
+filename:$HOME[] directory, 'i.e.'
+filename:$HOME/.{project}/{fullver}/controlDict[] file. The list of possible
+switches is extensive and can be viewed by running the
+`foamDebugSwitches` application. Most of
+the switches correspond to a class or range of functionality and
+can be switched on by their inclusion in the filename:controlDict[] file, and
+by being set to `1`. For example, {project} can perform the checking of
+dimensional units in all calculations by setting the `dimensionSet` switch to
+`1`. There are some switches that control messaging at a higher level than
+most, listed in <<tab_messageSwitches>>.
+
+In addition, there are some switches that control certain operational and
+optimisation issues. These switches are also listed in <<tab_messageSwitches>>.
+Of particular importance is `fileModificationSkew`. {project} scans the write
+time of data files to check for modification. When running over a NFS with some
+disparity in the clock settings on different machines, field data files appear
+to be modified ahead of time. This can cause a problem if {project} views the
+files as newly modified and attempting to re-read this data. The
+`fileModificationSkew` keyword is the time in seconds that {project} will
+subtract from the file write time when assessing whether the file has been
+newly modified.
+
+[[tab_messageSwitches]]
+.Runtime switches
+[grid="none",frame="topbot",cols="1,2"]
+|=============================================================================
+2+h| High level debugging switches &mdash; sub-dictionary `DebugSwitches`
+| `level`     | Overall level of debugging messaging; between 0 and 2
+| `lduMatrix` | Messaging for solver convergence during a run; between 0 and 2
+2+h| Optimisation switches &mdash; sub-dictionary `OptimisationSwitches`
+| `fileModificationSkew` | A time in seconds that should be set higher than
+the maximum delay in NFS updates and clock difference for running {project}
+over a NFS.
+| `nProcsSimpleSum` | Optimises global sum for parallel processing; sets number
+of processors above which hierarchical sum is performed rather than a linear
+sum (default 16)
+|=============================================================================
+
+==== Linking new user-defined libraries to existing applications
+
+The situation may arise that a user creates a new library, say `new`, and
+wishes the features within that library to be available across a range of
+applications. For example, the user may create a new boundary condition,
+compiled into `new`, that would need to be recognised by a range of solver
+applications, pre- and post-processing utilities, mesh tools, 'etc.' Under
+normal circumstances, the user would need to recompile every application with
+the `new` linked to it.
+
+Instead there is a simple mechanism to link one or more shared object libraries
+dynamically at run-time in {project}. Simply add the optional keyword entry
+`libs` (((`libs` keyword)))(((keyword,`libs`))) to the
+filename:system/controlDict[] file for a case and enter the full names of the
+libraries within a list (as quoted string entries). For example, if a user
+wished to link the libraries `new1` and `new2` at run-time, they would simply
+need to add the following to the case filename:system/controlDict[] file:
+
+-------------------------------------------------------------------------------
+libs
+(
+    "libnew1.so"
+    "libnew2.so"
+);
+-------------------------------------------------------------------------------
+
+Even if the real suffix is not filename:.so[], but 'e.g.' filename:.dylib[] (as
+on Mac OS X (R)), you can still use filename:.so[] in the
+filename:system/controlDict[] file, {project} will substitute the correct
+suffix automatically.

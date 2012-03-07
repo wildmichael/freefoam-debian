@@ -1,0 +1,62 @@
+= @FOAM_UPPER_EXE_PREFIX@CLEARPOLYMESH(1) =
+:mansource: @PROJECT_NAME@
+:manversion: @FOAM_VERSION_FULL@
+:manmanual: @PROJECT_NAME@ Manual
+
+NAME
+----
+@FOAM_EXE_PREFIX@clearPolyMesh - Remove the contents of the constant/polyMesh directory as per the +Foam::polyMesh::removeFiles()+ method.
+
+SYNOPSIS
+--------
+*@LOWER_PROJECT_NAME@ clearPolyMesh* [-case '<caseDir>'] [-region '<regionName>'] [-h | -help]
+
+DESCRIPTION
+-----------
+Removes the files
+- 'points'
+- 'faces'
+- 'owner'
+- 'neighbour'
+- 'cells'
+- 'boundary'
+- 'pointZones'
+- 'faceZones'
+- 'cellZones'
+- 'meshModifiers'
+- 'parallelData'
+- 'sets'
+from the '<caseDir>/constant/<regionName>/polyMesh' directory. '<caseDir>'
+defaults to the current working directory and can be specified with *-case*.
+'<regionName>' is the empty string by default and can be set with the *-region*
+option.
+
+OPTIONS
+-------
+*-case* '<caseDir>'::
+  Case from which to clear the mesh data
+*-region* '<regionName>'::
+  Mesh region to clear (e.g. '<caseDir>/constant/<regionName>/polyMesh')
+*-h | -help*::
+  Display an option summary
+
+SEE ALSO
+--------
+An overview of @PROJECT_NAME@ is given in linkff:@LOWER_PROJECT_NAME@[1].
+
+AUTHOR
+------
+OpenCFD Ltd.
+
+FREEFOAM
+--------
+Part of the linkff:@LOWER_PROJECT_NAME@[1] suite.
+
+COPYRIGHT
+---------
+* Copyright (C) 1991-2010 OpenCFD Ltd.
+* Copyright (C) 2008-2012 Michael Wild.
+
+/////////////////////////////////////////////////////////
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+/////////////////////////////////////////////////////////

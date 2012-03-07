@@ -1,0 +1,110 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 1991-2010 OpenCFD Ltd.
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Application
+    surfaceRefineRedGreen
+
+Description
+    Refine by splitting all three edges of triangle ('red' refinement).
+    Neighbouring triangles (which are not marked for refinement get split
+    in half ('green') refinement.
+
+    (R. Verfuerth, "A review of a posteriori error estimation and adaptive mesh
+    refinement techniques", Wiley-Teubner, 1996)
+
+Usage
+
+    - surfaceRefineRedGreen [OPTIONS] \<Foam surface file\> \<surface output file\>
+
+    @param \<Foam surface file\> \n
+    @todo Detailed description of argument.
+
+    @param \<surface output file\> \n
+    @todo Detailed description of argument.
+
+    @param -case \<dir\>\n
+    Case directory.
+
+    @param -help \n
+    Display help message.
+
+    @param -doc \n
+    Display Doxygen API documentation page for this application.
+
+    @param -srcDoc \n
+    Display Doxygen source documentation page for this application.
+
+\*---------------------------------------------------------------------------*/
+
+#include <triSurface/triSurface.H>
+#include <meshTools/triSurfaceTools.H>
+#include <OpenFOAM/argList.H>
+#include <OpenFOAM/OFstream.H>
+
+using namespace Foam;
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Main program:
+
+int main(int argc, char *argv[])
+{
+    argList::noParallel();
+    argList::validArgs.clear();
+    argList::validArgs.append("surface file");
+    argList::validArgs.append("output surface file");
+    argList args(argc, argv);
+
+    fileName surfFileName(args.additionalArgs()[0]);
+    fileName outFileName(args.additionalArgs()[1]);
+
+    Info<< "Reading surface from " << surfFileName << " ..." << endl;
+
+    triSurface surf1(surfFileName);
+
+    // Refine
+    triSurface surf2 = triSurfaceTools::redGreenRefine
+    (
+        surf1,
+        identity(surf1.size())  //Hack: refine all
+    );
+
+    Info<< "Original surface:" << endl
+        << "    triangles     :" << surf1.size() << endl
+        << "    vertices(used):" << surf1.nPoints() << endl
+        << "Refined surface:" << endl
+        << "    triangles     :" << surf2.size() << endl
+        << "    vertices(used):" << surf2.nPoints() << endl << endl;
+
+
+    Info<< "Writing refined surface to " << outFileName << " ..." << endl;
+
+    surf2.write(outFileName);
+
+    Info << "End\n" << endl;
+
+    return 0;
+}
+
+
+// ************************ vim: set sw=4 sts=4 et: ************************ //

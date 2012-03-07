@@ -1,0 +1,19 @@
+[[chap_models]]
+== Models and physical properties
+
+{project} includes a large range of solvers each designed for a specific class
+of problem. The equations and algorithms differ from one solver to another so
+that the selection of a solver involves the user making some initial choices on
+the modelling for their particular case. The choice of solver typically
+involves scanning through their descriptions in <<tab_standardSolvers>> to find
+the one suitable for the case. It ultimately determines many of the parameters
+and physical properties required to define the case but leaves the user with
+some modelling options that can be specified at runtime through the entries in
+dictionary files in the filename:constant[](((filename:constant[] directory)))
+(((directory,filename:constant[]))) directory of a case. This chapter deals
+with many of the more common models and associated properties that may be
+specified at runtime.
+
+include::thermophysical.txt[]
+
+include::turbulence.txt[]

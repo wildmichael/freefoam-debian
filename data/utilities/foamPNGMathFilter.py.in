@@ -1,0 +1,234 @@
+#!@PYTHON_EXECUTABLE@
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
+#
+# Script
+#     foamPNGMathFilter.py
+#
+#------------------------------------------------------------------------------
+
+"""Usage:
+     foamPNGMathFilter.py [-D dpi] [-m <mathdir>] [-o <outfile>] [<infile>]
+
+Filters the AsciiDoc source file read from standard input (or `<infile>` if
+specified) and replaces all inline and block maths by PNG images generated
+using `latex` and `dvipng`. The filtered source is written to standard output
+or (`<outfile>` if specified). The created images are either written to the
+`math` directory in the current working directory, or if an output file has
+been specified, in the directory containing the output file. The `-m` option
+overrides this choice. The file is named `math_<md5sum>.png`.
+
+Options
+-------
+-D            Specify the resolution of the output images. Refer to dvipng(1)
+-m            Overrides the default output directory for the generated graphics
+-o <outfile>  Specifies that the output should be written to `<outfile>`
+              instead of the standard output
+
+"""
+
+import os
+import os.path
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+
+# argument parsing
+args = sys.argv[1:]
+dpiopt = '-D 120'
+mathdir = None
+outname = None
+while len(args):
+   # process options
+   if args[0] == '-D':
+      if len(args) < 2:
+         echo('ERROR: -D option requires argument', file=sys.stderr)
+         sys.exit(1)
+      dpiopt = ' '.join(args[0:2])
+      del args[0:2]
+      continue
+   if args[0] == '-m':
+      if len(args) < 2:
+         echo('ERROR: -m option requires argument', file=sys.stderr)
+         sys.exit(1)
+      mathdir = args[1]
+      del args[0:2]
+      continue
+   if args[0] == '-o':
+      if len(args) < 2:
+         echo('ERROR: -o option requires argument', file=sys.stderr)
+         sys.exit(1)
+      outname = args[1]
+      del args[0:2]
+      continue
+   if args[0] != '-':
+      break
+   else:
+      echo('ERROR: Unknown option "%s"'%args[0], file=sys.stderr)
+      sys.exit(1)
+
+if len(args) == 1:
+   infile = open(args[0], 'rt')
+elif not len(args):
+   infile = sys.stdin
+else:
+   echo('ERROR: Only one non-option argument allowed', file=sys.stderr)
+   sys.exit(1)
+
+if outname:
+   outdir = os.path.dirname(outname)
+   if not os.path.isdir(outdir):
+      os.makedirs(outdir)
+   outfile = open(outname, 'wt')
+else:
+   outfile = sys.stdout
+   outdir = os.getcwd()
+
+if not mathdir:
+   mathdir = os.path.join(outdir, 'math')
+
+absmathdir = os.path.isabs(mathdir) and mathdir or os.path.join(pwd, mathdir)
+#relmathdir = os.path.relpath(mathdir, outdir)
+
+LATEXHEAD = r'''
+\documentclass[12pt]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{bm}
+\input{@FOAM_DATA_DIR@/asciidoc/dblatex/foam-macros.sty}
+\pagestyle{empty}
+\begin{document}
+'''
+
+LATEXSEP = r'''
+\clearpage
+'''
+
+LATEXFOOT = r'''
+\end{document}
+'''
+
+regexes = {
+  'inlinemacro': re.compile(
+     r'(?su)[\\]?(?P<name>math):(?P<subslist>\S*?)\[(?P<mathtext>.*?)'
+     + r'(?<!\\)\]'),
+   'blockmacro': re.compile(
+      r'(?su)[\\]?(?P<name>math)::(?P<subslist>\S*?)\[(?P<mathtext>.*?)'
+      + r'(?<!\\)\]'),
+   'block': re.compile(
+      r'(?sum)^\[(?P<name>math)\]\n(?:\+{4,})\n(?P<mathtext>.*?)\n'
+      + r'(?:\+{4,})$'),
+   }
+
+lines = ''.join(infile.readlines())
+
+matches = []
+for name, regex in regexes.items():
+   for m in regex.finditer(lines):
+      mathtext = m.group('mathtext')
+      h = md5(name+dpiopt+mathtext).hexdigest()
+      matches.append({
+         'match'    : m,
+         'name'     : name,
+         'mathtext' : mathtext,
+         'begin'    : m.start(),
+         'end'      : m.end(),
+         'hash'     : h,
+         'outname'  : 'math_%s.png'%h
+         })
+
+matches.sort(key=lambda x: x['begin'], reverse=True)
+
+latextext = ''
+hashes = {}
+idx = 1
+for m in matches:
+   #imname = os.path.join(relmathdir, m['outname'])
+   imname = os.path.join(absmathdir, m['outname'])
+   mathtext = m['mathtext']
+   if m['name'] in 'inlinemacro blockmacro'.split():
+      sep = ':'
+      cleanmathtext = mathtext.replace(r'\]', ']')
+      if m['name'] == 'inlinemacro':
+         cleanmathtext = '$%s$'%cleanmathtext
+      else:
+         sep += ':'
+      replacement = 'math%s%s[%s]'%(sep,imname,mathtext)
+   elif m['name'] == 'block':
+      cleanmathtext = mathtext
+      replacement = '[math,%s]\n++++++\n%s\n++++++'%(imname,mathtext)
+
+   lines = lines[:m['begin']]+replacement+lines[m['end']:]
+   if not m['hash'] in hashes and not os.path.isfile(
+         os.path.join(absmathdir,m['outname'])):
+      hashes[m['hash']] = {
+            'idx'      : idx,
+            'tmpname'  : 'math%d.png'%idx,
+            'outname'  : m['outname'],
+            'mathtext' : cleanmathtext,
+            }
+      idx += 1
+      latextext += cleanmathtext + LATEXSEP
+
+if len(latextext):
+   pwd = os.getcwd()
+   tmpdir = None
+   latextext = LATEXHEAD + latextext + LATEXFOOT
+   try:
+      if not os.path.isdir(absmathdir):
+         os.makedirs(absmathdir)
+      tmpdir = tempfile.mkdtemp()
+      os.chdir(tmpdir)
+      open('math.tex', 'wt').write(latextext)
+      subprocess.check_call([
+         '@LATEX_EXECUTABLE@',
+         '--interaction=nonstopmode', 'math.tex'],
+         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+      subprocess.check_call([
+         '@DVIPNG_EXECUTABLE@',
+         '-T', 'tight', '-z9', dpiopt, 'math.dvi'],
+         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+      for d in hashes.values():
+         shutil.move(d['tmpname'], os.path.join(absmathdir, d['outname']))
+   finally:
+      os.chdir(pwd)
+      if tmpdir is not None:
+         shutil.rmtree(tmpdir)
+
+outfile.write(lines)
+
+# ------------------------- vim: set sw=3 sts=3 et: --------------- end-of-file

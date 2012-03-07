@@ -1,0 +1,77 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     porousExplicitSourceReactingParcelFoam;
+
+startFoam       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         0.5;
+
+deltaT          1e-05;
+
+writeControl    adjustableRunTime;
+
+writeInterval   1e-02;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  10;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           5;
+
+maxDeltaT       1e-03;
+
+functions
+{
+    faceSource1
+    {
+        type            faceSource;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+        enabled         true;
+        outputControl   outputTime;
+        log             true;
+        valueOutput     true;
+        source          patch;
+        sourceName      outlet;
+        operation       weightedAverage;
+        weightField     phi;
+        fields
+        (
+            H2O
+            T
+        );
+    }
+}
+
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

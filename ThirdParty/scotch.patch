@@ -1,0 +1,427 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..963f2ce
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,196 @@
++#-------------------------------------------------------------------------------
++#               ______                _     ____          __  __
++#              |  ____|             _| |_  / __ \   /\   |  \/  |
++#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
++#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
++#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
++#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
++#
++#                   FreeFOAM: The Cross-Platform CFD Toolkit
++#
++# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
++#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
++#-------------------------------------------------------------------------------
++# License
++#   This file is part of FreeFOAM.
++#
++#   FreeFOAM is free software: you can redistribute it and/or modify it
++#   under the terms of the GNU General Public License as published by the
++#   Free Software Foundation, either version 3 of the License, or (at your
++#   option) any later version.
++#
++#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
++#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++#   for more details.
++#
++#   You should have received a copy of the GNU General Public License
++#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
++#-------------------------------------------------------------------------------
++
++cmake_minimum_required(VERSION 2.8)
++project(scotch)
++set(SCOTCH_VERSION 5.1.7-dfsg1-freefoam1)
++
++find_package(BISON REQUIRED)
++find_package(FLEX REQUIRED)
++find_package(Threads)
++find_package(ZLIB)
++
++find_library(RT_LIBRARY rt)
++mark_as_advanced(RT_LIBRARY)
++
++include(CheckFunctionExists)
++if(RT_LIBRARY)
++  set(CMAKE_REQUIRED_LIBRARIES ${RT_LIBRARY})
++endif(RT_LIBRARY)
++check_function_exists(clock_gettime HAVE_CLOCK_GETTIME)
++set(CMAKE_REQUIRED_LIBRARIES)
++mark_as_advanced(HAVE_CLOCK_GETTIME)
++
++include(CheckCCompilerFlag)
++include(CheckCSourceCompiles)
++
++# check for -std=c99 and -c99 compiler flags
++check_c_compiler_flag(-std=c99 STDC99_FLAG_WORKS)
++if(STDC99_FLAG_WORKS)
++  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
++  add_definitions(-D_BSD_SOURCE -D_POSIX_C_SOURCE=199309L)
++else()
++  check_c_compiler_flag(-c99 C99_FLAG_WORKS)
++  if(C99_FLAG_WORKS)
++    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -c99")
++    add_definitions(-D_BSD_SOURCE -D_POSIX_C_SOURCE=199309L)
++  endif()
++endif()
++
++# check whether the restrict keyword works
++set(RESTRICT_CHECK_SRC
++  "typedef struct A_ { int a1; int * restrict a2; } A; int main() { A a; return 0; }"
++  )
++check_c_source_compiles("${RESTRICT_CHECK_SRC}" HAVE_STD_RESTRICT_KEYWORD)
++
++if(NOT HAVE_STD_RESTRICT_KEYWORD)
++  # check whether __restrict keyword works
++  set(CMAKE_REQUIRED_DEFINITIONS -Drestrict=__restrict)
++  check_c_source_compiles("${RESTRICT_CHECK_SRC}" HAVE_NOSTD_RESTRICT_KEYWORD)
++  set(CMAKE_REQUIRED_DEFINITIONS)
++  if(HAVE_NOSTD_RESTRICT_KEYWORD)
++    add_definitions(-Drestrict=__restrict)
++  else()
++    add_definitions(-Drestrict)
++  endif()
++endif()
++
++if(CMAKE_USE_PTHREADS_INIT OR CMAKE_HP_PTHREADS_INIT)
++  option(SCOTCH_USE_COMPRESSION_PTHREADS
++    "Use pthread in the (un)compression code of the scotch library" ON)
++  mark_as_advanced(SCOTCH_USE_COMPRESSION_PTHREADS)
++  if(SCOTCH_USE_COMPRESSION_PTHREADS)
++    add_definitions(-DCOMMON_PTHREAD)
++  endif(SCOTCH_USE_COMPRESSION_PTHREADS)
++  option(SCOTCH_USE_PTHREADS
++"Use pthreads in the scotch and ptscotch libraries (requires thread-safe MPI)"
++    ON)
++  mark_as_advanced(SCOTCH_USE_PTHREADS)
++  if(SCOTCH_USE_PHREADS)
++    add_definitions(-DSCOTCH_PTHREAD)
++  endif(SCOTCH_USE_PHREADS)
++endif(CMAKE_USE_PTHREADS_INIT OR CMAKE_HP_PTHREADS_INIT)
++
++if(ZLIB_FOUND)
++  add_definitions(-DCOMMON_FILE_COMPRESS_GZ)
++  list(APPEND SCOTCH_LINK_LIBRARIES ${ZLIB_LIBRARIES})
++endif()
++
++if(HAVE_CLOCK_GETTIME)
++  if(RT_LIBRARY)
++    list(APPEND SCOTCH_LINK_LIBRARIES ${RT_LIBRARY})
++  endif(RT_LIBRARY)
++else(HAVE_CLOCK_GETTIME)
++  add_definitions(-DCOMMON_TIMING_OLD)
++endif(HAVE_CLOCK_GETTIME)
++
++if(MINGW)
++  add_definitions(
++    -DCOMMON_RANDOM_RAND
++    -DCOMMON_STUB_FORK
++    -D"pipe(pfds)=_pipe(pfds,1024,0x8000)"
++    )
++endif(MINGW)
++
++add_definitions(
++  -DSCOTCH_VERSION="${SCOTCH_VERSION}"
++  -DCOMMON_RANDOM_FIXED_SEED
++  -DSCOTCH_RENAME
++  )
++
++set(PARSER_LL_C ${CMAKE_BINARY_DIR}/parser_ll.c)
++set(PARSER_YY_C ${CMAKE_BINARY_DIR}/parser_yy.c)
++set(PARSER_LY_H ${CMAKE_BINARY_DIR}/parser_ly.h)
++flex_target(parser_ll src/libscotch/parser_ll.l ${PARSER_LL_C})
++bison_target(parser_yy src/libscotch/parser_yy.y
++  ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/parser_yy.c)
++add_custom_command(OUTPUT ${PARSER_YY_C} ${PARSER_LY_H}
++  COMMAND ${CMAKE_COMMAND} -E copy_if_different
++    ${BISON_parser_yy_OUTPUT_SOURCE} ${PARSER_YY_C}
++  COMMAND ${CMAKE_COMMAND} -E copy_if_different
++    ${BISON_parser_yy_OUTPUT_HEADER} ${PARSER_LY_H}
++  DEPENDS ${BISON_parser_yy_OUTPUT_HEADER}
++  VERBATIM
++  )
++
++foreach(COMMON_SRC_NAME common common_file common_file_compress
++    common_file_uncompress common_integer common_memory common_stub)
++  configure_file(common.c.in
++    ${CMAKE_BINARY_DIR}/${COMMON_SRC_NAME}2.c
++    @ONLY
++    )
++endforeach(COMMON_SRC_NAME)
++
++add_executable(scotch_dummysizes
++  src/libscotch/dummysizes.c)
++
++add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/scotch.h
++  COMMAND scotch_dummysizes ${CMAKE_SOURCE_DIR}/src/libscotch/library.h
++  ${CMAKE_BINARY_DIR}/scotch.h
++  DEPENDS src/libscotch/library.h
++  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
++  COMMENT "Generating ${CMAKE_BINARY_DIR}/scotch.h"
++  VERBATIM
++  )
++
++add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/scotchf.h
++  COMMAND scotch_dummysizes ${CMAKE_SOURCE_DIR}/src/libscotch/libraryf.h
++  ${CMAKE_BINARY_DIR}/scotchf.h
++  DEPENDS src/libscotch/libraryf.h
++  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
++  COMMENT "Generating ${CMAKE_BINARY_DIR}/scotchf.h"
++  VERBATIM
++  )
++
++include(files.cmake)
++
++include_directories(
++  ${CMAKE_SOURCE_DIR}/src/libscotch
++  ${CMAKE_BINARY_DIR}
++  ${ZLIB_INCLUDE_DIR}
++  )
++
++
++add_library(foam_scotch ${SRCS}
++  ${PARSER_LY_H} ${CMAKE_BINARY_DIR}/scotch.h ${CMAKE_BINARY_DIR}/scotchf.h)
++
++target_link_libraries(foam_scotch ${SCOTCH_LINK_LIBRARIES})
++
++install(TARGETS foam_scotch
++  LIBRARY DESTINATION lib
++  ARCHIVE DESTINATION lib
++  RUNTIME DESTINATION bin
++  )
++
++install(FILES ${CMAKE_BINARY_DIR}/scotch.h
++  DESTINATION include
++  )
++
++# ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file
+diff --git a/common.c.in b/common.c.in
+new file mode 100644
+index 0000000..73792d7
+--- /dev/null
++++ b/common.c.in
+@@ -0,0 +1,5 @@
++/* AUTOMATICALLY GENERATED! DO NOT EDIT! */
++
++#define SCOTCH_COMMON_RENAME
++#include "module.h"
++#include "@COMMON_SRC_NAME@.c"
+diff --git a/files.cmake b/files.cmake
+new file mode 100644
+index 0000000..3d62cd5
+--- /dev/null
++++ b/files.cmake
+@@ -0,0 +1,192 @@
++#-------------------------------------------------------------------------------
++#               ______                _     ____          __  __
++#              |  ____|             _| |_  / __ \   /\   |  \/  |
++#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
++#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
++#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
++#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
++#
++#                   FreeFOAM: The Cross-Platform CFD Toolkit
++#
++# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
++#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
++#-------------------------------------------------------------------------------
++# License
++#   This file is part of FreeFOAM.
++#
++#   FreeFOAM is free software: you can redistribute it and/or modify it
++#   under the terms of the GNU General Public License as published by the
++#   Free Software Foundation, either version 3 of the License, or (at your
++#   option) any later version.
++#
++#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
++#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++#   for more details.
++#
++#   You should have received a copy of the GNU General Public License
++#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
++#-------------------------------------------------------------------------------
++
++set(SRCS
++  src/libscotch/arch.c
++  src/libscotch/arch_build.c
++  src/libscotch/arch_cmplt.c
++  src/libscotch/arch_cmpltw.c
++  src/libscotch/arch_deco.c
++  src/libscotch/arch_hcub.c
++  src/libscotch/arch_mesh.c
++  src/libscotch/arch_tleaf.c
++  src/libscotch/arch_torus.c
++  src/libscotch/arch_vcmplt.c
++  src/libscotch/arch_vhcub.c
++  src/libscotch/bgraph.c
++  src/libscotch/bgraph_bipart_bd.c
++  src/libscotch/bgraph_bipart_df.c
++  src/libscotch/bgraph_bipart_ex.c
++  src/libscotch/bgraph_bipart_fm.c
++  src/libscotch/bgraph_bipart_gg.c
++  src/libscotch/bgraph_bipart_gp.c
++  src/libscotch/bgraph_bipart_ml.c
++  src/libscotch/bgraph_bipart_st.c
++  src/libscotch/bgraph_bipart_zr.c
++  src/libscotch/bgraph_check.c
++  src/libscotch/bgraph_store.c
++  src/libscotch/gain.c
++  src/libscotch/geom.c
++  src/libscotch/graph.c
++  src/libscotch/graph_base.c
++  src/libscotch/graph_check.c
++  src/libscotch/graph_coarsen.c
++  src/libscotch/graph_induce.c
++  src/libscotch/graph_io.c
++  src/libscotch/graph_io_chac.c
++  src/libscotch/graph_io_habo.c
++  src/libscotch/graph_io_mmkt.c
++  src/libscotch/graph_io_scot.c
++  src/libscotch/graph_list.c
++  src/libscotch/hall_order_hd.c
++  src/libscotch/hall_order_hf.c
++  src/libscotch/hall_order_hx.c
++  src/libscotch/hgraph.c
++  src/libscotch/hgraph_check.c
++  src/libscotch/hgraph_induce.c
++  src/libscotch/hgraph_order_bl.c
++  src/libscotch/hgraph_order_cp.c
++  src/libscotch/hgraph_order_gp.c
++  src/libscotch/hgraph_order_hd.c
++  src/libscotch/hgraph_order_hf.c
++  src/libscotch/hgraph_order_hx.c
++  src/libscotch/hgraph_order_nd.c
++  src/libscotch/hgraph_order_si.c
++  src/libscotch/hgraph_order_st.c
++  src/libscotch/hmesh.c
++  src/libscotch/hmesh_check.c
++  src/libscotch/hmesh_hgraph.c
++  src/libscotch/hmesh_induce.c
++  src/libscotch/hmesh_mesh.c
++  src/libscotch/hmesh_order_bl.c
++  src/libscotch/hmesh_order_cp.c
++  src/libscotch/hmesh_order_gr.c
++  src/libscotch/hmesh_order_gp.c
++  src/libscotch/hmesh_order_hd.c
++  src/libscotch/hmesh_order_hf.c
++  src/libscotch/hmesh_order_hx.c
++  src/libscotch/hmesh_order_nd.c
++  src/libscotch/hmesh_order_si.c
++  src/libscotch/hmesh_order_st.c
++  src/libscotch/kgraph.c
++  src/libscotch/kgraph_map_rb.c
++  src/libscotch/kgraph_map_rb_map.c
++  src/libscotch/kgraph_map_rb_part.c
++  src/libscotch/kgraph_map_st.c
++  src/libscotch/library_arch.c
++  src/libscotch/library_arch_f.c
++  src/libscotch/library_arch_build.c
++  src/libscotch/library_arch_build_f.c
++  src/libscotch/library_geom.c
++  src/libscotch/library_geom_f.c
++  src/libscotch/library_graph.c
++  src/libscotch/library_graph_f.c
++  src/libscotch/library_graph_base.c
++  src/libscotch/library_graph_base_f.c
++  src/libscotch/library_graph_check.c
++  src/libscotch/library_graph_check_f.c
++  src/libscotch/library_graph_io_chac.c
++  src/libscotch/library_graph_io_chac_f.c
++  src/libscotch/library_graph_io_habo.c
++  src/libscotch/library_graph_io_habo_f.c
++  src/libscotch/library_graph_io_mmkt.c
++  src/libscotch/library_graph_io_mmkt_f.c
++  src/libscotch/library_graph_io_scot.c
++  src/libscotch/library_graph_io_scot_f.c
++  src/libscotch/library_graph_map.c
++  src/libscotch/library_graph_map_f.c
++  src/libscotch/library_graph_map_view.c
++  src/libscotch/library_graph_map_view_f.c
++  src/libscotch/library_graph_order.c
++  src/libscotch/library_graph_order_f.c
++  src/libscotch/library_mesh.c
++  src/libscotch/library_mesh_f.c
++  src/libscotch/library_mesh_graph.c
++  src/libscotch/library_mesh_graph_f.c
++  src/libscotch/library_mesh_io_habo.c
++  src/libscotch/library_mesh_io_habo_f.c
++  src/libscotch/library_mesh_io_scot.c
++  src/libscotch/library_mesh_io_scot_f.c
++  src/libscotch/library_mesh_order.c
++  src/libscotch/library_mesh_order_f.c
++  src/libscotch/library_parser.c
++  src/libscotch/library_parser_f.c
++  src/libscotch/library_random.c
++  src/libscotch/library_random_f.c
++  src/libscotch/mapping.c
++  src/libscotch/mapping_io.c
++  src/libscotch/mesh.c
++  src/libscotch/mesh_check.c
++  src/libscotch/mesh_coarsen.c
++  src/libscotch/mesh_graph.c
++  src/libscotch/mesh_induce_sepa.c
++  src/libscotch/mesh_io.c
++  src/libscotch/mesh_io_habo.c
++  src/libscotch/mesh_io_scot.c
++  src/libscotch/order.c
++  src/libscotch/order_check.c
++  src/libscotch/order_io.c
++  src/libscotch/parser.c
++  src/libscotch/vgraph.c
++  src/libscotch/vgraph_check.c
++  src/libscotch/vgraph_separate_bd.c
++  src/libscotch/vgraph_separate_es.c
++  src/libscotch/vgraph_separate_fm.c
++  src/libscotch/vgraph_separate_gg.c
++  src/libscotch/vgraph_separate_gp.c
++  src/libscotch/vgraph_separate_ml.c
++  src/libscotch/vgraph_separate_st.c
++  src/libscotch/vgraph_separate_th.c
++  src/libscotch/vgraph_separate_vw.c
++  src/libscotch/vgraph_separate_zr.c
++  src/libscotch/vgraph_store.c
++  src/libscotch/vmesh.c
++  src/libscotch/vmesh_check.c
++  src/libscotch/vmesh_separate_fm.c
++  src/libscotch/vmesh_separate_gg.c
++  src/libscotch/vmesh_separate_gr.c
++  src/libscotch/vmesh_separate_ml.c
++  src/libscotch/vmesh_separate_zr.c
++  src/libscotch/vmesh_separate_st.c
++  src/libscotch/vmesh_store.c
++  ${PARSER_LL_C}
++  ${PARSER_YY_C}
++  common2.c
++  common_file2.c
++  common_file_compress2.c
++  common_file_uncompress2.c
++  common_integer2.c
++  common_memory2.c
++  common_stub2.c
++  # HACK add the error handling directly to the scotch library
++  src/libscotch/library_error_exit.c
++  )
++
++# ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file
+diff --git a/src/libscotch/parser_yy.y b/src/libscotch/parser_yy.y
+index 1a81615..87b8994 100644
+--- a/src/libscotch/parser_yy.y
++++ b/src/libscotch/parser_yy.y
+@@ -91,6 +91,11 @@ static StratParamTab *      parserparamcurr = NULL; /* Pointer to current parame
+ 
+ extern unsigned int         parsermethtokentab[]; /* Pre-definition for stupid compilers */
+ 
++/* HACK my Bison does not declare yyerror, so do that here.
++   yyerror is defined to stratParserError. */
++static int stratParserError (const char * const errstr);
++/* END HACK */
++
+ %}
+ 
+ %union {

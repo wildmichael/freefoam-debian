@@ -1,0 +1,28 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+
+class potentialPitzDailyRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'potential_pitzDaily')
+      self.add_app_step('blockMesh')
+      self.add_app_step('potential')
+      self.add_app_step('streamFunction')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      zero = os.path.join(self.case_dir, '0')
+      FreeFOAM.util.copytree(zero+'.org', zero)
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(potentialPitzDailyRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

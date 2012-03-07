@@ -1,0 +1,80 @@
+= @FOAM_UPPER_EXE_PREFIX@LOG(1) =
+:mansource: @PROJECT_NAME@
+:manversion: @FOAM_VERSION_FULL@
+:manmanual: @PROJECT_NAME@ Manual
+
+NAME
+----
+@FOAM_EXE_PREFIX@log - Extracts xy files from Foam logs
+
+SYNOPSIS
+--------
+*@LOWER_PROJECT_NAME@ log* [-n][-s] '<logFile>'
+*@LOWER_PROJECT_NAME@ log* -l '<logFile>'
+*@LOWER_PROJECT_NAME@ log* -h
+
+DESCRIPTION
+-----------
+The default is to extract for all the '"Solved for"' variables the initial
+residual, the final residual and the number of iterations. On top of this a
+(user editable) database of standard non-solved for variables is used to
+extract data like Courant number, execution time etc.
+
+The *-l* option shows all the possible variables but does not extract them.
+
+The program will generate and run an awk script which writes a set of files,
+'logs/<var>_<subIter>', for every '<var>' specified, for every occurrence
+inside a time step.
+
+For variables that are '"Solved for"' the initial residual name will be
+'<var>', the final residual will get name '<var>FinalRes'.
+
+The files are a simple 'xy' format with the first column Time (default) and the
+second the extracted values. Option *-n* creates single column files with the
+extracted data only.
+
+The query database is a simple text format with three entries per line,
+separated with '/'. Column 1 is the name of the variable (cannot contain
+spaces), column 2 is the extended regular expression (egrep) to select the line
+and column 3 is the string (fgrep) to select the column inside the line. The
+value taken will be the first (non-space)word after this column. The database
+will either be '$HOME/.FreeFOAM/foamLog.db' or if not found
+'@FOAM_DATA_DIR@/foamLog.db'.
+
+Option *-s* suppresses the default information and only prints the extracted
+variables.
+
+OPTIONS
+-------
+'<logFile>'::
+  A @PROJECT_NAME@ log file (i.e. the screen-output created by a @PROJECT_NAME@ solver)
+*-n*::
+  Create a single-column file containing the extracted data only
+*-s*::
+  Suppresses the default information and only displays the extracted variable
+  names
+*-l*::
+  List all possible variables but do not extract them
+*-h*::
+  Display an option summary
+
+SEE ALSO
+--------
+An overview of @PROJECT_NAME@ is given in linkff:@LOWER_PROJECT_NAME@[1].
+
+AUTHOR
+------
+OpenCFD Ltd.
+
+FREEFOAM
+--------
+Part of the linkff:@LOWER_PROJECT_NAME@[1] suite.
+
+COPYRIGHT
+---------
+* Copyright (C) 1991-2010 OpenCFD Ltd.
+* Copyright (C) 2008-2012 Michael Wild.
+
+/////////////////////////////////////////////////////////
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+/////////////////////////////////////////////////////////

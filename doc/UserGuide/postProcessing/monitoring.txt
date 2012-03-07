@@ -1,0 +1,120 @@
+=== Monitoring and managing jobs
+
+This section is concerned primarily with successful running of {project} jobs
+and extends on the basic execution of solvers described in
+<<sec_runningApplications>>. When a solver is executed, it reports the status
+of equation solution to standard output, 'i.e.' the screen, if the `level`
+debug switch is set to 1 or 2 (default) in filename:DebugSwitches[] in the
+filename:<prefix>etc/controlDict[] file. An example from the beginning of the
+solution of the dirname:cavity[] tutorial is shown below where it can be seen
+that, for each equation that is solved, a report line is written with the
+solver name, the variable that is solved, its initial and final residuals and
+number of iterations.
+
+-------------------------------------------------------------------------------
+Starting time loop
+
+Time = 0.005
+
+Courant Number mean: 0 max: 0
+DILUPBiCG:  Solving for Ux, Initial residual = 1, Final residual = 2.96338e-06, No Iterations 8
+DILUPBiCG:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+DICPCG:  Solving for p, Initial residual = 1, Final residual = 7.55402e-07, No Iterations 35
+time step continuity errors : sum local = 5.03809e-09, global = 4.40722e-19, cumulative = 4.40722e-19
+DICPCG:  Solving for p, Initial residual = 0.523591, Final residual = 9.72352e-07, No Iterations 34
+time step continuity errors : sum local = 1.07766e-08, global = 2.93897e-19, cumulative = 7.34619e-19
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.01
+
+Courant Number mean: 0.0514108 max: 0.585722
+DILUPBiCG:  Solving for Ux, Initial residual = 0.148584, Final residual = 7.15711e-06, No Iterations 6
+DILUPBiCG:  Solving for Uy, Initial residual = 0.256618, Final residual = 8.94127e-06, No Iterations 6
+DICPCG:  Solving for p, Initial residual = 0.379232, Final residual = 3.38648e-07, No Iterations 34
+time step continuity errors : sum local = 3.15698e-09, global = 1.94222e-19, cumulative = 9.28841e-19
+DICPCG:  Solving for p, Initial residual = 0.286937, Final residual = 5.99637e-07, No Iterations 33
+time step continuity errors : sum local = 6.08774e-09, global = 5.80474e-19, cumulative = 1.50932e-18
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.015
+
+Courant Number mean: 0.0761501 max: 0.758286
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0448669, Final residual = 2.39894e-06, No Iterations 6
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0782408, Final residual = 1.45948e-06, No Iterations 7
+DICPCG:  Solving for p, Initial residual = 0.109591, Final residual = 5.81093e-07, No Iterations 32
+time step continuity errors : sum local = 4.70049e-09, global = -5.90607e-20, cumulative = 1.45025e-18
+DICPCG:  Solving for p, Initial residual = 0.0826507, Final residual = 7.26561e-07, No Iterations 31
+time step continuity errors : sum local = 5.95385e-09, global = -5.75718e-20, cumulative = 1.39268e-18
+ExecutionTime = 0.02 s  ClockTime = 0 s
+-------------------------------------------------------------------------------
+
+==== The `job` script for running jobs
+
+The user may be happy to monitor the residuals, iterations, Courant number
+'etc.' as report data passes across the screen. Alternatively, the user can
+redirect the report to a log file which will improve the speed of the
+computation. The `job` (((`job` script/alias)))(((script/alias,`job`))) script
+provides useful options for this purpose with the following executing the
+specified '<solver>' as a background process and redirecting the output to a
+file named filename:log[]:
+
+-------------------------------------------------------------------------------
+$freefoam job <solver>
+-------------------------------------------------------------------------------
+
+For further options the user should execute `freefoam job -help`. The user may
+monitor the filename:log[] file whenever they wish, using the `UNIX` `tail`
+command, typically with the option:-f[] (`follow') option which appends the new
+data as the filename:log[] file grows:
+
+-------------------------------------------------------------------------------
+$ tail -f log
+-------------------------------------------------------------------------------
+
+==== The `log` script for monitoring jobs
+
+There are limitations to monitoring a job by reading the log file, in
+particular it is difficult to extract trends over a long period of time. The
+`log` (((`log` script/alias)))(((script/alias,`log`))) script is therefore
+provided to extract data of residuals, iterations, Courant number 'etc.' from a
+log file and present it in a set of files that can be plotted graphically. The
+script is executed by:
+
+-------------------------------------------------------------------------------
+$ freefoam log <logFile>
+-------------------------------------------------------------------------------
+
+The files are stored in a subdirectory of the case directory named
+dirname:logs[]. Each file has the name filename:<var>_<subIter>[] where
+'<var>' is the name of the variable specified in the log file and '<subIter>'
+is the iteration number within the time step. Those variables that are solved
+for, the initial residual takes the variable name '<var>' and final residual
+takes __<var>__++FinalRes++. By default, the files are presented in two-column
+format of time and the extracted values.
+
+For example, in the dirname:cavity[] tutorial we may wish to observe the
+initial residual of the `Ux` equation to see whether the solution is converging
+to a steady-state. In that case, we would plot the data from the
+filename:logs/Ux_0[] file as shown in <<fig_UxResidual>>. It can be seen here
+that the residual falls monotonically until it reaches the convergence
+tolerance of math:[10^{-5}].
+
+[[fig_UxResidual]]
+.Initial residual of `Ux` in the dirname:cavity[] tutorial
+image::images/post_UxResidual.{gfx-fmt}[]
+
+`log` generates files for everything it feasibly can from the filename:log[]
+file. In the dirname:cavity[] tutorial example, this includes:
+
+- the Courant number, filename:Courant_0[];
+- `Ux` equation initial and final residuals, filename:Ux_0[] and
+  filename:UxFinalRes_0[], and iterations, filename:UxIters_0[] (and equivalent
+  `Uy` data);
+- cumulative, global and local continuity errors after each of the 2 `p`
+  equations, filename:contCumulative_0[], filename:contGlobal_0[],
+  filename:contLocal_0[] and filename:contCumulative_1[],
+  filename:contGlobal_1[], filename:contLocal_1[];
+- residuals and iterations from the the 2 `p` equations filename:p_0[],
+  filename:pFinalRes_0[], filename:pIters_0[] and filename:p_1[],
+  filename:pFinalRes_1[], filename:pIters_1[];
+- and execution time, filename:executionTime[].

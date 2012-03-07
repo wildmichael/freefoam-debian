@@ -1,0 +1,59 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class cavitatingRASThrottleRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'cavitating_ras_throttle')
+      self.add_app_step('blockMesh')
+      for i in [1,2,3]:
+         self._add_refine_step(self, i)
+      self.add_app_step('cavitating')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, 'constant', 'polyMesh', 'sets'))
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, '0', 'polyMesh'))
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, 'system', 'cellSetDict'))
+
+   def _add_refine_step(self, runner, cellSet):
+      cellSet = str(cellSet)
+      runner.add_step('copyCellSetDict.'+cellSet,
+            self._CopyCellSetDict(cellSet))
+      runner.add_app_step('cellSet.'+cellSet, app='cellSet')
+      runner.add_app_step('refineMesh.'+cellSet, app='refineMesh',
+            args='-dict -overwrite'.split())
+
+   class _CopyCellSetDict:
+      def __init__(self, cellSet):
+         self._set = str(cellSet)
+
+      def __call__(self, case_dir, stamp_file, test_mode):
+         try:
+            stamp_file.write(
+               'Copying system/cellSetDict.%s to system/cellSetDict\n'%self._set)
+            cellSetDict = os.path.join(case_dir, 'system', 'cellSetDict')
+            FreeFOAM.util.copytree(cellSetDict+'.'+self._set, cellSetDict)
+            stamp_file.write('REPORT: SUCCESS\n')
+            return True
+         except Exception:
+            e = sys.exc_info()[1]
+            stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+            return False
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(cavitatingRASThrottleRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

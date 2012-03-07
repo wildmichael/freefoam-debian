@@ -1,0 +1,168 @@
+{project} README for Version {fullver}
+======================================
+Michael Wild <themiwi@users.sourceforge.net>
+:Author Initials: MW
+v{fullver}, {localdate}
+{homepage}
+
+:apidoc: {homepage}/doc/v{fullver}/API
+:asciidoc: http://www.methods.co.nz/asciidoc
+:bugreport: http://sourceforge.net/apps/mantisbt/freefoam
+:ccmio: https://wci.llnl.gov/codes/visit/3rd_party/libccmio-2.6.1.tar.gz
+:cmake: http://cmake.org
+:dblatex: http://dblatex.sourceforge.net
+:doxygen: http://www.doxygen.org
+:flex: http://flex.sourceforge.net
+:fop: http://xmlgraphics.apache.org/fop
+:gcc: http://gcc.gnu.org
+:git: http://git.or.cz
+:m4: http://www.gnu.org/software/m4/
+:make: http://www.gnu.org/software/make
+:mathjax: http://www.mathjax.org
+:metis: http://glaros.dtc.umn.edu/gkhome/metis/metis/overview
+:mgridgen: http://glaros.dtc.umn.edu/gkhome/mgridgen/overview
+:openfoamforum: http://www.cfd-online.com/Forums/openfoam
+:openmpi: http://www.open-mpi.org[OpenMPI]
+:paraview: http://www.paraview.org
+:parmetis: http://glaros.dtc.umn.edu/gkhome/metis/parmetis/overview
+:scotch: http://www.labri.fr/perso/pelegrin/scotch
+:zlib: http://www.zlib.net
+
+Copyright
+---------
+{project} is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later
+version.  See the file COPYING in this directory, for a description of the GNU
+General Public License terms under which you can copy the files.
+
+System requirements
+-------------------
+{project} is developed and tested on Linux, but should work with other Unix
+style systems, notably Mac OS X (C). The support for Microsoft Windows is a
+goal, which, however, is still far off.
+
+Required software to build {project}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[cmake]]CMake::
+  In order to build {project} you need to have CMake with version 2.8.2 or
+  newer installed. In order to follow the link:INSTALL.html[INSTALL]
+  instructions, make sure that you also install the package contain the curses
+  GUI ccmake if using a package manager (e.g. on Linux systems. For Debian
+  and Ubuntu the package is called _cmake-curses-gui_). {cmake}
+[[build_system]]Build system::
+  CMake requires a native build system. On Unix-like platforms GNU Make is
+  recommended. {make}
+[[cxx_compiler]]{cpp} compiler::
+  In order to build {project} you need a {cpp} compiler with good support for
+  template expressions. The g++ compiler from GCC-4.3 and above will do
+  fine. {gcc}
+[[flex]]flex::
+  The flex lexer generator. Version 2.5.33 is known to work. For more recent
+  versions there have been reports of problems. {flex}
+[[zlib]]zlib::
+  zlib compression library. {zlib}
+[[scotch]]SCOTCH::
+  The SCOTCH graph partitioning library. Version 5.1.7 is know to work.
+  {scotch}
+[[python]]Python::
+  The Python interpreter. Version 2.6 is known to work, but care has been taken
+  to make {project} work with versions from 2.4 on, including 3.x.
++
+[NOTE]
+In order to build the man pages or the user guide, AsciiDoc is required
+which has not yet been ported to Python 3. This is why Python version 2 is also
+required (only at build-time for the documentation) if a Python 3 interpreter
+is used.
+
+Optional software
+~~~~~~~~~~~~~~~~~
+[[git]]git::
+  To check out a current development version of {project}, git is required.
+  {git}
+[[parlib]]Parallel Communications Library::
+  In order to run {project} in parallel, a communications library is required.
+  Currently the only available options is MPI (_Message Passing Interface_).
+  There are many implementations of the MPI standard. The one that has been
+  tested and is known to work with {project} is {openmpi}.
+[[metis]]METIS::
+  The METIS graph partitioning library, version 5.0.1. If your package
+  manager doesn't contain it, you can also have {project} build it
+  automatically for you (see the <<installation,installation section>>).
+  {metis}
+[[parmetis]]ParMetis::
+  If you use an MPI library, the ParMetis library is required. If your package
+  manager doesn't contain this library, {project} can build it automatically
+  for you (refer to the <<installation,installation notes>> below). {parmetis}
+[[mgridgen]]MGRIDGEN:: MGRIDGEN is a grid coarsening library for multi-grid
+  solvers. {project} can build this automatically for you. Please refer to the
+  link:INSTALL.html#enable-parmgridgen[INSTALL] file for license restrictions.
+  {mgridgen}
+[[libccmio]]libccmio::
+  pro-STAR (C) input/output library. {project} can build this automatically for
+  you. Please refer to the link:INSTALL.html#enable-ccmio[INSTALL] file for
+  license restrictions. {ccmio}
+[[paraview]]ParaView::
+  The {project} utility 'para' requires this visualization application, version
+  3.8 or later. {paraview}
+[[m4]]M4::
+  Some of the provided tutorial cases require the M4 macro processor. {m4}
+[[doxygen]]Doxygen::
+  Automatic API-documentation generator. Required to build the source
+  documentation. {doxygen}
+[[asciidoc]]AsciiDoc::
+  In order to create the man-pages or the XHTML and PDF documentation you need
+  to have a fully working AsciiDoc toolchain installed. Versions newer than 8.5
+  are known to work. AsciiDoc itself needs Python 2.4 or newer (but not 3.x),
+  xsltproc, the DocBook XML DTD's and the DocBook XSL stylesheets. Refer to the
+  AsciiDoc installation instructions for the details. Also note, that AsciiDoc
+  versions 8.6.5 and 8.6.6 contain a bug which makes it depend on Python 2.5
+  and newer. {asciidoc}
+[[dblatex]]dblatex::
+  If you want to build the PDF version of the user guide, it is recommended
+  that you have dblatex installed, as the generated output is superior to that
+  generated with the alternative, Apache FOP. {dblatex}
+[[fop]]Apache FOP::
+  If you want to build the PDF version of the user guide but can't or don't
+  want to install <<dblatex>>, Apache FOP can be used instead. It's output,
+  however, is inferior to that of dblatex, especially that of the formulas.
+  {fop}
+[[mathjax]]MathJax::
+  If you enable MathJax for math-rendering in the XHTML version of the user
+  guide, but don't want to use the shared installation over the network, you
+  can install MathJax locally. {mathjax}
+
+[[installation]]
+Installation
+------------
+For exhaustive installation and basic usage instructions, refer to the
+link:INSTALL.html[INSTALL] file.
+
+Documentation
+-------------
+All the applications and the frequently used script utilities come with a brief
+man-page. Unfortunately, most of them are little more than stubs and need more
+work. The man-page _freefoam(1)_ gives a short overview over all applications
+and utilities and documents the {project} configuration options.
+
+API-documentation is available from {apidoc}.
+
+Further, most {project} applications and utilities support the '-doc' and
+'-srcDoc' options, which will automatically display the API-documentation and
+the source code of the application, respectively.
+
+Help
+----
+- {homepage}/support
+- {openfoamforum} *please only ask questions related to _OpenFOAM_ there*.
+
+Reporting Bugs in {project}
+---------------------------
+{bugreport}
+
+///////////////////////////////////////////////////////////////////
+Process with: asciidoc -a toc -f data/asciidoc/html.conf README
+
+Vim users, this is for you:
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+///////////////////////////////////////////////////////////////////

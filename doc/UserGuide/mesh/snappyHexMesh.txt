@@ -1,0 +1,506 @@
+[[sec_snappyHexMeshGenerator]]
+=== Mesh generation with the `snappyHexMesh` utility
+(((mesh,generation)))
+
+This section describes the mesh generation utility, `snappyHexMesh`,
+(((`snappyHexMesh` utility)))(((utility,`snappyHexMesh`))) supplied with
+{project}. The `snappyHexMesh` utility generates 3-dimensional meshes
+containing hexahedra (hex) and split-hexahedra (split-hex)(((mesh,split-hex)))
+automatically from triangulated surface geometries in Stereolithography
+(STL)(((mesh,Stereolithography (STL))))(((Stereolithography (STL))))
+(((surface mesh)))(((mesh,surface))) format. The mesh approximately conforms to
+the surface by iteratively refining a starting mesh and morphing the resulting
+split-hex mesh to the surface. An optional phase will shrink back the resulting
+mesh and insert cell layers. The specification of mesh refinement level is very
+flexible and the surface handling is robust with a pre-specified final mesh
+quality. It runs in parallel with a load balancing step every iteration.
+
+[[fig_snappyHexMeshDescription]]
+.Schematic 2D meshing problem for `snappyHexMesh`
+image::images/mesh_snappyHexMeshDescription.{gfx-fmt}[]
+
+==== The mesh generation process of `snappyHexMesh`
+(((`snappyHexMesh` utility,meshing process)))
+
+The process of generating a mesh using `snappyHexMesh` will be described using
+the schematic in <<fig_snappyHexMeshDescription>>. The objective is to mesh a
+rectangular shaped region (shaded grey in the figure) surrounding an object
+described by and STL surface, 'e.g.' typical for an external aerodynamics
+simulation. Note that the schematic is 2-dimensional to make it easier to
+understand, even though the `snappyHexMesh` is a 3D meshing tool.
+
+
+In order to run `snappyHexMesh`, the user requires the following:
+
+- surface data files in STL format, either binary or ASCII, located in a
+  dirname:triSurface[] sub-directory of the case directory;
+- a background hex mesh which defines the extent of the computational domain
+  and a base level mesh density; typically generated using `blockMesh`,
+  discussed in <<sec_snappyHexMeshBaseMesh>>.
+- a filename:snappyHexMeshDict[](((filename:snappyHexMeshDict[] file)))
+  (((file,filename:snappyHexMeshDict[]))) dictionary, with appropriate entries,
+  located in the dirname:system[] sub-directory of the case.
+
+The filename:snappyHexMeshDict[] dictionary includes: switches at the top level
+that control the various stages of the meshing process; and, individual
+sub-directories for each process. The entries are listed in
+<<tab_snappyHexMeshDictTopLevel>>.
+
+[[tab_snappyHexMeshDictTopLevel]]
+.Keywords at the top level of filename:snappyHexMeshDict[]
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Keyword | Description | Example
+| `castellatedMesh` (((`castellatedMesh` keyword)))
+(((keyword,`castellatedMesh`))) | Create the castellated mesh? | `true`
+| `snap` (((`snap` keyword)))(((keyword,`snap`))) | Do the surface snapping
+stage? | `true`
+| `doLayers` (((`doLayers` keyword)))(((keyword,`doLayers`))) | Add surface
+layers? | `true`
+| `mergeTolerance` (((`mergeTolerance` keyword)))(((keyword,`mergeTolerance`)))
+| Merge tolerance as fraction of bounding box of initial mesh | `1e-06`
+| `debug` (((`debug` keyword)))(((keyword,`debug`))) | Controls writing of
+intermediate meshes and screen printing |
+| | &mdash; Write final mesh only | `0`
+| | &mdash; Write intermediate meshes | `1`
+| | &mdash; Write `volScalarField` with `cellLevel` for post-processing | `2`
+| | &mdash; Write current intersections as filename:.obj[] files | `4`
+| `geometry` (((`geometry` keyword)))(((keyword,`geometry`))) 2+|
+Sub-dictionary of all surface geometry used
+| `castellatedMeshControls` (((`castellatedMeshControls` keyword)))
+(((keyword,`castellatedMeshControls`))) 2+| Sub-dictionary of controls for
+castellated mesh
+| `snapControls` (((`snapControls` keyword)))(((keyword,`snapControls`))) 2+|
+Sub-dictionary of controls for surface snapping
+| `addLayersControls` (((`addLayersControls` keyword)))
+(((keyword,`addLayersControls`))) 2+| Sub-dictionary of controls for layer
+addition
+| `meshQualityControls` (((`meshQualityControls` keyword)))
+(((keyword,`meshQualityControls`))) 2+| Sub-dictionary of controls for mesh
+quality
+|==============================================================================
+
+All the geometry used by `snappyHexMesh` is specified in a `geometry`
+sub-dictionary in the filename:snappyHexMeshDict[] dictionary. The geometry can
+be specified through an STL surface or bounding geometry entities in {project}.
+An example is given below:
+
+-------------------------------------------------------------------------------
+geometry
+{
+    sphere.stl // STL filename
+    {
+        type triSurfaceMesh;
+        regions
+        {
+          secondSolid           // Named region in the STL file
+          {
+            name mySecondPatch; // User-defined patch name
+          }                     // otherwise given sphere.stl_secondSolid
+        }
+    }
+
+    box1x1x1 // User defined region name
+    {
+        type searchableBox;     // region defined by bounding box
+        min (1.5 1 -0.5);
+        max (3.5 2 0.5);
+    }
+
+    sphere2 // User defined region name
+    {
+        type searchableSphere;  // region defined by bounding sphere
+        centre (1.5 1.5 1.5);
+        radius 1.03;
+    }
+};
+-------------------------------------------------------------------------------
+
+[[sec_snappyHexMeshBaseMesh]]
+==== Creating the background hex mesh
+(((`snappyHexMesh` utility,background mesh)))
+
+Before `snappyHexMesh` is executed the user must create a background mesh of
+hexahedral cells that fills the entire region within by the external boundary
+as shown in <<fig_snappyHexMeshBlockMesh>>.
+
+[[fig_snappyHexMeshBlockMesh]]
+.Initial mesh generation in `snappyHexMesh` meshing process
+image::images/mesh_snappyHexMeshBlockMesh.{gfx-fmt}[]
+
+This can be done simply using `blockMesh`. The following criteria must be
+observed when creating the background mesh:
+
+- the mesh must consist purely of hexes;
+- the cell aspect ratio should be approximately 1, at least near surfaces at
+  which the subsequent snapping procedure is applied, otherwise the convergence
+  of the snapping procedure is slow, possibly to the point of failure;
+- there must be at least one intersection of a cell edge with the STL surface,
+  'i.e.' a mesh of one cell will not work.
+
+==== Cell splitting at feature edges and surfaces
+
+Cell splitting(((`snappyHexMesh` utility,cell splitting))) is performed
+according to the specification supplied by the user in the
+`castellatedMeshControls` sub-dictionary in the filename:snappyHexMeshDict[].
+The entries for `castellatedMeshControls`
+(((`castellatedMeshControls`,dictionary)))
+(((dictionary,`castellatedMeshControls`))) are presented in
+<<tab_snappyHexMeshCastellated>>.
+
+[[tab_snappyHexMeshCastellated]]
+.Keywords in the `castellatedMeshControls` sub-dictionary of filename:snappyHexMeshDict[]
+[grid="none",frame="topbot",options="header",cols="2,2,1"]
+|==============================================================================
+| Keyword | Description | Example
+| `locationInMesh` (((`locationInMesh` keyword)))(((keyword,`locationInMesh`)))
+| Location vector inside the region to be meshed. 'N.B.' vector must not
+coincide with a cell face either before or during refinement  | `(5` `0` `0)`
+| `maxLocalCells` (((`maxLocalCells` keyword)))(((keyword,`maxLocalCells`))) |
+Max number of cells per processor during refinement | `1e+06`
+| `maxGlobalCells` (((`maxGlobalCells` keyword)))(((keyword,`maxGlobalCells`)))
+| Overall cell limit during refinement ('i.e.' before removal) | `2e+06`
+| `minRefinementCells` (((`minRefinementCells` keyword)))
+(((keyword,`minRefinementCells`))) | If &ge; number of cells to be
+refined, surface refinement stops | `0`
+| `nCellsBetweenLevels` (((`nCellsBetweenLevels` keyword)))
+(((keyword,`nCellsBetweenLevels`))) | Number of buffer layers of cells between
+different levels of refinement | `1`
+| `resolveFeatureAngle` (((`resolveFeatureAngle` keyword)))
+(((keyword,`resolveFeatureAngle`))) | Applies maximum level of refinement to
+cells that can see intersections whose angle exceeds this | `30`
+| `features` (((`features` keyword)))(((keyword,`features`))) 2+| List of
+features for refinement
+| `refinementSurfaces` (((`refinementSurfaces` keyword)))
+(((keyword,`refinementSurfaces`))) 2+| Dictionary of surfaces for refinement
+| `refinementRegions` (((`refinementRegions` keyword)))
+(((keyword,`refinementRegions`))) 2+| Dictionary of regions for refinement
+|==============================================================================
+
+The splitting process begins with cells being selected according to specified
+edge features first within the domain as illustrated in
+<<fig_snappyHexMeshCellSplittingFeatures>>.
+
+[[fig_snappyHexMeshCellSplittingFeatures]]
+.Cell splitting by feature edge in `snappyHexMesh` meshing process
+image::images/mesh_snappyHexMeshCellSplittingFeatures.{gfx-fmt}[]
+
+The `features` (((`features` keyword)))(((keyword,`features`))) list in the
+`castellatedMeshControls` (((`castellatedMeshControls`,dictionary)))
+(((dictionary,`castellatedMeshControls`))) sub-dictionary permits dictionary
+entries containing a name of an `edgeMesh` file and the `level` of refinement,
+'e.g.':
+
+-------------------------------------------------------------------------------
+features
+(
+    {
+        file "someLine.eMesh"; // file containing edge mesh
+        level 2;               // level of refinement
+    }
+);
+------------------------------------------------------------------------------
+
+Following feature refinement, cells are selected for splitting in the locality
+of specified surfaces as illustrated in
+<<fig_snappyHexMeshCellSplittingSurface>>.
+
+[[fig_snappyHexMeshCellSplittingSurface]]
+.Cell splitting by surface in `snappyHexMesh` meshing process
+image::images/mesh_snappyHexMeshCellSplittingSurface.{gfx-fmt}[]
+
+
+The `refinementSurfaces` (((`refinementSurfaces` keyword)))
+(((keyword,`refinementSurfaces`))) dictionary in `castellatedMeshControls`
+(((`castellatedMeshControls`,dictionary)))
+(((dictionary,`castellatedMeshControls`))) requires dictionary entries for each
+STL surface and a default `level` specification of the minimum and maximum
+refinement in the form `(<min> <max>)`. The minimum level is applied generally
+across the surface; the maximum level is applied to cells that can see
+intersections that form an angle in excess of that specified by
+`resolveFeatureAngle`.(((`resolveFeatureAngle` keyword)))
+(((keyword,`resolveFeatureAngle`)))
+
+The refinement can optionally be overridden on one or more specific region of
+an STL surface. The region entries are collected in a `regions` sub-dictionary.
+The keyword for each region entry is the name of the region itself and the
+refinement level is contained within a further sub-dictionary. An example is
+given below:
+
+-------------------------------------------------------------------------------
+refinementSurfaces
+{
+    sphere.stl
+    {
+        level (2 2); // default (min max) refinement for whole surface
+        regions
+        {
+            secondSolid
+            {
+                level (3 3); // optional refinement for secondSolid region
+            }
+        }
+    }
+}
+-------------------------------------------------------------------------------
+
+==== Cell removal
+
+Once the feature and surface splitting is complete a process of cell
+removal(((`snappyHexMesh` utility,cell removal))) begins. Cell removal requires
+one or more regions enclosed entirely by a bounding surface within the domain.
+The region in which cells are retained are simply identified by a location
+vector within that region, specified by the `locationInMesh`
+(((`locationInMesh` keyword)))(((keyword,`locationInMesh`))) keyword in
+`castellatedMeshControls`. Cells are retained if, approximately speaking, 50%
+or more of their volume lies within the region. The remaining cells are removed
+accordingly as illustrated in <<fig_snappyHexMeshCellRemoval>>.
+
+[[fig_snappyHexMeshCellRemoval]]
+.Cell removal in `snappyHexMesh` meshing process
+image::images/mesh_snappyHexMeshCellRemoval.{gfx-fmt}[]
+
+==== Cell splitting in specified regions
+
+Those cells that lie within one or more specified volume regions can be further
+split as illustrated in <<fig_snappyHexMeshCellSplittingRegion>> by a
+rectangular region shown by dark shading.
+
+[[fig_snappyHexMeshCellSplittingRegion]]
+.Cell splitting by region in `snappyHexMesh` meshing process
+image::images/mesh_snappyHexMeshCellSplittingRegion.{gfx-fmt}[]
+
+The `refinementRegions` (((`refinementRegions` keyword)))
+(((keyword,`refinementRegions`))) sub-dictionary in `castellatedMeshControls`
+(((`castellatedMeshControls`,dictionary)))
+(((dictionary,`castellatedMeshControls`))) contains entries for refinement of
+the volume regions specified in the `geometry` sub-dictionary. A refinement
+`mode` (((`mode` keyword)))(((keyword,`mode`))) is applied to each region which
+can be:
+
+
+- `inside` (((`inside`,keyword entry)))(((keyword entry,`inside`))) refines
+  inside the volume region;
+- `outside` (((`outside`,keyword entry)))(((keyword entry,`outside`))) refines
+  outside the volume region
+- `distance` (((`distance`,keyword entry)))(((keyword entry,`distance`)))
+  refines according to distance to the surface; and can accommodate different
+  levels at multiple distances with the `levels` keyword.
+
+For the `refinementRegions`,(((`refinementRegions` keyword)))
+(((keyword,`refinementRegions`))) the refinement level is specified by the
+`levels` (((`levels` keyword)))(((keyword,`levels`))) list of entries with the
+format `(<distance> <level>)`. In the case of `inside` and `outside`
+refinement, the `<distance>` is not required so is ignored (but it must be
+specified). Examples are shown below:
+
+-------------------------------------------------------------------------------
+refinementRegions
+{
+    box1x1x1
+    {
+        mode inside;
+        levels ((1.0 4));         // refinement level 4 (1.0 entry ignored)
+    }
+
+    sphere.stl
+    {                             // refinement level 5 within 1.0 m
+        mode distance;            // refinement level 3 within 2.0 m
+        levels ((1.0 5) (2.0 3)); // levels must be ordered nearest first
+    }
+}
+-------------------------------------------------------------------------------
+
+==== Snapping to surfaces
+(((`snappyHexMesh` utility,snapping to surfaces)))
+
+The next stage of the meshing process involves moving cell vertex points onto
+surface geometry to remove the jagged castellated surface from the mesh. The
+process is:
+
+
+1. displace the vertices in the castellated boundary onto the STL surface;
+2. solve for relaxation of the internal mesh with the latest displaced boundary
+   vertices;
+3. find the vertices that cause mesh quality parameters to be violated;
+4. reduce the displacement of those vertices from their initial value (at 1)
+   and repeat from 2 until mesh quality is satisfied.
+
+The method uses the settings in the `snapControls` sub-dictionary in
+filename:snappyHexMeshDict[], listed in <<tab_snappyHexMeshSnapControls>>.
+
+[[tab_snappyHexMeshSnapControls]]
+.Keywords in the `snapControls` dictionary of filename:snappyHexMeshDict[]
+[grid="none",frame="topbot",options="header",cols="2,4,1"]
+|==============================================================================
+| Keyword | Description | Example
+| `nSmoothPatch` (((`nSmoothPatch` keyword)))(((keyword,`nSmoothPatch`))) |
+Number of patch smoothing iterations before finding correspondence to surface |
+`3`
+| `tolerance` (((`tolerance` keyword)))(((keyword,`tolerance`))) | Ratio of
+distance for points to be attracted by surface feature point or edge, to local
+maximum edge length | `4.0`
+| `nSolveIter` (((`nSolveIter` keyword)))(((keyword,`nSolveIter`))) | Number of
+mesh displacement relaxation iterations | `30`
+| `nRelaxIter` (((`nRelaxIter` keyword)))(((keyword,`nRelaxIter`))) | Maximum
+number of snapping relaxation iterations | `5`
+|==============================================================================
+
+An example is illustrated in the schematic in <<fig_snappyHexMeshSnapping>>
+(albeit with mesh motion that looks slightly unrealistic).
+
+[[fig_snappyHexMeshSnapping]]
+.Surface snapping in `snappyHexMesh` meshing process
+image::images/mesh_snappyHexMeshSnapping.{gfx-fmt}[]
+
+==== Mesh layers
+(((`snappyHexMesh` utility,mesh layers)))
+
+The mesh output from the snapping stage may be suitable for the purpose,
+although it can produce some irregular cells along boundary surfaces. There is
+an optional stage of the meshing process which introduces additional layers of
+hexahedral cells aligned to the boundary surface as illustrated by the dark
+shaded cells in <<fig_snappyHexMeshLayers>>.
+
+[[fig_snappyHexMeshLayers]]
+.Layer addition in `snappyHexMesh` meshing process
+image::images/mesh_snappyHexMeshLayers.{gfx-fmt}[]
+
+The process of mesh layer addition involves shrinking the existing mesh from
+the boundary and inserting layers of cells, broadly as follows:
+
+1. the mesh is projected back from the surface by a specified thickness in the
+   direction normal to the surface;
+2. solve for relaxation of the internal mesh with the latest projected boundary
+   vertices;
+3. check if validation criteria are satisfied otherwise reduce the projected
+   thickness and return to 2; if validation cannot be satisfied for any
+   thickness, do not insert layers;
+4. if the validation criteria can be satisfied, insert mesh layers;
+5. the mesh is checked again; if the checks fail, layers are removed and we
+   return to 2.
+
+The layer addition procedure uses the settings in the `addLayersControls`
+sub-dictionary in filename:snappyHexMeshDict[]; entries are listed in
+<<tab_snappyHexMeshAddLayersControls>>.
+
+[[tab_snappyHexMeshAddLayersControls]]
+.Keywords in the `addLayersControls` sub-dictionary of filename:snappyHexMeshDict[]
+[grid="none",frame="topbot",options="header",cols="2,3,1"]
+|==============================================================================
+| Keyword | Description |Example
+| `layers` (((`layers` keyword)))(((keyword,`layers`))) | Dictionary of
+layers |
+| `relativeSizes` (((`relativeSizes` keyword)))(((keyword,`relativeSizes`))) |
+Are layer thicknesses relative to undistorted cell size outside layer or
+absolute? | `true/false`
+| `expansionRatio` (((`expansionRatio` keyword)))(((keyword,`expansionRatio`)))
+| Expansion factor for layer mesh | `1.0`
+| `finalLayerRatio` (((`finalLayerRatio` keyword)))
+(((keyword,`finalLayerRatio`))) | Thickness of layer furthest from the wall,
+either relative or absolute according to the `relativeSizes` entry | `0.3`
+| `minThickness` (((`minThickness` keyword)))(((keyword,`minThickness`))) |
+Minimum thickness of cell layer, either relative or absolute (as above) |
+`0.25`
+| `nGrow` (((`nGrow` keyword)))(((keyword,`nGrow`))) | Number of layers of
+connected faces that are not grown if points get not extruded; helps
+convergence of layer addition close to features | `1`
+| `featureAngle` (((`featureAngle` keyword)))(((keyword,`featureAngle`))) |
+Angle above which surface is not extruded | `60`
+| `nRelaxIter` (((`nRelaxIter` keyword)))(((keyword,`nRelaxIter`))) | Maximum
+number of snapping relaxation iterations | `5`
+| `nSmoothSurfaceNormals` (((`nSmoothSurfaceNormals` keyword)))
+(((keyword,`nSmoothSurfaceNormals`))) | Number of smoothing iterations of
+surface normals | `1`
+| `nSmoothNormals` (((`nSmoothNormals` keyword)))
+(((keyword,`nSmoothNormals`))) | Number of smoothing iterations of interior
+mesh movement direction | `3`
+| `nSmoothThickness` (((`nSmoothThickness` keyword)))
+(((keyword,`nSmoothThickness`))) | Smooth layer thickness over surface patches
+| `10`
+| `maxFaceThicknessRatio` (((`maxFaceThicknessRatio` keyword)))
+(((keyword,`maxFaceThicknessRatio`))) | Stop layer growth on highly warped
+cells | `0.5`
+| `maxThicknessToMedialRatio` (((`maxThicknessToMedialRatio` keyword)))
+(((keyword,`maxThicknessToMedialRatio`))) | Reduce layer growth where ratio
+thickness to medial distance is large | `0.3`
+| `minMedianAxisAngle` (((`minMedianAxisAngle` keyword)))
+(((keyword,`minMedianAxisAngle`))) | Angle used to pick up medial axis points |
+`130`
+| `nBufferCellsNoExtrude` (((`nBufferCellsNoExtrude` keyword)))
+(((keyword,`nBufferCellsNoExtrude`))) | Create buffer region for new layer
+terminations | `0`
+| `nLayerIter` (((`nLayerIter` keyword)))(((keyword,`nLayerIter`))) | Overall
+max number of layer addition iterations | `50`
+| `nRelaxedIter` (((`nRelaxedIter` keyword)))(((keyword,`nRelaxedIter`))) | Max
+number of iterations after which the controls in the filename:relaxed[] sub
+dictionary of `meshQuality` are used | `20`
+|==============================================================================
+
+The `layers` sub-dictionary contains entries for each 'patch' on which the
+layers are to be applied and the number of surface layers required. The patch
+name is used because the layers addition relates to the existing mesh, not the
+surface geometry; hence applied to a patch, not a surface region. An example
+`layers` entry is as follows:
+
+-------------------------------------------------------------------------------
+layers
+{
+    sphere.stl_firstSolid
+    {
+        nSurfaceLayers 1;
+    }
+    maxY
+    {
+        nSurfaceLayers 1;
+    }
+}
+-------------------------------------------------------------------------------
+
+==== Mesh quality controls
+
+The mesh quality is controlled by the entries in the
+`meshQualityControls` sub-dictionary in filename:snappyHexMeshDict[];
+entries are listed in <<tab_snappyHexMeshQualityControls>>.
+
+[[tab_snappyHexMeshQualityControls]]
+.Keywords in the `meshQualityControls` sub-dictionary of filename:snappyHexMeshDict[]
+[grid="none",frame="topbot",options="header",cols="3,6,2"]
+|==============================================================================
+| Keyword | Description | Example
+| `maxNonOrtho` (((`maxNonOrtho` keyword)))(((keyword,`maxNonOrtho`))) |
+Maximum non-orthogonality allowed; `180` disables | `65`
+| `maxBoundarySkewness` (((`maxBoundarySkewness` keyword)))
+(((keyword,`maxBoundarySkewness`))) | Max boundary face skewness allowed;
+<&nbsp;`0` disables | `20`
+| `maxInternalSkewness` (((`maxInternalSkewness` keyword)))
+(((keyword,`maxInternalSkewness`))) | Max internal face skewness allowed;
+<&nbsp;`0` disables | `4`
+| `maxConcave` (((`maxConcave` keyword)))(((keyword,`maxConcave`))) | Max
+concaveness allowed; `180` disables | `80`
+| `minFlatness` (((`minFlatness` keyword)))(((keyword,`minFlatness`))) | Ratio
+of minimum projected area to actual area; `-1` disables | `0.5`
+| `minVol` (((`minVol` keyword)))(((keyword,`minVol`))) | Minimum pyramid
+volume; large negative number, 'e.g.' `-1e30` disables | `1e-13`
+| `minArea` (((`minArea` keyword)))(((keyword,`minArea`))) | Minimum face area;
+<&nbsp;`0` disables | `-1`
+| `minTwist` (((`minTwist` keyword)))(((keyword,`minTwist`))) | Minimum face
+twist; <&nbsp;`-1` disables | `0.05`
+| `minDeterminant` (((`minDeterminant` keyword)))
+(((keyword,`minDeterminant`))) | Minimum normalised cell determinant; `1` =
+hex; &le; 0 illegal cell | `0.001`
+| `minFaceWeight` (((`minFaceWeight` keyword)))(((keyword,`minFaceWeight`))) |
+`0` &rarr; `0.5` | `0.05`
+| `minVolRatio` (((`minVolRatio` keyword)))(((keyword,`minVolRatio`))) | `0`
+&rarr; `1.0` | `0.01`
+| `minTriangleTwist` (((`minTriangleTwist` keyword)))
+(((keyword,`minTriangleTwist`))) | > `0` for `Fluent` compatability | `-1`
+| `nSmoothScale` (((`nSmoothScale` keyword)))(((keyword,`nSmoothScale`))) |
+Number of error distribution iterations | `4`
+| `errorReduction` (((`errorReduction` keyword)))
+(((keyword,`errorReduction`))) | Amount to scale back displacement at error
+points | `0.75`
+| `relaxed` (((`relaxed` keyword)))(((keyword,`relaxed`))) | Sub-dictionary
+that can include modified values for the above keyword entries to be used when
+`nRelaxedIter` is exceeded in the layer addition process | `relaxed {...}`
+|==============================================================================

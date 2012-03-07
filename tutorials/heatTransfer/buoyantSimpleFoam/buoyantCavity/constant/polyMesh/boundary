@@ -1,0 +1,46 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       polyBoundaryMesh;
+    location    "constant/polyMesh";
+    object      boundary;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+4
+(
+    frontAndBack
+    {
+        type            wall;
+        nFaces          1050;
+        startFace       228225;
+    }
+    topAndBottom
+    {
+        type            wall;
+        nFaces          10500;
+        startFace       229275;
+    }
+    hot
+    {
+        type            wall;
+        nFaces          2250;
+        startFace       239775;
+    }
+    cold
+    {
+        type            wall;
+        nFaces          2250;
+        startFace       242025;
+    }
+)
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

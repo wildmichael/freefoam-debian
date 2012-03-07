@@ -1,0 +1,45 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+import subprocess
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+
+class MRFInterMixerVessel2DRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'MRFInter_mixerVessel2D')
+      self.add_step('prepare', self._prepare)
+      self.add_app_step('blockMesh')
+      self.add_app_step('cellSet')
+      self.add_app_step('setsToZones', args=['-noFlipMap'])
+      self.add_app_step('MRFInter')
+
+   def _prepare(self, case_dir, stamp_file, test_mode):
+      blockMeshDict = os.path.join(case_dir, 'constant', 'polyMesh',
+            'blockMeshDict')
+      try:
+         stat = subprocess.call('@M4_EXECUTABLE@',
+               stdin=open(blockMeshDict+'.m4', 'rt'),
+               stdout=open(blockMeshDict, 'wt')) == 0
+         stamp_file.write('Created blockMeshDict\n')
+      except Exception:
+         e = sys.exc_info()[1]
+         stat = False
+         stamp_file.write('*** Error *** '+str(e)+'\n')
+      stamp_file.write('REPORT: ')
+      if stat:
+         stamp_file.write('SUCCESS\n')
+      else:
+         stamp_file.write('FAILURE\n')
+      return stat
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(MRFInterMixerVessel2DRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

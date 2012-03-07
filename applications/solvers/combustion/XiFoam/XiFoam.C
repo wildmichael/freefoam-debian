@@ -1,0 +1,147 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 1991-2010 OpenCFD Ltd.
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Application
+    XiFoam
+
+Description
+    Solver for compressible premixed/partially-premixed combustion with
+    turbulence modelling.
+
+    Combusting RANS code using the b-Xi two-equation model.
+    Xi may be obtained by either the solution of the Xi transport
+    equation or from an algebraic exression.  Both approaches are
+    based on Gulder's flame speed correlation which has been shown
+    to be appropriate by comparison with the results from the
+    spectral model.
+
+    Strain effects are encorporated directly into the Xi equation
+    but not in the algebraic approximation.  Further work need to be
+    done on this issue, particularly regarding the enhanced removal rate
+    caused by flame compression.  Analysis using results of the spectral
+    model will be required.
+
+    For cases involving very lean Propane flames or other flames which are
+    very strain-sensitive, a transport equation for the laminar flame
+    speed is present.  This equation is derived using heuristic arguments
+    involving the strain time scale and the strain-rate at extinction.
+    the transport velocity is the same as that for the Xi equation.
+
+Usage
+    - XiFoam [OPTION]
+
+    @param -case \<dir\> \n
+    Specify the case directory
+
+    @param -parallel \n
+    Run the case in parallel
+
+    @param -help \n
+    Display short usage message
+
+    @param -doc \n
+    Display Doxygen documentation page
+
+    @param -srcDoc \n
+    Display source code
+
+\*---------------------------------------------------------------------------*/
+
+#include <finiteVolume/fvCFD.H>
+#include <reactionThermophysicalModels/hhuCombustionThermo.H>
+#include <compressibleTurbulenceModel/turbulenceModel.H>
+#include <laminarFlameSpeedModels/laminarFlameSpeed.H>
+#include <engine/ignition.H>
+#include <OpenFOAM/Switch.H>
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+int main(int argc, char *argv[])
+{
+    #include <OpenFOAM/setRootCase.H>
+
+    #include <OpenFOAM/createTime.H>
+    #include <OpenFOAM/createMesh.H>
+    #include "readCombustionProperties.H"
+    #include <finiteVolume/readGravitationalAcceleration.H>
+    #include "createFields.H"
+    #include <finiteVolume/initContinuityErrs.H>
+    #include <finiteVolume/readTimeControls.H>
+    #include <finiteVolume/compressibleCourantNo.H>
+    #include <finiteVolume/setInitialDeltaT.H>
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+    Info<< "\nStarting time loop\n" << endl;
+
+    while (runTime.run())
+    {
+        #include <finiteVolume/readTimeControls.H>
+        #include <finiteVolume/readPISOControls.H>
+        #include <finiteVolume/compressibleCourantNo.H>
+        #include <finiteVolume/setDeltaT.H>
+
+        runTime++;
+        Info<< "Time = " << runTime.timeName() << nl << endl;
+
+        // --- Pressure-velocity PIMPLE corrector loop
+        for (int oCorr=0; oCorr<nOuterCorr; oCorr++)
+        {
+            #include <finiteVolume/rhoEqn.H>
+            #include "UEqn.H"
+
+            #include "ftEqn.H"
+            #include "bEqn.H"
+            #include "huEqn.H"
+            #include "hEqn.H"
+
+            if (!ign.ignited())
+            {
+                hu == h;
+            }
+
+            // --- PISO loop
+            for (int corr=1; corr<=nCorr; corr++)
+            {
+                #include "pEqn.H"
+            }
+
+            turbulence->correct();
+        }
+
+        rho = thermo.rho();
+
+        runTime.write();
+
+        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
+            << "  ClockTime = " << runTime.elapsedClockTime() << " s"
+            << nl << endl;
+    }
+
+    Info<< "End\n" << endl;
+
+    return 0;
+}
+
+
+// ************************ vim: set sw=4 sts=4 et: ************************ //

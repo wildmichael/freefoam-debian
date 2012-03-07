@@ -1,0 +1,87 @@
+# - Configuration module for @PROJECT_NAME@ to be used with FIND_PACKAGE().
+# Refer to @PROJECT_NAME@Use.cmake for usage instructions and function
+# documentation.
+
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
+
+# Tell the user project where to find our headers and libraries
+set(FOAM_INCLUDE_DIR "@FOAM_INCLUDE_DIR@")
+set(FOAM_INCLUDE_DIRS "${FOAM_INCLUDE_DIR}")
+set(FOAM_LIBRARY_DIRS "@FOAM_LIB_DIR@")
+
+# Our library dependencies
+include("@FOAM_CMAKECONFIG_DIR@/@PROJECT_NAME@LibraryDepends.cmake")
+
+# Defines
+set(FOAM_DEFINITIONS "@FOAM_COMPILE_DEFINITIONS@")
+
+# USE file
+set(FOAM_USE_FILE
+  "@FOAM_CMAKECONFIG_DIR@/@PROJECT_NAME@Use.cmake"
+  )
+
+# wmake compatibility file
+set(FOAM_COMPAT_FILE
+  "@FOAM_CMAKECONFIG_DIR@/@PROJECT_NAME@WmakeCompatibility.cmake"
+  )
+
+# FOAMUtilities.cmake file
+set(FOAM_UTILITIES_FILE
+  "@FOAM_CMAKECONFIG_DIR@/@PROJECT_NAME@Utilities.cmake"
+  )
+
+# Whether we use frameworks on Mac OS X
+set(FOAM_WITH_FRAMEWORKS @FOAM_BUILD_FRAMEWORKS@)
+
+if(APPLE AND FOAM_WITH_FRAMEWORKS)
+  set(FOAM_FRAMEWORK_DIR "@FOAM_FRAMEWORK_DIR@")
+  list(APPEND FOAM_LIBRARY_DIRS "${FOAM_FRAMEWORK_DIR}")
+endif()
+
+# Helper variables to force linking
+set(FOAM_FORCE_LINK_COMPRESSIBLE_RAS_MODELS
+  ${FOAM_INCLUDE_DIR}/compressibleRASModels/forceLink.C)
+set(FOAM_FORCE_LINK_COMPRESSIBLE_LES_MODELS
+  ${FOAM_INCLUDE_DIR}/compressibleLESModels/forceLink.C)
+set(FOAM_FORCE_LINK_INCOMPRESSIBLE_RAS_MODELS
+  ${FOAM_INCLUDE_DIR}/incompressibleRASModels/forceLink.C)
+set(FOAM_FORCE_LINK_INCOMPRESSIBLE_LES_MODELS
+  ${FOAM_INCLUDE_DIR}/incompressibleLESModels/forceLink.C)
+set(FOAM_FORCE_LINK_GENERIC_PATCH_FIELDS
+  ${FOAM_INCLUDE_DIR}/genericPatchFields/forceLink.C)
+set(FOAM_FORCE_LINK_RADIATION
+  ${FOAM_INCLUDE_DIR}/radiation/forceLink.C)
+set(FOAM_FORCE_LINK_COAL_COMBUSTION
+  ${FOAM_INCLUDE_DIR}/coalCombustion/forceLink.C)
+set(FOAM_FORCE_LINK_INTERFACE_PROPERTIES
+  ${FOAM_INCLUDE_DIR}/interfaceProperties/forceLink.C)
+
+# ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file

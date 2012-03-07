@@ -1,0 +1,54 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class PESRPFilterRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'PESRP_filter')
+      self.add_app_step('blockMesh')
+      setSet = os.path.join(self.case_dir, 'system', 'sets.setSet')
+      self.add_app_step('setSet', args=['-batch', setSet])
+      self.add_app_step('setsToZones', args=['-noFlipMap'])
+      self.add_step('createBaffles.1', self._createBaffles1)
+      self.add_step('createBaffles.2', self._createBaffles2)
+      self.add_app_step('changeDictionary')
+      self.add_app_step('porousExplicitSourceReactingParcel')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      zero = os.path.join(self.case_dir, '0')
+      FreeFOAM.util.copytree(zero+'.org', zero)
+
+   def _createBaffles1(self, case_dir, stamp_file, test_mode):
+      runner = FreeFOAM.tutorial.RunApp('createBaffles',
+            args='cycLeft cycLeft -overwrite'.split())
+      # We don't know what value to give these patches-out-of-nothing so
+      # - use binary writing to avoid 'nan'
+      # - use setFields to set values
+      if 'FOAM_SIGFPE' in os.environ:
+         del os.environ['FOAM_SIGFPE']
+      return runner(case_dir, stamp_file, test_mode)
+
+   def _createBaffles2(self, case_dir, stamp_file, test_mode):
+      runner = FreeFOAM.tutorial.RunApp('createBaffles',
+            args='cycRight cycRight -overwrite'.split())
+      # We don't know what value to give these patches-out-of-nothing so
+      # - use binary writing to avoid 'nan'
+      # - use setFields to set values
+      if 'FOAM_SIGFPE' in os.environ:
+         del os.environ['FOAM_SIGFPE']
+      return runner(case_dir, stamp_file, test_mode)
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(PESRPFilterRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

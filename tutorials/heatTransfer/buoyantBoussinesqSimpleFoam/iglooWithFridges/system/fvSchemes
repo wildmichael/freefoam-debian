@@ -1,0 +1,67 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+    div(phi,U)      Gauss upwind;
+    div(phi,T)      Gauss upwind;
+    div(phi,k)      Gauss upwind;
+    div(phi,epsilon) Gauss upwind;
+    div(phi,R)      Gauss upwind;
+    div(R)          Gauss linear;
+    div((nuEff*dev(grad(U).T()))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         none;
+    laplacian(nuEff,U) Gauss linear limited 0.333;
+    laplacian((1|A(U)),p_rgh) Gauss linear limited 0.333;
+    laplacian(kappaEff,T) Gauss linear limited 0.333;
+    laplacian(DkEff,k) Gauss linear limited 0.333;
+    laplacian(DepsilonEff,epsilon) Gauss linear limited 0.333;
+    laplacian(DREff,R) Gauss linear limited 0.333;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         limited 0.333;
+}
+
+fluxRequired
+{
+    default         no;
+    p_rgh           ;
+}
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

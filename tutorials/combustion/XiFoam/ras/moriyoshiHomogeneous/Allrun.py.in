@@ -1,0 +1,48 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class XiMoriyoshiHomogeneousRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self,
+            'Xi_ras_moriyoshiHomogeneous')
+      self.add_app_step('blockMesh')
+      self.add_app_step('Xi.1', app='Xi')
+      self.add_step('preparePart2', prepare_part2, skip_test=True)
+      self.add_app_step('Xi.2', app='Xi', skip_test=True)
+
+def prepare_part2(case_dir, stamp_file, test_mode):
+   assert not test_mode
+   try:
+      FreeFOAM.tutorial.modify_file(
+            os.path.join(case_dir, 'system', 'controlDict'),
+            (
+               (r'(deltaT\s+)5e-06;', r'\g<1>1e-05;'),
+               (r'(endTime\s+)0.005;', r'\g<1>0.015;'),
+               (r'(writeInterval\s+)10;', r'\g<1>50;'),
+               )
+            )
+      stamp_file.write(
+            "Prepared part 2 of the case.\nREPORT: SUCCESS\n")
+      return True
+   except Exception:
+      e = sys.exc_info()[1]
+      stamp_file.write(
+            "Failed to prepare part 2 of the case:\n"+str(e)+
+            "\nREPORT: FAILURE\n")
+      return False
+
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(XiMoriyoshiHomogeneousRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

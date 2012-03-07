@@ -1,0 +1,40 @@
+______________________________________________________________________________
+Copyright (C) 2000-2010  OpenCFD Ltd.
+
+Copyright (C) 2010-2012  Michael Wild
+
+Permission is granted to copy, distribute and/or modify this document under the
+terms of the GNU Free Documentation License, Version 1.2 or any later version
+published by the Free Software Foundation; with no Invariant Sections, no
+Back-Cover Texts and one Front-Cover Text: ``Available free from
+http:openfoam.org[openfoam.org]''. A copy of the license is included in
+<<sec_gnu_fdl>>.
+
+This document is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.
+
+Typeset with http://www.methods.co.nz/asciidoc[AsciiDoc].
+______________________________________________________________________________
+
+.Trademarks
+- 'ANSYS' is a registered trademark of http://www.ansys.com[ANSYS Inc.]
+- 'CFX' is a registered trademark of http://www.ansys.com[ANSYS Inc.]
+- 'CHEMKIN' is a registered trademark of
+http://www.reactiondesign.com[Reaction Design Corporation]
+- 'EnSight' is a registered trademark of
+http://www.ensight.com[Computational Engineering International Ltd.]
+- 'Fieldview' is a registered trademark of http://www.ilight[Intelligent Light]
+- 'Fluent' is a registered trademark of http://www.ansys.com[ANSYS Inc.]
+- 'GAMBIT' is a registered trademark of http://www.ansys.com[ANSYS Inc.]
+- 'Icem-CFD' is a registered trademark of http://www.ansys.com[ANSYS Inc.]
+- 'I-DEAS' is a registered trademark of http://www.siemens.com[Siemens AG]
+- 'JAVA' is a registered trademark of http://www.oracle.com[Oracle Corporation]
+- 'Linux' is a registered trademark of Linus Torvalds
+- 'OpenFOAM' is a registered trademark of
+http://www.opencfd.co.uk[OpenCFD Ltd.]
+- 'ParaView' is a registered trademark of http://www.kitware.com[Kitware Inc.]
+- 'STAR-CD' is a registered trademark of
+http://www.cd-adapco.com[CD-adapco Ltd.]
+- 'UNIX' is a registered trademark of http://www.opengroup.org[The Open Group]
+

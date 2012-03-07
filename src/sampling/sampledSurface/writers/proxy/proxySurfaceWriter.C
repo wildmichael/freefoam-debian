@@ -1,0 +1,88 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 1991-2010 OpenCFD Ltd.
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "proxySurfaceWriter.H"
+
+#include <surfMesh/MeshedSurfaceProxy.H>
+#include <OpenFOAM/OFstream.H>
+#include <OpenFOAM/OSspecific.H>
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+template<class Type>
+Foam::proxySurfaceWriter<Type>::proxySurfaceWriter(const word& ext)
+:
+    surfaceWriter<Type>(),
+    ext_(ext)
+{}
+
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+template<class Type>
+Foam::proxySurfaceWriter<Type>::~proxySurfaceWriter()
+{}
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+template<class Type>
+void Foam::proxySurfaceWriter<Type>::write
+(
+    const fileName& outputDir,
+    const fileName& surfaceName,
+    const pointField& points,
+    const faceList& faces,
+    const bool verbose
+) const
+{
+    // avoid bad values
+    if (ext_.empty())
+    {
+        return;
+    }
+
+    if (!isDir(outputDir))
+    {
+        mkDir(outputDir);
+    }
+
+    fileName fName(outputDir/surfaceName + "." + ext_);
+
+    if (verbose)
+    {
+        Info<< "Writing geometry to " << fName << endl;
+    }
+
+    MeshedSurfaceProxy<face>
+    (
+        points,
+        faces
+    ).write(fName);
+
+}
+
+
+// ************************ vim: set sw=4 sts=4 et: ************************ //

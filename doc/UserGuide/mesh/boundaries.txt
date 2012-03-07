@@ -1,0 +1,356 @@
+=== Boundaries
+(((boundary))) (((boundaries)))
+
+In this section we discuss the way in which boundaries are treated in
+{project}. The subject of boundaries is a little involved because their role
+in modelling is not simply that of a geometric entity but an integral part of
+the solution and numerics through boundary conditions or inter-boundary
+`connections'. A discussion of boundaries sits uncomfortably between a
+discussion on meshes, fields, discretisation, computational processing 'etc.'
+Its placement in this chapter on meshes is a choice of convenience.
+
+We first need to consider that, for the purpose of applying boundary
+conditions, a boundary is generally broken up into a set of 'patches'. One
+patch may include one or more enclosed areas of the boundary surface which do
+not necessarily need to be physically connected.
+
+There are three attributes associated with a patch that are described below in
+their natural hierarchy and <<fig_patchAttributes>> shows the names of
+different patch types introduced at each level of the hierarchy. The hierarchy
+described below is very similar, but not identical, to the class hierarchy used
+in the {project} library.
+
+*Base type*::
+  The type of patch described purely in terms of geometry or a data
+  `communication link'.
+*Primitive type*::
+  The base numerical patch condition assigned to a field variable on the patch.
+*Derived type*::
+  A complex patch condition, derived from the primitive type, assigned to a
+  field variable on the patch.
+
+[[fig_patchAttributes]]
+.Patch attributes
+image::images/mesh_patchAttributes.{gfx-fmt}[]
+
+[[sec_patchTypesOpenfoam]]
+==== Specification of patch types in {project}
+
+The patch types are specified in the mesh and field files of a {project} case.
+More precisely:
+
+- the base type is specified under the `type` (((`type` keyword)))
+  (((keyword,`type`))) keyword for each patch in the filename:boundary[] file,
+  located in the dirname:constant/polyMesh[] directory;
+- the numerical patch type, be it a primitive or derived type, is specified
+  under the `type` (((`type` keyword)))(((keyword,`type`))) keyword for each
+  patch in a field file.
+
+An example filename:boundary[] file is shown below for a `sonic` case,
+followed by a pressure field file, filename:p[], for the same case:
+
+-------------------------------------------------------------------------------
+6
+(
+    inlet
+    {
+        type patch;
+        nFaces 50;
+        startFace 10325;
+    }
+    outlet
+    {
+        type patch;
+        nFaces 40;
+        startFace 10375;
+    }
+    bottom
+    {
+        type symmetryPlane;
+        nFaces 25;
+        startFace 10415;
+    }
+    top
+    {
+        type symmetryPlane;
+        nFaces 125;
+        startFace 10440;
+    }
+    obstacle
+    {
+        type patch;
+        nFaces 110;
+        startFace 10565;
+    }
+    defaultFaces
+    {
+        type empty;
+        nFaces 10500;
+        startFace 10675;
+    }
+)
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+dimensions [1 -1 -2 0 0 0 0];
+
+internalField uniform 1;
+
+boundaryField
+{
+    inlet
+    {
+        type fixedValue;
+        value uniform 1;
+    }
+
+    outlet
+    {
+        type waveTransmissive;
+        field p;
+        phi phi;
+        rho rho;
+        psi psi;
+        gamma 1.4;
+        fieldInf 1;
+        lInf 3;
+        value uniform 1;
+    }
+
+    bottom
+    {
+        type symmetryPlane;
+    }
+
+    top
+    {
+        type symmetryPlane;
+    }
+
+    obstacle
+    {
+        type zeroGradient;
+    }
+
+    defaultFaces
+    {
+        type empty;
+    }
+}
+-------------------------------------------------------------------------------
+
+
+The `type` in the boundary file is `patch` for all patches except those that
+patches that have some geometrical constraint applied to them, 'i.e.' the
+`symmetryPlane` and `empty` patches. The filename:p[] file includes primitive
+types applied to the `inlet` and `bottom` faces, and a more complex derived
+type applied to the `outlet`. Comparison of the two files shows that the base
+and numerical types are consistent where the base type is not a simple `patch`,
+'i.e.' for the `symmetryPlane` and `empty` patches.
+
+[[sec_baseTypes]]
+==== Base types
+
+The base and geometric types are described below;
+the keywords used for specifying these types in {project} are
+summarised in <<tab_basePatchTypes>>.
+
+[[fig_axisymmetricGeometry]]
+.Axi-symmetric geometry using the `wedge` patch type
+image::images/mesh_wedgeGeometry.{gfx-fmt}[]
+
+[[tab_basePatchTypes]]
+.Basic patch types
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+|Selection Key|Description
+| `patch` (((`patch`,keyword entry)))(((keyword entry,`patch`))) | generic
+patch
+| `symmetryPlane` (((`symmetryPlane`,keyword entry)))
+(((keyword entry,`symmetryPlane`))) | plane of symmetry
+| `empty` (((`empty`,keyword entry)))(((keyword entry,`empty`))) | front and
+back planes of a 2D geometry
+| `wedge` (((`wedge`,keyword entry)))(((keyword entry,`wedge`))) | wedge front
+and back for an axi-symmetric geometry
+| `cyclic` (((`cyclic`,keyword entry)))(((keyword entry,`cyclic`))) | cyclic
+plane
+| `wall` (((`wall`,keyword entry)))(((keyword entry,`wall`))) | wall &mdash;
+used for wall functions in turbulent flows
+| `processor` (((`processor`,keyword entry)))(((keyword entry,`processor`))) |
+inter-processor boundary
+|==============================================================================
+
+`patch` (((`patch`,boundary condition)))(((boundary condition,`patch`)))::
+  The basic patch type for a patch condition that contains no geometric or
+  topological information about the mesh (with the exception of `wall`), 'e.g.'
+  an inlet or an outlet.
+`wall` (((`wall`,boundary condition)))(((boundary condition,`wall`)))::
+  There are instances where a patch that coincides with a wall needs to be
+  identifiable as such, particularly where specialist modelling is applied at
+  wall boundaries. A good example is wall turbulence modelling where a wall
+  must be specified with a `wall` (((`wall`,boundary condition)))
+  (((boundary condition,`wall`))) patch type, so that the distance from the
+  wall of the cell centres next to the wall are stored as part of the patch.
+`symmetryPlane`::
+  (((`symmetryPlane`,boundary condition)))
+  (((boundary condition,`symmetryPlane`)))
+  For a symmetry plane.
+`empty` (((`empty`,boundary condition)))(((boundary condition,`empty`)))::
+  While {project} always generates geometries in 3 dimensions, it can be
+  instructed to solve in 2 (or 1) dimensions by specifying a special `empty`
+  (((`empty`,boundary condition)))(((boundary condition,`empty`))) condition on
+  each patch whose plane is normal to the 3rd (and 2nd) dimension for which no
+  solution is required.
+`wedge` (((`wedge`,boundary condition)))(((boundary condition,`wedge`)))::
+  For 2 dimensional axi-symmetric cases,(((axi-symmetric cases))) 'e.g.' a
+  cylinder, the geometry is specified as a wedge of small angle ('e.g.'
+  math:[<5^\circ]) and 1 cell thick running along the plane of symmetry,
+  straddling one of the coordinate planes, as shown in
+  <<fig_axisymmetricGeometry>>. The axi-symmetric wedge planes must be
+  specified as separate patches of `wedge` (((`wedge`,boundary condition)))
+  (((boundary condition,`wedge`))) type. The details of generating wedge-shaped
+  geometries using `blockMesh` are described in
+  <<sec_blocksWithFewerVertices>>.
+`cyclic` (((`cyclic`,boundary condition)))(((boundary condition,`cyclic`)))::
+  Enables two patches to be treated as if they are physically connected; used
+  for repeated geometries, 'e.g.' heat exchanger tube bundles. A single
+  `cyclic` (((`cyclic`,boundary condition)))(((boundary condition,`cyclic`)))
+  patch splits the faces in its `faceList` into two, and links the two sets of
+  faces as shown in <<fig_cyclicGeometry>>. Each face-face pair must be
+  of the same area but the faces do not need to be of the same orientation.
+`processor`::
+  (((`processor`,boundary condition)))(((boundary condition,`processor`)))
+  If a code is being run in parallel, on a number of processors, then the mesh
+  must be divided up so that each processor computes on roughly the same number
+  of cells. The boundaries between the different parts of the mesh are called
+  `processor` (((`processor`,boundary condition)))
+  (((boundary condition,`processor`))) boundaries.
+
+[[fig_cyclicGeometry]]
+.Repeated geometry using the `cyclic` patch type
+image::images/mesh_cyclicGeometry.{gfx-fmt}[]
+
+==== Primitive types
+
+The primitive types are listed in <<tab_primitivePatchTypes>>.
+
+[[tab_primitivePatchTypes]]
+.Primitive patch field types
+[grid="none",frame="topbot",options="header",cols="2,3,2"]
+|==============================================================================
+| Type | Description of condition for patch field math:[\phi] | Data to specify
+| `fixedValue` (((`fixedValue`,boundary condition)))
+(((boundary condition,`fixedValue`))) | Value of math:[\phi] is specified |
+`value` (((`value` keyword)))(((keyword,`value`)))
+| `fixedGradient` (((`fixedGradient`,boundary condition)))
+(((boundary condition,`fixedGradient`))) | Normal gradient of math:[\phi] is
+specified | `gradient`
+| `zeroGradient` (((`zeroGradient`,boundary condition)))
+(((boundary condition,`zeroGradient`))) | Normal gradient of math:[\phi] is
+zero | &mdash;
+| `calculated` (((`calculated`,boundary condition)))
+(((boundary condition,`calculated`))) | Boundary field math:[\phi] derived from
+other fields | &mdash;
+| `mixed` (((`mixed`,boundary condition)))(((boundary condition,`mixed`))) |
+Mixed `fixedValue`/ `fixedGradient` condition depending on the value in
+`valueFraction` | `refValue`, `refGradient`,(((`refGradient` keyword)))
+(((keyword,`refGradient`))) `valueFraction`,(((`valueFraction` keyword)))
+(((keyword,`valueFraction`))) `value`
+| `directionMixed` (((`directionMixed`,boundary condition)))
+(((boundary condition,`directionMixed`))) | A `mixed` condition with tensorial
+`valueFraction`,(((`valueFraction` keyword)))(((keyword,`valueFraction`)))
+'e.g.' for different levels of mixing in normal and tangential directions |
+`refValue`, `refGradient`,(((`refGradient` keyword)))
+(((keyword,`refGradient`))) `valueFraction`,(((`valueFraction` keyword)))
+(((keyword,`valueFraction`))) `value` (((`value` keyword)))
+(((keyword,`value`)))
+|==============================================================================
+
+==== Derived types
+
+There are numerous derived types of boundary
+conditions in {project}, too many to list here. Instead a small
+selection is listed in <<tab_derivedPatchTypes>>. If the user wishes
+to obtain a list of all available model, they should consult the
+{project} source code. Derived boundary condition source code can be
+found at the following locations:
+
+
+- in filename:src/finiteVolume/fields/fvPatchFields/derived[]
+- within certain model libraries, that can be located by typing the following
+  command in a terminal window
+
+-------------------------------------------------------------------------------
+$ find src -name "*derivedFvPatch*"
+-------------------------------------------------------------------------------
+
+- within certain solvers, that can be located by typing the following command
+  in a terminal window
+
+-------------------------------------------------------------------------------
+$ find applications/solvers -name "*fvPatch*"
+-------------------------------------------------------------------------------
+
+[[tab_derivedPatchTypes]]
+.Derived patch field types
+[grid="none",frame="topbot",cols="6,5,3"]
+|==============================================================================
+2+h| Types derived from `fixedValue` h| Data to specify
+| `movingWallVelocity` (((`movingWallVelocity`,boundary condition)))
+(((boundary condition,`movingWallVelocity`))) | Replaces the normal of the
+patch `value` so the flux across the patch is zero | `value`
+| `pressureInletVelocity` (((`pressureInletVelocity`,boundary condition)))
+(((boundary condition,`pressureInletVelocity`))) | When math:[p] is known at
+inlet, math:[\U] is evaluated from the flux, normal to the patch | `value`
+| `pressureDirectedInletVelocity`
+(((`pressureDirectedInletVelocity`,boundary condition)))
+(((boundary condition,`pressureDirectedInletVelocity`))) | When math:[p] is
+known at inlet, math:[\U] is calculated from the flux in the `inletDirection` |
+`value`, `inletDirection`
+| `surfaceNormalFixedValue` (((`surfaceNormalFixedValue`,boundary condition)))
+(((boundary condition,`surfaceNormalFixedValue`))) | Specifies a vector
+boundary condition, normal to the patch, by its magnitude; +ve for vectors
+pointing out of the domain | `value`
+| `totalPressure` (((`totalPressure`,boundary condition)))
+(((boundary condition,`totalPressure`))) | Total pressure
+math:[p_0=p+\frac{1}{2}\rho\|\U\|^2] is fixed; when math:[\U] changes, math:[p]
+is adjusted accordingly | `p0`
+| `turbulentInlet` (((`turbulentInlet`,boundary condition)))
+(((boundary condition,`turbulentInlet`))) | Calculates a fluctuating variable
+based on a scale of a mean value | `referenceField`, `fluctuationScale`
+3+h| Types derived from `fixedGradient`/`zeroGradient`
+| `fluxCorrectedVelocity` (((`fluxCorrectedVelocity`,boundary condition)))
+(((boundary condition,`fluxCorrectedVelocity`))) | Calculates normal component
+of math:[\U] at inlet from flux | `value`
+| `wallBuoyantPressure` (((`wallBuoyantPressure`,boundary condition)))
+(((boundary condition,`wallBuoyantPressure`))) | Sets `fixedGradient` pressure
+based on the atmospheric pressure gradient | &mdash;
+3+h| Types derived from `mixed`
+| `inletOutlet` (((`inletOutlet`,boundary condition)))
+(((boundary condition,`inletOutlet`))) | `fixedValue` for math:[\U] and
+`zeroGradient` for math:[p] if math:[\U] points
+into the domain, reversed otherwise | `inletValue`, `value`
+| `outletInlet` (((`outletInlet`,boundary condition)))
+(((boundary condition,`outletInlet`))) | Opposite of `inletOutlet` |
+`outletValue`, `value`
+| `pressureInletOutletVelocity` | Combination of `pressureInletVelocity` and
+`inletOutlet` | `value`
+| `pressureDirectedInletOutletVelocity` | Combination of
+`pressureDirectedInletVelocity` and `inletOutlet` | `value`, `inletDirection`
+| `pressureTransmissive` (((`pressureTransmissive`,boundary condition)))
+(((boundary condition,`pressureTransmissive`))) | Transmits supersonic pressure
+waves to surrounding pressure math:[p_\infty] | `pInf`
+| `supersonicFreeStream` (((`supersonicFreeStream`,boundary condition)))
+(((boundary condition,`supersonicFreeStream`))) | Transmits oblique shocks to
+surroundings at math:[p_\infty], math:[T_\infty], math:[\U_\infty] | `pInf`,
+`TInf`, `UInf`
+3+h| Other types
+| `slip` (((`slip`,boundary condition)))(((boundary condition,`slip`))) |
+`zeroGradient` if math:[\phi] is a scalar; if math:[\phi] is a vector, normal
+component is `fixedValue` zero, tangential components are `zeroGradient` |
+&mdash;
+| `partialSlip` (((`partialSlip`,boundary condition)))
+(((boundary condition,`partialSlip`))) | Mixed `zeroGradient`/ `slip` condition
+depending on the `valueFraction`; = 0 for `slip` | `valueFraction`
+3+| Note: math:[p] is pressure, math:[\U] is velocity
+|==============================================================================

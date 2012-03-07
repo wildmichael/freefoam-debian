@@ -1,0 +1,90 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+import re
+import glob
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class rhoCentralBiconic25_55Run35Runner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self,
+            'rhoCentral_biconic25-55Run35')
+      self.add_app_step('blockMesh')
+      self._comp = FreeFOAM.tutorial.CompileApp('datToFoam')
+      self.add_step('compileDatToFoam', self._comp)
+      self.add_app_step('datToFoam', app=self._comp.app,
+            args=[os.path.join(self.case_dir, 'grid256.dat')])
+      self.add_step('preparePoints', self._preparePoints)
+      self.add_app_step('collapseEdges', args='2e-07 5'.split())
+      self.add_step('prepareMesh', self._prepareMesh)
+      self.add_app_step('rhoCentral')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, 'constant', 'polyMesh', 'boundary'))
+      FreeFOAM.tutorial.clean_application(self._comp.bindir)
+
+
+   def _preparePoints(self, case_dir, stamp_file, test_mode):
+      constant = os.path.join(case_dir, 'constant')
+      points = open(os.path.join(constant, 'polyMesh', 'points'), 'wt')
+      points.writelines(
+            open(os.path.join(constant, 'pointsHeader'), 'rt').readlines())
+      points.writelines(
+            open(os.path.join(constant, 'points.tmp'), 'rt').readlines())
+      points.close()
+      stamp_file.write(
+            'Creating constant/polyMesh/points\nREPORT: SUCCESS\n')
+      return True
+
+   def _prepareMesh(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write(
+               'Copying output from "collapseEdges" to constant/polyMesh\n')
+         timeNames = [t for t in
+               map(os.path.basename,
+                  glob.glob(os.path.join(case_dir, '[0-9]*')))]
+         times = [t for t in map(float, timeNames)]
+         t = max(times)
+         i = times.index(t)
+         mesh_dir = os.path.join(case_dir, timeNames[i], 'polyMesh')
+         if t != 0 and os.path.isdir(mesh_dir):
+            for f in ['points', 'faces', 'owner', 'boundary']:
+               src = os.path.join(mesh_dir, f)
+               dest = os.path.join(case_dir, 'constant', 'polyMesh', f)
+               FreeFOAM.util.copytree(src, dest)
+            FreeFOAM.util.rmtree(os.path.join(case_dir, timeNames[i]))
+
+         stamp_file.write('Changing patch type to wedge type in boundary file\n')
+         boundary = os.path.join(case_dir, 'constant', 'polyMesh', 'boundary')
+         lines = open(boundary, 'rt').readlines()
+         active = False
+         for i, l in enumerate(lines):
+            if re.search(r'wedge[12]', l):
+               active = True
+            elif re.search(r'nFaces', l):
+               active = False
+            if active:
+               lines[i] = re.sub(r'patch', 'wedge', l)
+         open(boundary, 'wt').writelines(lines)
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(rhoCentralBiconic25_55Run35Runner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

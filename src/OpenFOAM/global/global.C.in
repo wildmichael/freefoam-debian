@@ -1,0 +1,91 @@
+/*-------------------------------*- C++ -*-----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 1991-2010 OpenCFD Ltd.
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Description
+    Define the globals used in the OpenFOAM library.
+    It is important that these are constructed in the appropriate order to
+    avoid the use of unconstructed data in the global namespace.
+
+    This file has the extension .Cver to trigger a Makefile rule that converts
+    'VERSION\_STRING' and 'BUILD\_STRING' into the appropriate strings.
+
+\*---------------------------------------------------------------------------*/
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+#include <OpenFOAM/foamVersion.H>
+
+const char* const Foam::FOAMversion = "@FOAM_VERSION@";
+const char* const Foam::FOAMfullVersion = "@FOAM_VERSION_FULL@";
+const char* const Foam::FOAMConfigDir = "@FOAM_INSTALL_CONFIG_PATH@";
+const char* const Foam::FOAMbuild = "@FOAM_BUILD_NUMBER@";
+const char* const Foam::FOAMupstreamVersion = "@FOAM_UPSTREAM_VERSION_FULL@";
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Setup an error handler for the global new operator
+
+#include "global/new.C"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Global IO streams
+
+#include "db/IOstreams/IOstreams.C"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "global/JobInfo/JobInfo.H"
+bool Foam::JobInfo::constructed(false);
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Global error definitions (initialised by construction)
+
+#include "db/error//messageStream.C"
+#include "db/error/error.C"
+#include "db/error/IOerror.C"
+#include "db/IOstreams/token/token.C"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Read the debug and info switches
+
+#include "global/debug/debug.C"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Dynamic Pstream loading (requiring debug::controlDict())
+
+#include "db/IOstreams/Pstreams/PstreamImpl.C"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Initialize argList (requires Pstream and the I/O streams
+
+#include "global/argList/argList.C"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Read and set cell models
+
+#include "meshes/meshShapes/cellModeller/globalCellModeller.C"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Create the jobInfo file in the $FOAM_JOB_DIR/runningJobs directory
+
+#include "global/JobInfo/JobInfo.C"
+
+// ******************** vim: set ft=cpp sw=4 sts=4 et: ********************* //

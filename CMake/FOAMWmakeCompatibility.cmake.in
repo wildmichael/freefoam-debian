@@ -1,0 +1,294 @@
+# - Wmake compatibility module
+#
+#  FOAM_ADD_WMAKE_TARGET([<target-var> [<dir>]])
+#
+# Create a target that is described by the OpenFOAM wmake build system. The
+# function parses the files <dir>/Make/files and <dir>/Make/options and then
+# creates an executable or a library. The name of the target will be returned
+# in <target-var> and <dir> defaults to CMAKE_CURRENT_SOURCE_DIR. If the target
+# name ends on "Foam" (but not "ToFoam"), this suffix will be stripped. The
+# parsing is quite rudimentary, especially variable substitution might fail and
+# the include-directories detection is not very robust at the moment. Consider
+# this function to be very experimental. Comments and patches are welcome.
+#
+
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Description
+#   Wmake compatibility module
+#
+#-------------------------------------------------------------------------------
+
+# this requires cpp
+find_program(CPP_EXECUTABLE cpp)
+mark_as_advanced(CPP_EXECUTABLE)
+if(NOT CPP_EXECUTABLE)
+  message(SEND_ERROR "Required program 'cpp' not found")
+endif()
+
+if(PROJECT_NAME)
+  set(proptype_tmpl "DIRECTORY;\${dir}")
+else()
+  set(proptype GLOBAL)
+endif()
+
+# Run <filename> through the preprocessor and return
+# the results in <var>.
+function(_foam_awt_preprocess var filename)
+  set(defs -D@FOAM_OS@)
+  if(FOAM_DOUBLE_PRECISION OR FOAM_DEFINITIONS MATCHES -DDP)
+    list(APPEND defs -DDP)
+  else()
+    list(APPEND defs -DSP)
+  endif()
+  execute_process(
+    COMMAND "${CPP_EXECUTABLE}" -xc ${defs} -P -E ${filename}
+    RESULT_VARIABLE res
+    OUTPUT_VARIABLE out
+    ERROR_VARIABLE err
+    )
+  if(res)
+    message(SEND_ERROR "Preprocessing of ${filename} failed with:\n${err}")
+  endif()
+  # wrap line continuations
+  string(REGEX REPLACE "\\\\n" " " out "${out}")
+  # strip leading/trailing space and empty lines
+  string(STRIP "${out}" out)
+  string(REGEX REPLACE "\n\n+" "\n" out "${out}")
+  set(${var} "${out}" PARENT_SCOPE)
+endfunction()
+
+# Parse the variable definitions in <str> and store the names in
+# the FOAM_AWT_VARIABLES property of <dir> and the values in
+# FOAM_AWT_VALUE_<varname>. The definitions are removed from the
+# string and the result is returned in <outvar>
+function(_foam_awt_collect_vars outvar dir str)
+  if(PROJECT_NAME)
+    string(CONFIGURE "${proptype_tmpl}" proptype)
+  endif()
+  # initialize well known variables
+  foreach(var FOAM_APPBIN FOAM_LIBBIN FOAM_SOLVERS FOAM_SRC FOAM_USER_APPBIN
+      FOAM_USER_LIBBIN LIB_SRC)
+    set_property(${proptype} APPEND PROPERTY FOAM_AWT_VARIABLES ${var})
+    set_property(${proptype} PROPERTY FOAM_AWT_VALUE_${var} "${var}")
+  endforeach()
+  string(REPLACE "\n" ";" lines "${str}")
+  foreach(l ${lines})
+    if(l MATCHES "^[ \t]*([^ \t]+)[ \t]*=[ \t]*([^ \t].*)")
+      set_property(${proptype} APPEND PROPERTY FOAM_AWT_VARIABLES ${CMAKE_MATCH_1})
+      string(STRIP "${CMAKE_MATCH_2}" val)
+      set_property(${proptype} PROPERTY FOAM_AWT_VALUE_${CMAKE_MATCH_1} "${val}")
+      list(REMOVE_ITEM lines "${l}")
+    endif()
+  endforeach()
+  string(REPLACE ";" "\n" lines "${lines}")
+  set(${outvar} "${lines}" PARENT_SCOPE)
+endfunction()
+
+# Convenience function to retrieve the value of the FOAM_AWT_VALUE_<name>
+# property of <dir> in <outvar>.
+function(_foam_awt_get_value outvar dir name)
+  if(PROJECT_NAME)
+    string(CONFIGURE "${proptype_tmpl}" proptype)
+  endif()
+  get_property(variables ${proptype} PROPERTY FOAM_AWT_VARIABLES)
+  list(FIND variables ${name} idx)
+  if(idx LESS 0)
+    message(FATAL_ERROR "Failed to resolve variable ${name}")
+  endif()
+  get_property(val ${proptype} PROPERTY FOAM_AWT_VALUE_${name})
+  set(${outvar} "${val}" PARENT_SCOPE)
+endfunction()
+
+# Try to resolve all $(name) variable references in <str> using the variables
+# stored in the directory properties of <dir> and return the resulting string
+# in <outvar>.
+function(_foam_awt_resolve_vars outvar dir str)
+  if(PROJECT_NAME)
+    string(CONFIGURE "${proptype_tmpl}" proptype)
+  endif()
+  # resolve itself
+  get_property(variables ${proptype} PROPERTY FOAM_AWT_VARIABLES)
+  foreach(var ${variables})
+    get_property(val ${proptype} PROPERTY FOAM_AWT_VALUE_${var})
+    while(val MATCHES "\\$\\(([^ \t)]+)\\)")
+      set(ref ${CMAKE_MATCH_1})
+      _foam_awt_get_value(refval "${dir}" ${ref})
+      string(REGEX REPLACE "\\$\\(${ref}\\)" "${refval}" val "${val}")
+    endwhile()
+    set_property(${proptype} PROPERTY FOAM_AWT_VALUE_${var} "${val}")
+  endforeach()
+  # now resolve str
+  while(str MATCHES "\\$\\(([^ \t)]+)\\)")
+    set(ref ${CMAKE_MATCH_1})
+    _foam_awt_get_value(refval "${dir}" ${ref})
+    string(REGEX REPLACE "\\$\\(${ref}\\)" "${refval}" str "${str}")
+  endwhile()
+  set(${outvar} "${str}" PARENT_SCOPE)
+endfunction()
+
+# Determines whether <lib> is a library built by @PROJECT_NAME@
+function(_foam_awt_is_foam_library outvar lib)
+  set(result FALSE)
+  if(PROJECT_NAME)
+    if(TARGET FOAM_${lib})
+      set(result TRUE)
+    endif()
+  else()
+    if(EXISTS
+        "@FOAM_LIB_DIR@/@CMAKE_SHARED_LIBRARY_PREFIX@${lib}@CMAKE_SHARED_LIBRARY_SUFFIX@"
+        OR EXISTS
+        "@FOAM_LIB_DIR@/@CMAKE_SHARED_LIBRARY_PREFIX@${lib}@CMAKE_SHARED_MODULE_SUFFIX@"
+        )
+      set(result TRUE)
+    endif()
+  endif()
+  set(${outvar} ${result} PARENT_SCOPE)
+endfunction()
+
+# Parse <dir>/Make/files and <dir>/Make/options and return the target type in
+# <typevar> (either LIB or EXE if it is a library or executable, respectively),
+# the target name in <targetvar>, the list of source files in <filesvar>, the
+# link libraries in <libsvar> and the include directories in <incdirsvar>.
+function(_foam_awt_parse typevar targetvar filesvar libsvar incdirsvar dir)
+  if(PROJECT_NAME)
+    string(CONFIGURE "${proptype_tmpl}" proptype)
+  endif()
+  set(f_files "${dir}/Make/files")
+  set(f_options "${dir}/Make/options")
+  foreach(f f_files f_options)
+    if(NOT EXISTS "${${f}}")
+      message(SEND_ERROR "The file '${${f}}' does not exist")
+    endif()
+  endforeach()
+  _foam_awt_preprocess(l_files "${f_files}")
+  _foam_awt_preprocess(l_options "${f_options}")
+  set(lines "${l_files}\n${l_options}")
+  _foam_awt_collect_vars(lines "${dir}" "${lines}")
+  _foam_awt_resolve_vars(lines "${dir}" "${lines}")
+  string(REPLACE "\n" ";" lines "${lines}")
+  set(files ${f_files} ${f_options})
+  if(PROJECT_NAME)
+    set_source_files_properties(${files} PROPERTIES HEADER_FILE_ONLY TRUE)
+  endif()
+  foreach(f ${lines})
+    string(STRIP "${f}" f)
+    # this presumably is a file
+    if(NOT IS_ABSOLUTE ${f})
+      set(f "${dir}/${f}")
+    endif()
+    if(EXISTS "${f}")
+      list(APPEND files "${f}")
+    else()
+      message("WARNING: No such file '${f}'")
+    endif()
+  endforeach()
+  get_property(lib_name ${proptype} PROPERTY FOAM_AWT_VALUE_LIB)
+  get_property(exe_name ${proptype} PROPERTY FOAM_AWT_VALUE_EXE)
+  if(exe_name)
+    set(type EXE)
+    set(target ${exe_name})
+  elseif(lib_name)
+    set(type LIB)
+    set(target ${lib_name})
+  else()
+    message(FATAL_ERROR "ERROR: '${f_files}'\n"
+      "does neither contain a definition for EXE or LIB")
+  endif()
+  get_filename_component(target "${target}" NAME_WE)
+  # get link libraries
+  get_property(libs_str ${proptype} PROPERTY FOAM_AWT_VALUE_${type}_LIBS)
+  separate_arguments(libs_str)
+  set(libs)
+  foreach(l ${libs_str})
+    string(STRIP "${l}" l)
+    string(REGEX REPLACE "^-l" "" l "${l}")
+    _foam_awt_is_foam_library(is_foam_lib ${l})
+    if(is_foam_lib)
+      set(l FOAM_${l})
+    endif()
+    list(APPEND libs ${l})
+  endforeach()
+  # get include directories
+  get_property(incdirs_str ${proptype} PROPERTY FOAM_AWT_VALUE_EXE_INC)
+  separate_arguments(incdirs_str)
+  set(incdirs)
+  foreach(dd ${incdirs_str})
+    set(d "${dd}")
+    if(d MATCHES "lnInclude$")
+      get_filename_component(d "${d}" PATH)
+    endif()
+    get_filename_component(d "${d}" NAME)
+    set(d "@FOAM_INCLUDE_DIR@/${d}")
+    if(IS_DIRECTORY "${d}")
+      list(APPEND incdirs "${d}")
+    else()
+      message("WARNING: Don't know how to translate include-directory '${dd}'")
+    endif()
+  endforeach()
+  # return arguments to caller
+  set(${typevar} ${type} PARENT_SCOPE)
+  set(${targetvar} ${target} PARENT_SCOPE)
+  set(${filesvar} "${files}" PARENT_SCOPE)
+  set(${libsvar} "${libs}" PARENT_SCOPE)
+  set(${incdirsvar} "${incdirs}" PARENT_SCOPE)
+endfunction()
+
+function(foam_add_wmake_target)
+  if(ARGV0)
+    set(outvar ${ARGV0})
+  else()
+    set(outvar)
+  endif()
+  if(ARGV1)
+    set(dir "${ARGV1}")
+  else()
+    set(dir "${CMAKE_CURRENT_SOURCE_DIR}")
+  endif()
+  _foam_awt_parse(type target files libs incdirs "${dir}")
+  if(incdirs)
+    include_directories(${incdirs})
+  endif()
+  if(type STREQUAL EXE)
+    # try to be smart about the executable name
+    if(NOT target MATCHES "ToFoam$"AND target MATCHES "(.*)Foam$" )
+      set(target ${CMAKE_MATCH_1})
+    endif()
+    foam_add_executable(${target} ${files})
+  elseif(type STREQUAL LIB)
+    foam_add_library(${target} ${files})
+  endif()
+  target_link_libraries(${target} ${libs})
+  if(outvar)
+    set(${outvar} ${target} PARENT_SCOPE)
+  endif()
+endfunction()
+
+# ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file

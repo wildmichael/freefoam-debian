@@ -1,0 +1,23 @@
+[[chap_foamCases]]
+== {project} cases
+
+This chapter deals with the file structure and organisation of {project} cases.
+Normally, a user would assign a name to a case, 'e.g.' the tutorial case of
+flow in a cavity is simply named `cavity`. This name becomes the name of a
+directory in which all the case files and subdirectories are stored. The case
+directories themselves can be located anywhere.
+
+The tutorial cases that accompany the {project} distribution provide useful
+examples of the case directory structures. The tutorials are located in the
+filename:<tutorials>[] directory. Users can view tutorial examples at their
+leisure while reading this chapter.
+
+include::structure.txt[]
+
+include::basic-file-format.txt[]
+
+include::controlDict.txt[]
+
+include::fvSchemes.txt[]
+
+include::fvSolution.txt[]

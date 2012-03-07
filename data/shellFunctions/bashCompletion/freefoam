@@ -1,0 +1,133 @@
+#!/bin/bash
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Description
+#   Bash completion script for FreeFOAM.
+#
+#------------------------------------------------------------------------------
+
+# TODO this is very simplistic and always just offers the names of the
+# applications. Patches are welcome!
+
+_freefoam_all() {
+   local solvers utils
+   # set solvers
+   solvers=(                                                                  \
+      'boundary' 'bubble' 'buoyantBoussinesqPimple' 'buoyantBoussinesqSimple' \
+      'buoyantPimple' 'buoyantSimple' 'buoyantSimpleRadiation' 'cavitating'   \
+      'channel' 'chtMultiRegion' 'chtMultiRegionSimple' 'coalChemistry'       \
+      'coldEngine' 'compressibleInter' 'compressibleInterDyM' 'diesel'        \
+      'dieselEngine' 'dns' 'dsmc' 'electrostatic' 'engine' 'financial' 'fire' \
+      'ico' 'inter' 'interDyM' 'interMixing' 'interPhaseChange' 'laplacian'   \
+      'md' 'mdEquilibration' 'mhd' 'MRFInter' 'MRFMultiphaseInter'            \
+      'multiphaseInter' 'nonNewtonianIco' 'PDR' 'PDRAutoRefine' 'pimple'      \
+      'pimpleDyM' 'piso' 'porousExplicitSourceReactingParcel' 'porousInter'   \
+      'porousSimple' 'potential' 'reacting' 'reactingParcel' 'rhoCentral'     \
+      'rhoCentralDyM' 'rhoPimple' 'rhoPiso' 'rhoPorousMRFPimple'              \
+      'rhoPorousSimple' 'rhoReacting' 'rhoSimple' 'scalarTransport' 'settling'\
+      'shallowWater' 'simple' 'solidDisplacement'                             \
+      'solidEquilibriumDisplacement' 'sonic' 'sonicDyM' 'sonicLiquid'         \
+      'twoLiquidMixing' 'twoPhaseEuler' 'uncoupledKinematicParcel' 'Xi'       \
+   )
+
+   # set utilities
+   utils=(                                                                    \
+      'adiabaticFlameT' 'ansysToFoam' 'applyBoundaryLayer'                    \
+      'applyWallFunctionBoundaryConditions' 'attachMesh' 'autoPatch'          \
+      'autoRefineMesh' 'blockMesh' 'boxTurb' 'calc' 'ccm26ToFoam' 'cellSet'   \
+      'cfx4ToFoam' 'changeDictionary' 'checkMesh' 'chemkinToFoam'             \
+      'clearPolyMesh' 'Co' 'collapseEdges' 'combinePatchFaces' 'copySettings' \
+      'createBaffles' 'createPatch' 'createTurbulenceFields' 'debugSwitches'  \
+      'decomposePar' 'deformedGeom' 'dsmcFieldsCalc' 'dsmcInitialise'         \
+      'engineCompRatio' 'engineSwirl' 'enstrophy' 'equilibriumCO'             \
+      'equilibriumFlameT' 'estimateScalarError' 'execFlowFunctionObjects'     \
+      'expandDictionary' 'extrude2DMesh' 'extrudeMesh' 'faceSet' 'flattenMesh'\
+      'flowType' 'fluent3DMeshToFoam' 'fluentMeshToFoam' 'foamDataToFluent'   \
+      'foamMeshToFluent' 'foamToEnsight' 'foamToEnsightParts'                 \
+      'foamToFieldview9' 'foamToGMV' 'foamToStarMesh' 'foamToVTK'             \
+      'formatConvert' 'gambitToFoam' 'gmshToFoam' 'graphExecTime' 'graphResKE'\
+      'graphResUVWP' 'icoErrorEstimate' 'icoMomentError' 'ideasUnvToFoam'     \
+      'IFCLookUpTableGen' 'infoExec' 'insideCells' 'job' 'kivaToFoam'         \
+      'Lambda2' 'log' 'Mach' 'mapFields' 'mdInitialise' 'mergeMeshes'         \
+      'mergeOrSplitBaffles' 'mirrorMesh' 'mixtureAdiabaticFlameT' 'modifyMesh'\
+      'momentScalarError' 'moveDynamicMesh' 'moveEngineMesh' 'moveMesh'       \
+      'mshToFoam' 'netgenNeutralToFoam' 'objToVTK' 'para' 'particleTracks'    \
+      'patchAverage' 'patchIntegrate' 'patchSummary' 'pdfPlot' 'Pe'           \
+      'plot3dToFoam' 'pointSet' 'polyDualMesh' 'postChannel' 'pPrime2'        \
+      'probeLocations' 'ptot' 'Q' 'R' 'reconstructPar' 'reconstructParMesh'   \
+      'redistributeMeshPar' 'refineHexMesh' 'refinementLevel' 'refineMesh'    \
+      'refineWallLayer' 'removeFaces' 'renumberMesh' 'rotateMesh' 'sammToFoam'\
+      'sample' 'selectCells' 'setFields' 'setSet' 'setsToZones' 'smapToFoam'  \
+      'snappyHexMesh' 'solverSweeps' 'splitCells' 'splitMesh'                 \
+      'splitMeshRegions' 'star4ToFoam' 'starToFoam' 'stitchMesh'              \
+      'streamFunction' 'stressComponents' 'subsetMesh' 'surfaceAdd'           \
+      'surfaceAutoPatch' 'surfaceCheck' 'surfaceClean' 'surfaceCoarsen'       \
+      'surfaceConvert' 'surfaceFeatureConvert' 'surfaceFeatureExtract'        \
+      'surfaceFind' 'surfaceMeshConvert' 'surfaceMeshConvertTesting'          \
+      'surfaceMeshExport' 'surfaceMeshImport' 'surfaceMeshTriangulate'        \
+      'surfaceOrient' 'surfacePointMerge' 'surfaceRedistributePar'            \
+      'surfaceRefineRedGreen' 'surfaceSmooth' 'surfaceSplitByPatch'           \
+      'surfaceSplitNonManifolds' 'surfaceSubset' 'surfaceToPatch'             \
+      'surfaceTransformPoints' 'tetgenToFoam' 'transformPoints'               \
+      'upgradeFvSolution' 'uprime' 'vorticity' 'wallGradU' 'wallHeatFlux'     \
+      'wallShearStress' 'wdot' 'writeCellCentres' 'writeMeshObj' 'yPlusLES'   \
+      'yPlusRAS' 'zipUpMesh'                                                  \
+     )
+     echo "${solvers[*]} ${utils[*]}"
+}
+
+_freefoam()
+{
+   local cur prev opts base
+   COMPREPLY=()
+   base="${COMP_WORDS[0]}"
+   cur="${COMP_WORDS[COMP_CWORD]}"
+   prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+   #
+   #  The basic commands we'll complete.
+   #
+
+   cmds="$(_freefoam_all)"
+   compl=""
+
+   case "$(basename ${base})" in
+      freefoam|job)
+      compl="${cmds}"
+      ;;
+   esac
+
+   COMPREPLY=($(compgen -W "${compl}" -- ${cur}))
+   return 0
+}
+complete -F _freefoam freefoam
+
+
+# ------------------------- vim: set sw=3 sts=3 et: --------------- end-of-file

@@ -1,0 +1,47 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class interDyMDamBreakWithObstacleRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self,
+            'interDyM_ras_damBreakWithObstacle')
+      self.add_app_step('blockMesh')
+      self.add_app_step('setSet', args=['-batch',
+         os.path.join(self.case_dir, 'createObstacle.setSet')])
+      self.add_app_step('subsetMesh',
+            args='-overwrite c0 -patch walls'.split())
+      self.add_step('prepare', self._prepare)
+      self.add_app_step('setFields')
+      self.add_app_step('interDyM')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, '0'))
+
+   def _prepare(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Copying 0.org to 0\n')
+         zero = os.path.join(case_dir, '0')
+         # always copy from self.case_dir, never from self.test_dir
+         FreeFOAM.util.copytree(os.path.join(self.case_dir, '0.org'), zero)
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(interDyMDamBreakWithObstacleRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

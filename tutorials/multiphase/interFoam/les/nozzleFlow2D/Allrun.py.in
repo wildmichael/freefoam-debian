@@ -1,0 +1,85 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+import glob
+
+class interNozzleFlow2DRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'inter_les_nozzleFlow2D')
+
+      self.add_app_step('blockMesh')
+      for i in (1,2):
+         self.add_step('copyCellSetDict.%d'%i, self._CopyCellSetDict(i))
+         self.add_app_step('cellSet.%d'%i, app='cellSet')
+         self.add_app_step('refineMesh.%d'%i, app='refineMesh', args=['-dict'])
+         self.add_step('copyMesh.%d'%i, self._copyPolyMesh)
+      self.add_step('copyBoundary', self._copyBoundary)
+      self.add_app_step('inter')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, '0', 'alpha1.gz'))
+      for d in 'probes wallPressure pRefProbe'.split():
+        FreeFOAM.util.rmtree(os.path.join(self.case_dir, d))
+
+   def _copyBoundary(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write(
+            'Copying boundary.org to boundary\n')
+         boundary = os.path.join(case_dir, 'constant', 'polyMesh', 'boundary')
+         FreeFOAM.util.copytree(boundary+'.org', boundary)
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+   def _copyPolyMesh(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write(
+            'Copying 1e-08/polyMesh/* to constant/polyMesh/\n')
+         polyMesh = os.path.join(case_dir, 'constant', 'polyMesh')
+         for f in glob.glob(
+               os.path.join(case_dir, '1e-08', 'polyMesh', '*')):
+            FreeFOAM.util.copytree(f,
+                  os.path.join(polyMesh, os.path.basename(f)))
+         FreeFOAM.util.rmtree(
+               os.path.join(case_dir, '1e-08'))
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+   class _CopyCellSetDict:
+      def __init__(self, cellSet):
+         self._set = str(cellSet)
+
+      def __call__(self, case_dir, stamp_file, test_mode):
+         try:
+            stamp_file.write(
+               'Copying system/cellSetDict_%s to system/cellSetDict\n'%self._set)
+            cellSetDict = os.path.join(case_dir, 'system', 'cellSetDict')
+            FreeFOAM.util.copytree(cellSetDict+'.'+self._set, cellSetDict)
+            stamp_file.write('REPORT: SUCCESS\n')
+            return True
+         except Exception:
+            e = sys.exc_info()[1]
+            stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+            return False
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(interNozzleFlow2DRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

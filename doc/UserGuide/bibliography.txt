@@ -1,0 +1,5 @@
+[bibliography]
+== References
+[bibliography]
+- [[OpenFoamUserGuide]] OpenCFD Ltd. 'OpenFOAM User Guide'
+  http://foam.sourceforge.net/docs/Guides-a4/UserGuide.pdf

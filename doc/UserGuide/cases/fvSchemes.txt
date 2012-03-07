@@ -1,0 +1,504 @@
+[[sec_fvSchemes]]
+=== Numerical schemes
+
+The filename:fvSchemes[](((filename:fvSchemes[],dictionary)))
+(((dictionary,filename:fvSchemes[]))) dictionary in the dirname:system[]
+directory sets the numerical schemes for terms, such as derivatives in
+equations, that appear in applications being run. This section describes how to
+specify the schemes in the
+filename:fvSchemes[](((filename:fvSchemes[],dictionary)))
+(((dictionary,filename:fvSchemes[]))) dictionary.
+
+The terms that must typically be assigned a numerical scheme in
+filename:fvSchemes[](((filename:fvSchemes[],dictionary)))
+(((dictionary,filename:fvSchemes[]))) range from derivatives, 'e.g.' gradient
+math:[\nabla], and interpolations of values from one set of points to another.
+The aim in {project} is to offer an unrestricted choice to the user. For
+example, while linear interpolation is effective in many cases, {project}
+offers complete freedom to choose from a wide selection of interpolation
+schemes for all interpolation terms.
+
+The derivative terms further exemplify this freedom of choice. The user first
+has a choice of discretisation practice where standard Gaussian finite volume
+integration is the common choice. Gaussian integration is based on summing
+values on cell faces, which must be interpolated from cell centres. The user
+again has a completely free choice of interpolation scheme, with certain
+schemes being specifically designed for particular derivative terms, especially
+the convection divergence math:[\nabla\cdot] terms.
+
+The set of terms, for which numerical schemes must be specified, are subdivided
+within the filename:fvSchemes[](((filename:fvSchemes[],dictionary)))
+(((dictionary,filename:fvSchemes[]))) dictionary into the categories listed in
+<<tab_fvSchemesKeywords>>. Each keyword in <<tab_fvSchemesKeywords>> is the
+name of a sub-dictionary which contains terms of a particular type, 'e.g.'
+`gradSchemes` contains all the gradient derivative terms such as `grad(p)`
+(which represents math:[\nabla p]). Further examples can be seen in the extract
+from an filename:fvSchemes[] dictionary below:
+
+[[tab_fvSchemesKeywords]]
+.Main keywords used in filename:fvSchemes[]
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Keyword | Category of mathematical terms
+| `interpolationSchemes`(((`interpolationSchemes` keyword)))
+(((keyword,`interpolationSchemes`))) | Point-to-point interpolations of values
+| `snGradSchemes`(((`snGradSchemes` keyword)))(((keyword,`snGradSchemes`))) |
+Component of gradient normal to a cell face
+| `gradSchemes`(((`gradSchemes` keyword)))(((keyword,`gradSchemes`))) |
+Gradient math:[\nabla]
+| `divSchemes`(((`divSchemes` keyword)))(((keyword,`divSchemes`))) | Divergence
+math:[\nabla\cdot]
+| `laplacianSchemes`(((`laplacianSchemes` keyword)))
+(((keyword,`laplacianSchemes`))) | Laplacian math:[\nabla^2]
+| `timeScheme`(((`timeScheme` keyword)))(((keyword,`timeScheme`))) | First and
+second time derivatives math:[\nicefrac{\partial}{\partial t}],
+math:[\nicefrac{\partial^2}{\partial t^2}]
+| `fluxRequired`(((`fluxRequired` keyword)))(((keyword,`fluxRequired`))) |
+Fields which require the generation of a flux
+|==============================================================================
+
+-------------------------------------------------------------------------------
+ddtSchemes
+{
+    default Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+    grad(p)         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+    div(phi,U)      Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         none;
+    laplacian(nu,U) Gauss linear corrected;
+    laplacian((1|A(U)),p) Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+    interpolate(HbyA) linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+fluxRequired
+{
+    default         no;
+    p               ;
+}
+-------------------------------------------------------------------------------
+
+The example shows that the filename:fvSchemes[] dictionary contains the
+following:
+
+- 6 `...Schemes` subdictionaries containing keyword entries for each term
+  specified within including: a `default` entry; other entries whose names
+  correspond to a `word` identifier for the particular term specified, 'e.g.'
+  `grad(p)` for math:[\nabla p]
+- a `fluxRequired` sub-dictionary containing fields for which the flux is
+  generated in the application, 'e.g.' `p` in the example.
+
+If a `default` scheme is specified in a particular `...Schemes` sub-dictionary,
+it is assigned to all of the terms to which the sub-dictionary refers, 'e.g.'
+specifying a `default` in `gradSchemes` sets the scheme for all gradient terms
+in the application, 'e.g.' math:[\nabla p], math:[\nabla\U].  When a `default`
+is specified, it is not necessary to specify each specific term itself in that
+sub-dictionary, 'i.e.' the entries for `grad(p)`, `grad(U)` in this example.
+However, if any of these terms are included, the specified scheme overrides the
+`default` scheme for that term.
+
+Alternatively the user may insist on no `default` scheme by the
+`none`(((`none`,keyword entry)))(((keyword entry,`none`))) entry. In this
+instance the user is obliged to specify all terms in that sub-dictionary
+individually. Setting `default` to `none` may appear superfluous since
+`default` can be overridden. However, specifying `none` forces the user to
+specify all terms individually which can be useful to remind the user which
+terms are actually present in the application.
+
+The following sections describe the choice of schemes for each of the
+categories of terms in <<tab_fvSchemesKeywords>>.
+
+[[sec_interpolationSchemes]]
+==== Interpolation schemes
+
+The `interpolationSchemes` sub-dictionary contains terms that are
+interpolations of values typically from cell centres to face centres. A
+'selection' of interpolation schemes in {project} are listed in
+<<tab_interpolationSchemes>>, being divided into 4 categories: 1 category of
+general schemes; and, 3 categories of schemes used primarily in conjunction
+with Gaussian discretisation of convection (divergence) terms in fluid flow,
+described in <<sec_divSchemes>>. It is 'highly unlikely' that the user would
+adopt any of the convection-specific schemes for general field interpolations
+in the `interpolationSchemes` sub-dictionary, but, as valid interpolation
+schemes, they are described here rather than in <<sec_divSchemes>>. Note that
+additional schemes such as `UMIST`(((`UMIST`,keyword entry)))
+(((keyword entry,`UMIST`))) are available in {project} but only those schemes
+that are generally recommended are listed in <<tab_interpolationSchemes>>.
+
+A general scheme is simply specified by quoting the keyword and entry, 'e.g.' a
+`linear` scheme is specified as `default` by:
+
+-------------------------------------------------------------------------------
+default linear;
+-------------------------------------------------------------------------------
+
+The convection-specific schemes calculate the interpolation based on the flux
+of the flow velocity. The specification of these schemes requires the name of
+the flux field on which the interpolation is based; in most {project}
+applications this is `phi`, the name commonly adopted for the
+`surfaceScalarField` velocity flux math:[\phi].  The 3 categories of
+convection-specific schemes are referred to in this text as: general
+convection; normalised variable (NV); and, total variation diminishing (TVD).
+With the exception of the `blended` scheme, the general convection and TVD
+schemes are specified by the scheme and flux, 'e.g.' an `upwind` scheme based
+on a flux `phi` is specified as `default` by:
+
+-------------------------------------------------------------------------------
+default upwind phi;
+-------------------------------------------------------------------------------
+
+Some TVD/NVD schemes require a coefficient math:[\psi], math:[0\le\psi\le 1]
+where math:[\psi=1] corresponds to TVD conformance, usually giving best
+convergence and math:[\psi=0] corresponds to best accuracy. Running with
+math:[\psi=1] is generally recommended. A `limitedLinear` scheme based on a
+flux `phi` with math:[\psi=1.0] is specified as `default` by:
+
+-------------------------------------------------------------------------------
+default limitedLinear 1.0 phi;
+-------------------------------------------------------------------------------
+
+[[tab_interpolationSchemes]]
+.Interpolation schemes
+[grid="none",frame="topbot"]
+|==============================================================================
+2+h| Centred schemes
+| `linear`(((`linear`,keyword entry)))(((keyword entry,`linear`))) | Linear
+interpolation (central differencing)
+| `cubicCorrection`(((`cubicCorrection`,keyword entry)))
+(((keyword entry,`cubicCorrection`))) | Cubic scheme
+| `midPoint`(((`midPoint`,keyword entry)))(((keyword entry,`midPoint`))) |
+Linear interpolation with symmetric weighting
+
+2+h| Upwinded convection schemes
+| `upwind`(((`upwind`,keyword entry)))(((keyword entry,`upwind`))) | Upwind
+differencing
+| `linearUpwind`(((`linearUpwind`,keyword entry)))
+(((keyword entry,`linearUpwind`))) | Linear upwind differencing
+| `skewLinear`(((`skewLinear`,keyword entry)))(((keyword entry,`skewLinear`)))
+| Linear with skewness correction
+| `QUICK`(((`QUICK`,keyword entry)))(((keyword entry,`QUICK`))) | Quadratic
+upwind differencing
+
+2+h| TVD schemes
+| `limitedLinear`(((`limitedLinear`,keyword entry)))
+(((keyword entry,`limitedLinear`))) | limited linear differencing
+| `vanLeer`(((`vanLeer`,keyword entry)))(((keyword entry,`vanLeer`))) | van
+Leer limiter
+| `MUSCL`(((`MUSCL`,keyword entry)))(((keyword entry,`MUSCL`))) | MUSCL limiter
+| `limitedCubic`(((`limitedCubic`,keyword entry)))
+(((keyword entry,`limitedCubic`))) | Cubic limiter
+
+2+h| NVD schemes
+| `SFCD`(((`SFCD`,keyword entry)))(((keyword entry,`SFCD`))) | Self-filtered
+central differencing
+| `Gamma`(((`Gamma`,keyword entry)))(((keyword entry,`Gamma`))) math:[\psi] |
+Gamma differencing
+|==============================================================================
+
+===== Schemes for strictly bounded scalar fields
+
+There are enhanced versions of some of the limited schemes for scalars that
+need to be strictly bounded. To bound between user-specified limits, the scheme
+name should be preprended by the word `limited` and followed by the lower and
+upper limits respectively. For example, to bound the `vanLeer` scheme strictly
+between -2 and 3, the user would specify:
+
+-------------------------------------------------------------------------------
+default limitedVanLeer -2.0 3.0;
+-------------------------------------------------------------------------------
+
+There are specialised versions of these schemes for scalar fields that are
+commonly bounded between 0 and 1. These are selected by adding `01` to the name
+of the scheme.  For example, to bound the `vanLeer` scheme strictly between 0
+and 1, the user would specify:
+
+-------------------------------------------------------------------------------
+default vanLeer01;
+-------------------------------------------------------------------------------
+
+Strictly bounded versions are available for the following schemes:
+`limitedLinear`, `vanLeer`, `Gamma`, `limitedCubic`, `MUSCL` and `SuperBee`.
+
+===== Schemes for vector fields
+
+There are improved versions of some of the limited schemes for vector fields in
+which the limited is formulated to take into account the direction of the
+field. These schemes are selected by adding `V` to the name of the general
+scheme, 'e.g.'`limitedLinearV` for `limitedLinear`. `V' versions are available
+for the following schemes: +limitedLinearV+, +vanLeerV+, +GammaV+,
++limitedCubicV+ and +SFCDV+.
+
+==== Surface normal gradient schemes
+
+The `snGradSchemes` sub-dictionary contains surface normal gradient terms. A
+surface normal gradient is evaluated at a cell face; it is the component,
+normal to the face, of the gradient of values at the centres of the 2 cells
+that the face connects. A surface normal gradient may be specified in its own
+right and is also required to evaluate a Laplacian term using Gaussian
+integration.
+
+The available schemes are listed in <<tab_snGradSchemes>> and are specified by
+simply quoting the keyword and entry, with the exception of `limited` which
+requires a coefficient math:[\psi], math:[0\le\psi\le 1] where
+
+[math]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\begin{align*}
+  \psi = \begin{cases}
+           0          & \text{corresponds to }{\tt uncorrected}, \\
+           0.333      & \text{non-orthogonal correction }
+                          \le 0.5\times\text{ orthogonal part}, \\
+           0.5        & \text{non-orthogonal correction }\le
+                          \text{ orthogonal part}, \\
+           1          & \text{corresponds to }{\tt corrected}.
+         \end{cases}
+\end{align*}
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+A `limited` scheme with math:[\psi=0.5] is therefore specified as `default` by:
+
+-------------------------------------------------------------------------------
+default limited 0.5;
+-------------------------------------------------------------------------------
+
+[[tab_snGradSchemes]]
+.Surface normal gradient schemes
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Scheme | Description
+| `corrected`(((`corrected`,keyword entry)))(((keyword entry,`corrected`))) |
+Explicit non-orthogonal correction
+| `uncorrected`(((`uncorrected`,keyword entry)))
+(((keyword entry,`uncorrected`))) | No non-orthogonal correction
+| `limited`(((`limited`,keyword entry)))(((keyword entry,`limited`)))
+math:[\psi] | Limited non-orthogonal correction
+| `bounded`(((`bounded`,keyword entry)))(((keyword entry,`bounded`))) | Bounded
+correction for positive scalars
+| `fourth`(((`fourth`,keyword entry)))(((keyword entry,`fourth`))) | Fourth
+order
+|==============================================================================
+
+==== Gradient schemes
+
+The `gradSchemes` sub-dictionary contains gradient terms. The discretisation
+scheme for each term can be selected from those listed in <<tab_gradSchemes>>.
+
+[[tab_gradSchemes]]
+.Discretisation schemes available in `gradSchemes`
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Discretisation scheme | Description
+| `Gauss`(((`Gauss`,keyword entry)))(((keyword entry,`Gauss`)))
+`<interpolationScheme>` | Second order, Gaussian integration
+| `leastSquares`(((`leastSquares`,keyword entry)))
+(((keyword entry,`leastSquares`))) | Second order, least squares
+| `fourth`(((`fourth`,keyword entry)))(((keyword entry,`fourth`))) | Fourth
+order, least squares
+| `cellLimited`(((`cellLimited`,keyword entry)))
+(((keyword entry,`cellLimited`))) `<gradScheme>` | Cell limited version of one
+of the above schemes
+| `faceLimited`(((`faceLimited`,keyword entry)))
+(((keyword entry,`faceLimited`))) `<gradScheme>` | Face limited version of one
+of the above schemes
+|==============================================================================
+
+The discretisation scheme is sufficient to specify the scheme completely in the
+cases of `leastSquares` and `fourth`, 'e.g.'
+
+-------------------------------------------------------------------------------
+grad(p) leastSquares;
+-------------------------------------------------------------------------------
+
+The `Gauss` keyword specifies the standard finite volume discretisation of
+Gaussian integration which requires the interpolation of values from cell
+centres to face centres. Therefore, the `Gauss` entry must be followed by the
+choice of interpolation scheme from <<tab_interpolationSchemes>>. It would be
+extremely unusual to select anything other than general interpolation schemes
+and in most cases the `linear` scheme is an effective choice, 'e.g.'
+
+-------------------------------------------------------------------------------
+grad(p) Gauss linear;
+-------------------------------------------------------------------------------
+
+Limited versions of any of the 3 base gradient schemes &mdash; `Gauss`,
+`leastSquares` and `fourth` &mdash; can be selected by preceding the
+discretisation scheme by `cellLimited` (or `faceLimited`), 'e.g.' a cell
+limited Gauss scheme
+
+-------------------------------------------------------------------------------
+grad(p) cellLimited Gauss linear 1;
+-------------------------------------------------------------------------------
+
+==== Laplacian schemes
+
+The `laplacianSchemes` sub-dictionary contains Laplacian terms. Let us discuss
+the syntax of the entry in reference to a typical Laplacian term found in fluid
+dynamics, math:[\nabla\cdot\left(\nu\nabla\U\right)], given the `word`
+identifier `laplacian(nu,U)`. The `Gauss` scheme is the only choice of
+discretisation and requires a selection of both an interpolation scheme for the
+diffusion coefficient, 'i.e.' math:[\nu] in our example, and a surface normal
+gradient scheme, 'i.e.' math:[\nabla\U]. To summarise, the entries required
+are:
+
+-------------------------------------------------------------------------------
+Gauss '<interpolationScheme>' '<snGradScheme>'
+-------------------------------------------------------------------------------
+
+The interpolation scheme is selected from <<tab_interpolationSchemes>>, the
+typical choices being from the general schemes and, in most cases, `linear`.
+The surface normal gradient scheme is selected from <<tab_snGradSchemes>>; the
+choice of scheme determines numerical behaviour as described in
+<<tab_snGradForLaplacianSchemes>>. A typical entry for our example Laplacian
+term would be:
+
+-------------------------------------------------------------------------------
+laplacian(nu,U) Gauss linear corrected;
+-------------------------------------------------------------------------------
+
+[[tab_snGradForLaplacianSchemes]]
+.Behaviour of surface normal schemes used in `laplacianSchemes`
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Scheme | Numerical behaviour
+| `corrected`(((`corrected`,keyword entry)))(((keyword entry,`corrected`))) |
+Unbounded, second order, conservative
+| `uncorrected`(((`uncorrected`,keyword entry)))
+(((keyword entry,`uncorrected`))) | Bounded, first order, non-conservative
+| `limited`(((`limited`,keyword entry)))(((keyword entry,`limited`)))
+math:[\psi] | Blend of `corrected`(((`corrected`,keyword entry)))
+(((keyword entry,`corrected`))) and `uncorrected`
+(((`uncorrected`,keyword entry)))(((keyword entry,`uncorrected`)))
+| `bounded`(((`bounded`,keyword entry)))(((keyword entry,`bounded`))) | First
+order for bounded scalars
+| `fourth`(((`fourth`,keyword entry)))(((keyword entry,`fourth`))) | Unbounded,
+fourth order, conservative
+|==============================================================================
+
+[[sec_divSchemes]]
+==== Divergence schemes
+
+The `divSchemes` sub-dictionary contains divergence terms. Let us discuss the
+syntax of the entry in reference to a typical convection term found in fluid
+dynamics math:[\nabla\cdot(\rho\U\U)], which in {project} applications is
+commonly given the identifier `div(phi,U)`, where `phi` refers to the flux
+math:[\phi=\rho\U].
+
+The `Gauss` scheme is the only choice of discretisation and requires a
+selection of the interpolation scheme for the dependent field, 'i.e.' math:[U]
+in our example. To summarise, the entries required are:
+
+-------------------------------------------------------------------------------
+Gauss '<interpolationScheme>'
+-------------------------------------------------------------------------------
+
+The interpolation scheme is selected from the full range of schemes in
+<<tab_interpolationSchemes>>, both general and convection-specific. The choice
+critically determines numerical behaviour as described in
+<<tab_interpolationForDivSchemes>>. The syntax here for specifying
+convection-specific interpolation schemes 'does not include the flux' as it is
+already known for the particular term, 'i.e.' for `div(phi,U)`, we know the
+flux is `phi` so specifying it in the interpolation scheme would only invite an
+inconsistency. Specification of upwind interpolation in our example would
+therefore be:
+
+-------------------------------------------------------------------------------
+div(phi,U) Gauss upwind;
+-------------------------------------------------------------------------------
+
+[[tab_interpolationForDivSchemes]]
+.Behaviour of interpolation schemes used in `divSchemes`
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Scheme | Numerical behaviour
+| `linear`(((`linear`,keyword entry)))(((keyword entry,`linear`))) | Second
+order, unbounded
+| `skewLinear`(((`skewLinear`,keyword entry)))(((keyword entry,`skewLinear`)))
+| Second order, (more) unbounded, skewness correction
+| `cubicCorrected`(((`cubicCorrected`,keyword entry)))
+(((keyword entry,`cubicCorrected`))) | Fourth order, unbounded
+| `upwind`(((`upwind`,keyword entry)))(((keyword entry,`upwind`))) | First
+order, bounded
+| `linearUpwind`(((`linearUpwind`,keyword entry)))
+(((keyword entry,`linearUpwind`))) | First/second order, bounded
+| `QUICK`(((`QUICK`,keyword entry)))(((keyword entry,`QUICK`))) | First/second
+order, bounded
+| TVD schemes | First/second order, bounded
+| `SFCD`(((`SFCD`,keyword entry)))(((keyword entry,`SFCD`))) | Second order,
+bounded
+| NVD schemes | First/second order, bounded
+|==============================================================================
+
+==== Time schemes
+
+The first time derivative (math:[\nicefrac{\partial}{\partial t}]) terms are
+specified in the `ddtSchemes` sub-dictionary. The discretisation scheme for
+each term can be selected from those listed in <<tab_ddtSchemes>>.
+
+There is an off-centering coefficient math:[\psi] with the `CrankNicholson`
+scheme that blends it with the `Euler` scheme. A coefficient of math:[\psi=1]
+corresponds to pure `CrankNicholson` and and math:[\psi=0] corresponds to pure
+`Euler`. The blending coefficient can help to improve stability in cases where
+pure `CrankNicholson` are unstable.
+
+[[tab_ddtSchemes]]
+.Discretisation schemes available in `ddtSchemes`
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Scheme | Description
+| `Euler`(((`Euler`,keyword entry)))(((keyword entry,`Euler`))) | First order,
+bounded, implicit
+| `CrankNicholson`(((`CrankNicholson`,keyword entry)))
+(((keyword entry,`CrankNicholson`))) math:[\psi] | Second order, bounded,
+implicit
+| `backward`(((`backward`,keyword entry)))(((keyword entry,`backward`))) |
+Second order, implicit
+| `steadyState`(((`steadyState`,keyword entry)))
+(((keyword entry,`steadyState`))) | Does not solve for time derivatives
+|==============================================================================
+
+When specifying a time scheme it must be noted that an application designed for
+transient problems will not necessarily run as steady-state and visa versa. For
+example the solution will not converge if `steadyState` is specified when
+running `ico`, the transient, laminar incompressible flow code; rather,
+`simple` should be used for steady-state, incompressible flow.
+
+Any second time derivative (math:[\nicefrac{\partial^2}{\partial t^2}]) terms
+are specified in the `d2dt2Schemes` sub-dictionary. Only the `Euler` scheme is
+available for `d2dt2Schemes`.
+
+==== Flux calculation
+
+The `fluxRequired` sub-dictionary lists the fields for which the flux is
+generated in the application. For example, in many fluid dynamics applications
+the flux is generated after solving a pressure equation, in which case the
+`fluxRequired` sub-dictionary would simply be entered as follows, `p` being the
+`word` identifier for pressure:
+
+-------------------------------------------------------------------------------
+fluxRequired
+{
+    p;
+}
+-------------------------------------------------------------------------------

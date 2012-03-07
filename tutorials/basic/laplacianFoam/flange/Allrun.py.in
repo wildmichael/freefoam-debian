@@ -1,0 +1,32 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class laplacianFlangeRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'laplacian_flange')
+      self.add_app_step('ansysToFoam',
+            args=[os.path.join(self.case_dir, 'flange.ans'),
+               '-scale', '0.001'])
+      self.add_app_step('laplacian')
+      self.add_app_step('foamToFieldview9')
+      self.add_app_step('foamToEnsight')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree('Fieldview')
+      FreeFOAM.util.rmtree('EnSight')
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(laplacianFlangeRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

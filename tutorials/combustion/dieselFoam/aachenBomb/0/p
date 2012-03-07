@@ -1,0 +1,40 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+// ************************************************************************* //
+
+dimensions          [ 1 -1 -2 0 0 0 0 ];
+
+internalField       uniform 5e+06;
+
+boundaryField
+{
+    walls
+    {
+        type            buoyantPressure;
+        value           uniform 5e+06;
+    }
+
+    front
+    {
+        type            wedge;
+    }
+
+    back
+    {
+        type            wedge;
+    }
+}
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

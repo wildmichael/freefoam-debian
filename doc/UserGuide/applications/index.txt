@@ -1,0 +1,38 @@
+[[chap_foamApplications]]
+== Applications and libraries
+((({project},applications))) (((applications))) ((({project},libraries)))
+(((libraries)))
+
+We should reiterate from the outset that {project} is a {cpp} library used
+primarily to create executables, known as 'applications'. {project} is
+distributed with a large set of precompiled applications but users also have
+the freedom to create their own or modify existing ones. Applications are
+split into two main categories:
+
+solvers::
+  that are each designed to solve a specific problem in computational continuum
+  mechanics;
+utilities::
+  that perform simple pre-and post-processing tasks, mainly involving data
+  manipulation and algebraic calculations.
+
+{project} is divided into a set of precompiled libraries that are dynamically
+linked during compilation of the solvers and utilities. Libraries such as those
+for physical models are supplied as source code so that users may conveniently
+add their own models to the libraries. This chapter gives an overview of
+solvers, utilities and libraries, their creation, modification, compilation and
+execution.
+
+include::language.txt[]
+
+include::compiling.txt[]
+
+include::running.txt[]
+
+include::running-parallel.txt[]
+
+include::solvers.txt[]
+
+include::utilities.txt[]
+
+include::libraries.txt[]

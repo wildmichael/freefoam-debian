@@ -1,0 +1,451 @@
+=== Standard libraries
+
+The libraries with the {project} distribution are in the filename:src[]
+directory. Again, the names are reasonably descriptive, 'e.g.'
+`incompressibleTransportModels` contains the library of incompressible
+transport models. For ease of presentation, the libraries are separated into
+two types:
+
+General libraries::
+  those that provide general classes and associated functions listed in
+  <<tab_generalLibraries>>;
+Model libraries::
+  those that specify models used in computational continuum mechanics, listed
+  in <<tab_thermophysicalModelLibraries>>, <<tab_turbulenceModelLibraries>> and
+  <<tab_transportModelLibraries>>.
+
+[[tab_generalLibraries]]
+.Shared object libraries for general use
+[grid="none",frame="topbot",cols="1,2"]
+|==============================================================================
+2+h| Library of basic {project} tools &mdash; `OpenFOAM`
+(((`OpenFOAM`,library)))(((library,`OpenFOAM`)))
+| `algorithms`(((`algorithms` tools)))(((tools,`algorithms`))) | Algorithms
+| `containers`(((`containers` tools)))(((tools,`containers`))) | Container
+classes
+| `db`(((`db` tools)))(((tools,`db`))) | Database classes
+| `dimensionedTypes`(((`dimensionedTypes` tools)))
+(((tools,`dimensionedTypes`))) | `dimensioned`<`Type`> class and derivatives
+| `dimensionSet`(((`dimensionSet` tools)))(((tools,`dimensionSet`))) |
+`dimensionSet` class
+| `fields`(((`fields` tools)))(((tools,`fields`))) | Field classes
+| `global`(((`global` tools)))(((tools,`global`))) | Global settings
+| `graph`(((`graph` tools)))(((tools,`graph`))) | `graph` class
+| `interpolations`(((`interpolations` tools)))(((tools,`interpolations`))) |
+Interpolation schemes
+| `matrices`(((`matrices` tools)))(((tools,`matrices`))) | Matrix classes
+| `memory`(((`memory` tools)))(((tools,`memory`))) | Memory management tools
+| `meshes`(((`meshes` tools)))(((tools,`meshes`))) | Mesh classes
+| `primitives`(((`primitives` tools)))(((tools,`primitives`))) | Primitive
+classes
+
+2+h| Finite volume method library &mdash; `finiteVolume`
+(((`finiteVolume`,library)))(((library,`finiteVolume`)))
+| `cfdTools`(((`cfdTools` tools)))(((tools,`cfdTools`))) | CFD tools
+| `fields`(((`fields` tools)))(((tools,`fields`))) | Volume, surface and patch
+field classes; includes boundary conditions
+| `finiteVolume`(((`finiteVolume` tools)))(((tools,`finiteVolume`))) | Finite
+volume discretisation
+| `fvMatrices`(((`fvMatrices` tools)))(((tools,`fvMatrices`))) | Matrices for
+finite volume solution
+| `fvMesh`(((`fvMesh` tools)))(((tools,`fvMesh`))) | Meshes for finite volume
+discretisation
+| `interpolation`(((`interpolation` tools)))(((tools,`interpolation`))) | Field
+interpolation and mapping
+| `surfaceMesh`(((`surfaceMesh` tools)))(((tools,`surfaceMesh`))) | Mesh
+surface data for finite volume discretisation
+| (((tools,))) | Mesh volume (cell) data for finite volume discretisation
+
+2+h| Post-processing libraries
+| `fieldFunctionObjects`(((`fieldFunctionObjects`,library)))
+(((library,`fieldFunctionObjects`))) | Field function objects including field
+averaging, min/max, 'etc.'
+| `foamCalcFunctions`(((`foamCalcFunctions`,library)))
+(((library,`foamCalcFunctions`))) | Functions for the `calc` utility
+| `forces`(((`forces`,library)))(((library,`forces`))) | Tools for
+post-processing force/lift/drag data with function objects
+| `postCalc`(((`postCalc`,library)))(((library,`postCalc`))) | For using
+functionality of a function object as a post-processing activity
+| `sampling`(((`sampling`,library)))(((library,`sampling`))) | Tools for
+sampling field data at prescribed locations in a domain
+| `systemCall`(((`systemCall`,library)))(((library,`systemCall`))) | General
+function object for making system calls while running a case
+| `utilityFunctionObjects`(((`utilityFunctionObjects`,library)))
+(((library,`utilityFunctionObjects`))) | Utility function objects
+
+2+h| Solution and mesh manipulation libraries
+| `autoMesh`(((`autoMesh`,library)))(((library,`autoMesh`))) | Library of
+functionality for the `snappyHexMesh` utility
+| `dynamicMesh`(((`dynamicMesh`,library)))(((library,`dynamicMesh`))) | For
+solving systems with moving meshes
+| `dynamicFvMesh`(((`dynamicFvMesh`,library)))(((library,`dynamicFvMesh`))) |
+Library for a finite volume mesh that can move and undergo topological changes
+| `edgeMesh`(((`edgeMesh`,library)))(((library,`edgeMesh`))) | For handling
+edge-based mesh descriptions
+| `errorEstimation`(((`errorEstimation`,library)))
+(((library,`errorEstimation`))) | Error estimation tools
+| `fvMotionSolver`(((`fvMotionSolver`,library)))(((library,`fvMotionSolver`)))
+| Finite volume mesh motion solvers
+| `ODE`(((`ODE`,library)))(((library,`ODE`))) | Solvers for ordinary
+differential equations
+| `meshTools`(((`meshTools`,library)))(((library,`meshTools`))) | Tools for
+handling a {project} mesh
+| `surfMesh`(((`surfMesh`,library)))(((library,`surfMesh`))) | Library for
+handling surface meshes of different formats
+| `triSurface`(((`triSurface`,library)))(((library,`triSurface`))) | For
+handling standard triangulated surface-based mesh descriptions
+| `topoChangerFvMesh`(((`topoChangerFvMesh`,library)))
+(((library,`topoChangerFvMesh`))) | Topological changes functionality (largely
+redundant)
+
+2+h| Lagrangian particle tracking libraries
+| `coalCombustion`(((`coalCombustion`,library)))(((library,`coalCombustion`)))
+| Coal dust combustion modelling
+| `dieselSpray`(((`dieselSpray`,library)))(((library,`dieselSpray`))) | Diesel
+spray and injection modelling
+| `dsmc`(((`dsmc`,library)))(((library,`dsmc`))) | Direct simulation Monte
+Carlo method modelling
+| `lagrangian`(((`lagrangian`,library)))(((library,`lagrangian`))) | Basic
+Lagrangian, or particle-tracking, solution scheme
+| `lagrangianIntermediate`(((`lagrangianIntermediate`,library)))
+(((library,`lagrangianIntermediate`))) | Particle-tracking kinematics,
+thermodynamics, multispecies reactions, particle forces, 'etc.'
+| `potential`(((`potential`,library)))(((library,`potential`))) |
+Intermolecular potentials for molecular dynamics
+| `molecule`(((`molecule`,library)))(((library,`molecule`))) | Molecule classes
+for molecular dynamics
+| `molecularMeasurements`(((`molecularMeasurements`,library)))
+(((library,`molecularMeasurements`))) | For making measurements in molecular
+dynamics
+| `solidParticle`(((`solidParticle`,library)))(((library,`solidParticle`))) |
+Solid particle implementation
+
+2+h| Miscellaneous libraries
+| `conversion`(((`conversion`,library)))(((library,`conversion`))) | Tools for
+mesh and data conversions
+| `decompositionMethods`(((`decompositionMethods`,library)))
+(((library,`decompositionMethods`))) | Tools for domain decomposition
+| `engine`(((`engine`,library)))(((library,`engine`))) | Tools for engine
+calculations
+| `MGridGenGAMGAgglomeration`(((`MGridGenGAMGAgglomeration`,library)))
+(((library,`MGridGenGAMGAgglomeration`))) | Library for cell agglomeration
+using the `MGridGen` algorithm
+| `OSspecific`(((`OSspecific`,library)))(((library,`OSspecific`))) | Operating
+system specific functions
+| `randomProcesses`(((`randomProcesses`,library)))
+(((library,`randomProcesses`))) | Tools for analysing and generating random
+processes
+|==============================================================================
+
+[[tab_thermophysicalModelLibraries]]
+.Libraries of thermophysical models
+[grid="none",frame="topbot",cols="1,2"]
+|==============================================================================
+2+h| Basic thermophysical models &mdash; `basicThermophysicalModels`
+(((`basicThermophysicalModels`,library)))
+(((library,`basicThermophysicalModels`)))
+| `hPsiThermo`(((`hPsiThermo` model)))(((model,`hPsiThermo`))) | General
+thermophysical model calculation based on enthalpy math:[h] and compressibility
+math:[\psi]
+| `hsPsiThermo`(((`hsPsiThermo` model)))(((model,`hsPsiThermo`))) | General
+thermophysical model calculation based on sensible enthalpy math:[h_s] and
+compressibility math:[\psi]
+| `ePsiThermo`(((`ePsiThermo` model)))(((model,`ePsiThermo`))) | General
+thermophysical model calculation based on internal energy math:[e] and
+compressibility math:[\psi]
+| `hRhoThermo`(((`hRhoThermo` model)))(((model,`hRhoThermo`))) | General
+thermophysical model calculation based on enthalpy math:[h]
+| `hRhoThermo`(((`hRhoThermo` model)))(((model,`hRhoThermo`))) | General
+thermophysical model calculation based on sensible enthalpy math:[h_s]
+| `pureMixture`(((`pureMixture` model)))(((model,`pureMixture`))) | General
+thermophysical model calculation for passive gas mixtures
+
+2+h| Reaction models &mdash; `reactionThermophysicalModels`
+(((`reactionThermophysicalModels`,library)))
+(((library,`reactionThermophysicalModels`)))
+| `hPsiMixtureThermo`(((`hPsiMixtureThermo` model)))
+(((model,`hPsiMixtureThermo`))) | Calculates enthalpy for combustion mixture
+based on enthalpy math:[h] and math:[\psi]
+| `hsPsiMixtureThermo`(((`hsPsiMixtureThermo` model)))
+(((model,`hsPsiMixtureThermo`))) | Calculates enthalpy for combustion mixture
+based on sensible enthalpy math:[h_s] and math:[\psi]
+| `hRhoMixtureThermo`(((`hRhoMixtureThermo` model)))
+(((model,`hRhoMixtureThermo`))) | Calculates enthalpy for combustion mixture
+based on enthalpy math:[h] and math:[\rho]
+| `hsRhoMixtureThermo`(((`hsRhoMixtureThermo` model)))
+(((model,`hsRhoMixtureThermo`))) | Calculates enthalpy for combustion mixture
+based on sensible enthalpy math:[h_s] and math:[\rho]
+| `hhuMixtureThermo`(((`hhuMixtureThermo` model)))
+(((model,`hhuMixtureThermo`))) | Calculates enthalpy for unburnt gas and
+combustion mixture
+| `homogeneousMixture`(((`homogeneousMixture` model)))
+(((model,`homogeneousMixture`))) | Combustion mixture based on normalised fuel
+mass fraction math:[b]
+| `inhomogeneousMixture`(((`inhomogeneousMixture` model)))
+(((model,`inhomogeneousMixture`))) | Combustion mixture based on math:[b] and
+total fuel mass fraction math:[f_t]
+| `veryInhomogeneousMixture`(((`veryInhomogeneousMixture` model)))
+(((model,`veryInhomogeneousMixture`))) | Combustion mixture based on math:[b],
+math:[f_t] and unburnt fuel mass fraction math:[f_u]
+| `dieselMixture`(((`dieselMixture` model)))(((model,`dieselMixture`))) |
+Combustion mixture based on math:[f_t] and math:[f_u]
+| `basicMultiComponentMixture`(((`basicMultiComponentMixture` model)))
+(((model,`basicMultiComponentMixture`))) | Basic mixture based on multiple
+components
+| `multiComponentMixture`(((`multiComponentMixture` model)))
+(((model,`multiComponentMixture`))) | Derived mixture based on multiple
+components
+| `reactingMixture`(((`reactingMixture` model)))(((model,`reactingMixture`))) |
+Combustion mixture using thermodynamics and reaction schemes
+| `egrMixture`(((`egrMixture` model)))(((model,`egrMixture`))) | Exhaust gas
+recirculation mixture
+
+2+h| Radiation models &mdash; `radiation`(((`radiation`,library)))
+(((library,`radiation`)))
+| `P1`(((`P1`,library)))(((library,`P1`))) | P1 model
+| `fvDOM`(((`fvDOM`,library)))(((library,`fvDOM`))) | Finite volume discrete
+ordinate method
+
+2+h| Laminar flame speed models &mdash; `laminarFlameSpeedModels`
+(((`laminarFlameSpeedModels`,library)))(((library,`laminarFlameSpeedModels`)))
+| `constLaminarFlameSpeed`(((`constLaminarFlameSpeed` model)))
+(((model,`constLaminarFlameSpeed`))) | Constant laminar flame speed
+| `GuldersLaminarFlameSpeed`(((`GuldersLaminarFlameSpeed` model)))
+(((model,`GuldersLaminarFlameSpeed`))) | G&uuml;lder's laminar flame speed
+model
+| `GuldersEGRLaminarFlameSpeed`(((`GuldersEGRLaminarFlameSpeed` model)))
+(((model,`GuldersEGRLaminarFlameSpeed`))) | G&uuml;lder's laminar flame speed
+model with exhaust gas recirculation modelling
+
+2+h| Barotropic compressibility models &mdash;
+`barotropicCompressibilityModels`
+(((`barotropicCompressibilityModels`,library)))
+(((library,`barotropicCompressibilityModels`)))
+| `linear`(((`linear`,library)))(((library,`linear`))) | Linear compressibility
+model
+| `Chung`(((`Chung`,library)))(((library,`Chung`))) | Chung compressibility
+model
+| `Wallis`(((`Wallis`,library)))(((library,`Wallis`))) | Wallis compressibility
+model
+
+2+h| Thermophysical properties of gaseous species &mdash; `specie`
+(((`specie`,library)))(((library,`specie`)))
+| `icoPolynomial`(((`icoPolynomial` model)))(((model,`icoPolynomial`))) |
+Incompressible polynomial equation of state, 'e.g.' for liquids
+| `perfectGas`(((`perfectGas` model)))(((model,`perfectGas`))) | Perfect gas
+equation of state
+| `eConstThermo`(((`eConstThermo` model)))(((model,`eConstThermo`))) | Constant
+specific heat math:[c_p] model with evaluation of internal energy math:[e] and
+entropy math:[s]
+| `hConstThermo`(((`hConstThermo` model)))(((model,`hConstThermo`))) | Constant
+specific heat math:[c_p] model with evaluation of enthalpy math:[h] and entropy
+math:[s]
+| `hPolynomialThermo`(((`hPolynomialThermo` model)))
+(((model,`hPolynomialThermo`))) | math:[c_p] evaluated by a function with
+coefficients from polynomials, from which math:[h], math:[s] are evaluated
+| `janafThermo`(((`janafThermo` model)))(((model,`janafThermo`))) | math:[c_p]
+evaluated by a function with coefficients from 'JANAF' thermodynamic tables,
+from which math:[h], math:[s] are evaluated
+| `specieThermo`(((`specieThermo` model)))(((model,`specieThermo`))) |
+Thermophysical properties of species, derived from math:[c_p], math:[h] and/or
+math:[s]
+| `constTransport`(((`constTransport` model)))(((model,`constTransport`))) |
+Constant transport properties
+| `polynomialTransport`(((`polynomialTransport` model)))
+(((model,`polynomialTransport`))) | Polynomial based temperature-dependent
+transport properties
+| `sutherlandTransport`(((`sutherlandTransport` model)))
+(((model,`sutherlandTransport`))) | Sutherland's formula for
+temperature-dependent transport properties
+
+2+h| Functions/tables of thermophysical properties &mdash;
+`thermophysicalFunctions`(((`thermophysicalFunctions`,library)))
+(((library,`thermophysicalFunctions`)))
+| `NSRDSfunctions`(((`NSRDSfunctions` model)))(((model,`NSRDSfunctions`))) |
+National Standard Reference Data System (NSRDS) - American Institute of
+Chemical Engineers (AICHE) data compilation tables
+| `APIfunctions`(((`APIfunctions` model)))(((model,`APIfunctions`))) | American
+Petroleum Institute (API) function for vapour mass diffusivity
+
+2+h| Probability density functions &mdash; `pdf`
+(((`pdf`,library)))(((library,`pdf`)))
+| `RosinRammler`(((`RosinRammler` model)))(((model,`RosinRammler`))) |
+Rosin-Rammler distribution
+| `normal`(((`normal` model)))(((model,`normal`))) | Normal distribution
+| `uniform`(((`uniform` model)))(((model,`uniform`))) | Uniform distribution
+| `exponential`(((`exponential` model)))(((model,`exponential`))) | Exponential
+distribution
+| `general`(((`general` model)))(((model,`general`))) | General distribution
+
+2+h| Chemistry model &mdash; `chemistryModel`(((`chemistryModel`,library)))
+(((library,`chemistryModel`)))
+| `chemistryModel`(((`chemistryModel` model)))(((model,`chemistryModel`))) |
+Chemical reaction model
+| `chemistrySolver`(((`chemistrySolver` model)))(((model,`chemistrySolver`))) |
+Chemical reaction solver
+
+2+h| Other libraries
+| `liquids`(((`liquids`,library)))(((library,`liquids`))) | Thermophysical
+properties of liquids
+| `liquidMixture`(((`liquidMixture`,library)))(((library,`liquidMixture`))) |
+Thermophysical properties of liquid mixtures
+| `solids`(((`solids`,library)))(((library,`solids`))) | Thermophysical
+properties of solids
+| `solidMixture`(((`solidMixture`,library)))(((library,`solidMixture`))) |
+Thermophysical properties of solid mixtures
+|==============================================================================
+
+[[tab_turbulenceModelLibraries]]
+.Libraries of RAS and LES turbulence models
+[grid="none",frame="topbot",cols="2,3"]
+|==============================================================================
+2+h| RAS turbulence models for incompressible fluids &mdash;
+`incompressibleRASModels`(((`incompressibleRASModels`,library)))
+(((library,`incompressibleRASModels`)))
+| `laminar`(((`laminar` model)))(((model,`laminar`))) | Dummy turbulence model
+for laminar flow
+| `kEpsilon`(((`kEpsilon` model)))(((model,`kEpsilon`))) | Standard
+high-math:[Re] {keps} model
+| `kOmega`(((`kOmega` model)))(((model,`kOmega`))) | Standard high-math:[Re]
+math:[k-\omega] model
+| `kOmegaSST`(((`kOmegaSST` model)))(((model,`kOmegaSST`))) |
+math:[k-\omega]-SST model
+| `RNGkEpsilon`(((`RNGkEpsilon` model)))(((model,`RNGkEpsilon`))) | RNG {keps}
+model
+| `NonlinearKEShih`(((`NonlinearKEShih` model)))(((model,`NonlinearKEShih`))) |
+Non-linear Shih {keps} model
+| `LienCubicKE`(((`LienCubicKE` model)))(((model,`LienCubicKE`))) | Lien cubic
+{keps} model
+| `qZeta`(((`qZeta` model)))(((model,`qZeta`))) | math:[q-\zeta] model
+| `LaunderSharmaKE`(((`LaunderSharmaKE` model)))(((model,`LaunderSharmaKE`))) |
+Launder-Sharma low-math:[Re] {keps} model
+| `LamBremhorstKE`(((`LamBremhorstKE` model)))(((model,`LamBremhorstKE`))) |
+Lam-Bremhorst low-math:[Re] {keps} model
+| `LienCubicKELowRe`(((`LienCubicKELowRe` model)))
+(((model,`LienCubicKELowRe`))) | Lien cubic low-math:[Re] {keps} model
+| `LienLeschzinerLowRe`(((`LienLeschzinerLowRe`
+model)))(((model,`LienLeschzinerLowRe`))) | Lien-Leschziner low-math:[Re]
+{keps} model
+| `LRR`(((`LRR` model)))(((model,`LRR`))) | Launder-Reece-Rodi RSTM
+| `LaunderGibsonRSTM`(((`LaunderGibsonRSTM` model)))
+(((model,`LaunderGibsonRSTM`))) | Launder-Gibson RSTM with wall-reflection
+terms
+| `realizableKE`(((`realizableKE` model)))(((model,`realizableKE`))) |
+Realizable {keps} model
+| `SpalartAllmaras`(((`SpalartAllmaras` model)))(((model,`SpalartAllmaras`))) |
+Spalart-Allmaras one-equation mixing-length model
+
+2+h| RAS turbulence models for compressible fluids &mdash;
+`compressibleRASModels`(((`compressibleRASModels`,library)))
+(((library,`compressibleRASModels`)))
+| `laminar`(((`laminar` model)))(((model,`laminar`))) | Dummy turbulence model
+for laminar flow
+| `kEpsilon`(((`kEpsilon` model)))(((model,`kEpsilon`))) | Standard {keps}
+model
+| `kOmegaSST`(((`kOmegaSST` model)))(((model,`kOmegaSST`))) |
+math:[k-\omega]-SST model
+| `RNGkEpsilon`(((`RNGkEpsilon` model)))(((model,`RNGkEpsilon`))) | RNG {keps}
+model
+| `LaunderSharmaKE`(((`LaunderSharmaKE` model)))(((model,`LaunderSharmaKE`))) |
+Launder-Sharma low-math:[Re] {keps} model
+| `LRR`(((`LRR` model)))(((model,`LRR`))) | Launder-Reece-Rodi RSTM
+| `LaunderGibsonRSTM`(((`LaunderGibsonRSTM` model)))
+(((model,`LaunderGibsonRSTM`))) | Launder-Gibson RSTM
+| `realizableKE`(((`realizableKE` model)))(((model,`realizableKE`))) |
+Realizable {keps} model
+| `SpalartAllmaras`(((`SpalartAllmaras` model)))(((model,`SpalartAllmaras`))) |
+Spalart-Allmaras one-equation mixing-length model
+
+2+h| Large-eddy simulation (LES) filters &mdash; `LESfilters`
+(((`LESfilters`,library)))(((library,`LESfilters`)))
+| `laplaceFilter`(((`laplaceFilter` model)))(((model,`laplaceFilter`))) |
+Laplace filters
+| `simpleFilter`(((`simpleFilter` model)))(((model,`simpleFilter`))) | Simple
+filter
+| `anisotropicFilter`(((`anisotropicFilter` model)))
+(((model,`anisotropicFilter`))) | Anisotropic filter
+
+2+h| Large-eddy simulation deltas &mdash; `LESdeltas`(((`LESdeltas`,library)))
+(((library,`LESdeltas`)))
+| `PrandtlDelta`(((`PrandtlDelta` model)))(((model,`PrandtlDelta`))) | Prandtl
+delta
+| `cubeRootVolDelta`(((`cubeRootVolDelta` model)))
+(((model,`cubeRootVolDelta`))) | Cube root of cell volume delta
+| `smoothDelta`(((`smoothDelta` model)))(((model,`smoothDelta`))) | Smoothing
+of delta
+
+2+h| Incompressible LES turbulence models &mdash; `incompressibleLESModels`
+(((`incompressibleLESModels`,library)))(((library,`incompressibleLESModels`)))
+| `Smagorinsky`(((`Smagorinsky` model)))(((model,`Smagorinsky`))) | Smagorinsky
+model
+| `Smagorinsky2`(((`Smagorinsky2` model)))(((model,`Smagorinsky2`))) |
+Smagorinsky model with 3-D filter
+| `dynSmagorinsky`(((`dynSmagorinsky` model)))(((model,`dynSmagorinsky`))) |
+Dynamic Smagorinsky
+| `scaleSimilarity`(((`scaleSimilarity` model)))(((model,`scaleSimilarity`))) |
+Scale similarity model
+| `mixedSmagorinsky`(((`mixedSmagorinsky` model)))
+(((model,`mixedSmagorinsky`))) | Mixed Smagorinsky/scale similarity model
+| `dynMixedSmagorinsky`(((`dynMixedSmagorinsky` model)))
+(((model,`dynMixedSmagorinsky`))) | Dynamic mixed Smagorinsky/scale similarity
+model
+| `kOmegaSST`(((`kOmegaSST` model)))(((model,`kOmegaSST`))) |
+math:[k-\omega]-SST scale adaptive simulation (SAS) model
+| `oneEqEddy`(((`oneEqEddy` model)))(((model,`oneEqEddy`))) | math:[k]-equation
+eddy-viscosity model
+| `dynOneEqEddy`(((`dynOneEqEddy` model)))(((model,`dynOneEqEddy`))) | Dynamic
+math:[k]-equation eddy-viscosity model
+| `locDynOneEqEddy`(((`locDynOneEqEddy` model)))(((model,`locDynOneEqEddy`))) |
+Localised dynamic math:[k]-equation eddy-viscosity model
+| `spectEddyVisc`(((`spectEddyVisc` model)))(((model,`spectEddyVisc`))) |
+Spectral eddy viscosity model
+| `LRDDiffStress`(((`LRDDiffStress` model)))(((model,`LRDDiffStress`))) | LRR
+differential stress model
+| `DeardorffDiffStress`(((`DeardorffDiffStress` model)))
+(((model,`DeardorffDiffStress`))) | Deardorff differential stress model
+| `SpalartAllmaras`(((`SpalartAllmaras` model)))(((model,`SpalartAllmaras`))) |
+Spalart-Allmaras model
+| `SpalartAllmarasDDES`(((`SpalartAllmarasDDES` model)))
+(((model,`SpalartAllmarasDDES`))) | Spalart-Allmaras delayed detached eddy
+simulation (DDES) model
+| `SpalartAllmarasIDDES`(((`SpalartAllmarasIDDES` model)))
+(((model,`SpalartAllmarasIDDES`))) | Spalart-Allmaras improved DDES (IDDES)
+model
+
+2+h| Compressible LES turbulence models &mdash; `compressibleLESModels`
+(((`compressibleLESModels`,library)))(((library,`compressibleLESModels`)))
+| `Smagorinsky`(((`Smagorinsky` model)))(((model,`Smagorinsky`))) | Smagorinsky
+model
+| `oneEqEddy`(((`oneEqEddy` model)))(((model,`oneEqEddy`))) | math:[k]-equation
+eddy-viscosity model
+| `dynOneEqEddy`(((`dynOneEqEddy` model)))(((model,`dynOneEqEddy`))) | Dynamic
+math:[k]-equation eddy-viscosity model
+| `lowReOneEqEddy`(((`lowReOneEqEddy` model)))(((model,`lowReOneEqEddy`))) |
+Low-math:[Re] math:[k]-equation eddy-viscosity model
+| `DeardorffDiffStress`(((`DeardorffDiffStress` model)))
+(((model,`DeardorffDiffStress`))) | Deardorff differential stress model
+| `SpalartAllmaras`(((`SpalartAllmaras` model)))(((model,`SpalartAllmaras`))) |
+Spalart-Allmaras one-equation mixing-length model
+|==============================================================================
+
+[[tab_transportModelLibraries]]
+.Shared object libraries of transport models
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+2+| Transport models for incompressible fluids &mdash;
+`incompressibleTransportModels`(((`incompressibleTransportModels`,library)))
+(((library,`incompressibleTransportModels`)))
+| `Newtonian`(((`Newtonian` model)))(((model,`Newtonian`))) | Linear viscous
+fluid model
+| `CrossPowerLaw`(((`CrossPowerLaw` model)))(((model,`CrossPowerLaw`))) | Cross
+Power law nonlinear viscous model
+| `BirdCarreau`(((`BirdCarreau` model)))(((model,`BirdCarreau`))) |
+Bird-Carreau nonlinear viscous model
+| `HerschelBulkley`(((`HerschelBulkley` model)))(((model,`HerschelBulkley`))) |
+Herschel-Bulkley nonlinear viscous model
+| `powerLaw`(((`powerLaw` model)))(((model,`powerLaw`))) | Power-law nonlinear
+viscous model
+| `interfaceProperties`(((`interfaceProperties` model)))
+(((model,`interfaceProperties`))) | Models for the interface, 'e.g.' contact
+angle, in multiphase simulations
+|==============================================================================

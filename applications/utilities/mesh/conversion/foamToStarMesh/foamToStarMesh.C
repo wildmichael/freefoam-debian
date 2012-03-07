@@ -1,0 +1,189 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 1991-2010 OpenCFD Ltd.
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Application
+    foamToStarMesh
+
+Description
+    Reads an OpenFOAM mesh and writes a pro-STAR (v4) bnd/cel/vrt format.
+
+Usage
+    - foamToStarMesh [OPTION] \n
+    Reads an OpenFOAM mesh and writes a pro-STAR (v4) bnd/cel/vrt format.
+
+    @param -noBnd \n
+    Suppress writing the @c .bnd file.
+
+    @param -scale \<factor\>\n
+    Specify an alternative geometry scaling factor.
+    The default is @b 1000 (scale @em [m] to @em [mm]).
+
+    @param -surface \n
+    Extract the surface of the volume mesh only.
+    This can be useful, for example, for surface morphing in an external
+    package.
+
+    @param -tri \n
+    Extract a triangulated surface.
+    The @b -surface options is implicitly selected.
+
+    @param -case \<dir\> \n
+    Case directory.
+
+    @param -noZero \n
+    Ignore time step 0.
+
+    @param -constant \n
+    Include the constant directory.
+
+    @param -latestTime \n
+    Only apply to the latest time step.
+
+    @param -time \<time\>\n
+    Apply only to specified time.
+
+    @param -help \n
+    Display help message.
+
+    @param -doc \n
+    Display Doxygen API documentation page for this application.
+
+    @param -srcDoc \n
+    Display Doxygen source documentation page for this application.
+
+Note
+    The cellTable information available in the files
+    @c constant/cellTable and @c constant/polyMesh/cellTableId
+    will be used if available. Otherwise the cellZones are used when
+    creating the cellTable information.
+
+See Also
+    Foam::cellTable, Foam::meshWriter and Foam::meshWriters::STARCD
+
+\*---------------------------------------------------------------------------*/
+
+#include <OpenFOAM/argList.H>
+#include <OpenFOAM/timeSelector.H>
+#include <OpenFOAM/Time.H>
+#include <OpenFOAM/polyMesh.H>
+#include <conversion/STARCDMeshWriter.H>
+
+using namespace Foam;
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Main program:
+
+int main(int argc, char *argv[])
+{
+    argList::noParallel();
+    timeSelector::addOptions();
+
+    argList::validOptions.insert("scale", "scale");
+    argList::validOptions.insert("noBnd", "");
+    argList::validOptions.insert("tri", "");
+    argList::validOptions.insert("surface", "");
+
+#   include <OpenFOAM/setRootCase.H>
+#   include <OpenFOAM/createTime.H>
+
+    instantList timeDirs = timeSelector::select0(runTime, args);
+
+    bool surfaceOnly = false;
+    if (args.optionFound("surface") || args.optionFound("tri"))
+    {
+        surfaceOnly = true;
+    }
+
+    fileName exportName = meshWriter::defaultMeshName;
+    if (surfaceOnly)
+    {
+        exportName = meshWriter::defaultSurfaceName;
+    }
+
+    if (args.optionFound("case"))
+    {
+        exportName += '-' + args.globalCaseName();
+    }
+
+    // default: rescale from [m] to [mm]
+    scalar scaleFactor = 1000;
+    if (args.optionReadIfPresent("scale", scaleFactor))
+    {
+        if (scaleFactor <= 0)
+        {
+            scaleFactor = 1;
+        }
+    }
+
+#   include <OpenFOAM/createPolyMesh.H>
+
+
+    forAll(timeDirs, timeI)
+    {
+        runTime.setTime(timeDirs[timeI], timeI);
+
+#       include "getTimeIndex.H"
+
+        polyMesh::readUpdateState state = mesh.readUpdate();
+
+        if (!timeI || state != polyMesh::UNCHANGED)
+        {
+            meshWriters::STARCD writer(mesh, scaleFactor);
+
+            if (args.optionFound("noBnd"))
+            {
+                writer.noBoundary();
+            }
+
+            fileName meshName(exportName);
+            if (state != polyMesh::UNCHANGED)
+            {
+                meshName += '_' + runTime.timeName();
+            }
+
+            if (surfaceOnly)
+            {
+                if (args.optionFound("tri"))
+                {
+                    writer.writeSurface(meshName, true);
+                }
+                else
+                {
+                    writer.writeSurface(meshName);
+                }
+            }
+            else
+            {
+                writer.write(meshName);
+            }
+        }
+
+        Info<< nl << endl;
+    }
+
+    Info<< "End\n" << endl;
+
+    return 0;
+}
+
+// ************************ vim: set sw=4 sts=4 et: ************************ //

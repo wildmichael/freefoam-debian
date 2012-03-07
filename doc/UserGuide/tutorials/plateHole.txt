@@ -1,0 +1,362 @@
+=== Stress analysis of a plate with a hole
+(((tutorials,stress analysis of plate with hole)))
+(((stress analysis of plate with hole)))
+
+This tutorial describes how to pre-process, run and post-process a case
+involving linearelastic, steady-state stress analysis on a square plate with a
+circular hole at its centre. The plate dimensions are: side length
+math:[\unit[4\]{m}] and radius math:[R=\unit[0.5\]{m}]. It is loaded with a
+uniform traction of math:[\sigma=\unit[10\]{kPa}] over its left and right faces
+as shown in <<fig_geomPlateHole>>. Two symmetry planes can be identified for
+this geometry and therefore the solution domain need only cover a quarter of
+the geometry, shown by the shaded area in <<fig_geomPlateHole>>.
+
+[[fig_geomPlateHole]]
+.Geometry of the plate with a hole
+image::images/tut_plateHole_geometry.{gfx-fmt}[scaledwidth="40%"]
+
+The problem can be approximated as 2-dimensional since the load is applied in
+the plane of the plate. In a Cartesian coordinate system there are two possible
+assumptions to take in regard to the behaviour of the structure in the third
+dimension: (1) the plane stress condition, in which the stress components
+acting out of the 2D plane are assumed to be negligible; (2) the plane strain
+condition, in which the strain components out of the 2D plane are assumed
+negligible. The plane stress condition is appropriate for solids whose third
+dimension is thin as in this case; the plane strain condition is applicable for
+solids where the third dimension is thick.
+
+An analytical solution exists for loading of an infinitely large, thin plate
+with a circular hole. The solution for the stress normal to the vertical plane
+of symmetry is
+
+[[eq_plateHoleAnalytical]]
+.Analytical solution for the stress normal to the vertical plane of symmetry
+[math]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\begin{align*}
+  \left(\sigma_{xx}\right)_{x=0} =
+    \begin{cases}
+      \sigma\left(1+\frac{R^2}{2y^2}+\frac{3R^4}{2y^4}\right)
+          & \text{for $|y|\leq R$} \\
+      0   & \text{for $|y| < R$}
+    \end{cases}
+\end{align*}
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Results from the simulation will be compared with this solution. At the end of
+the tutorial, the user can: investigate the sensitivity of the solution to mesh
+resolution and mesh grading; and, increase the size of the plate in comparison
+to the hole to try to estimate the error in comparing the analytical solution
+for an infinite plate to the solution of this problem of a finite plate.
+
+==== Mesh generation
+The domain consists of four blocks, some of which have arc-shaped edges. The
+block structure for the part of the mesh in the math:[x-y] plane is shown in
+<<fig_plateHoleBlock>>. As already mentioned in <<sec_cavityMesh>>,
+all geometries are generated in 3 dimensions in {project} even if the case is
+to be as a 2 dimensional problem. Therefore a dimension of the block in the
+math:[z] direction has to be chosen; here, math:[\unit[0.5\]{m}] is selected.
+It does not affect the solution since the traction boundary condition is
+specified as a stress rather than a force, thereby making the solution
+independent of the cross-sectional area.
+
+The user should change into the `plateHole` case in the
+dirname:<tutorials>/stressAnalysis/solidDisplacementFoam/plateHole[] directory
+and open the filename:constant/polyMesh/blockMeshDict[] file in an editor, as
+listed below
+
+[source,'']
+-------------------------------------------------------------------------------
+include::{builddir}tutorials/assets/plateHole/blockMeshDict[]
+-------------------------------------------------------------------------------
+
+Until now, we have only specified straight edges in the geometries of previous
+tutorials but here we need to specify curved edges. These are specified under
+the edges keyword entry which is a list of non-straight edges. The syntax of
+each list entry begins with the type of curve, including `arc`, `simpleSpline`,
+`polyLine` 'etc.', described further in <<sec_writingBlockMeshDict>>. In this
+example, all the edges are circular and so can be specified by the `arc`
+keyword entry. The following entries are the labels of the start and end
+vertices of the arc and a point vector through which the circular arc passes.
+
+The blocks in this filename:blockMeshDict[]
+(((filename:blockMeshDict[],dictionary)))
+(((dictionary,filename:blockMeshDict[]))) do not all have the same orientation.
+As can be seen in <<fig_plateHoleBlock>> the math:[i_2] direction of block 0 is
+equivalent to the math:[-i_1] direction for block 4. This means care must be
+taken when defining the number and distribution of cells in each block so that
+the cells match up at the block faces.
+
+[[fig_plateHoleBlock]]
+.Block structure of the mesh for the plate with a hole
+image::images/tut_plateHole_block.{gfx-fmt}[scaledwidth="40%"]
+
+Six patches are defined: one for each side of the plate, one for the hole and
+one for the front and back planes. The left and down patches are both a
+symmetry plane. Since this is a geometric constraint, it is included in the
+definition of the mesh, rather than being purely a specification on the
+boundary condition of the fields. Therefore they are defined as such using a
+special `symmetryPlane` type as shown in the filename:blockMeshDict[].
+
+The `frontAndBack` patch represents the plane which is ignored in a 2D case.
+Again this is a geometric constraint so is defined within the mesh, using the
+`empty` type as shown in the filename:blockMeshDict[]. For further details of
+boundary types and geometric constraints, the user should refer to
+<<sec_patchTypesOpenfoam>>.
+
+The remaining patches are of the regular `patch` type. The mesh should be
+generated using `blockMesh` and can be viewed in `para` as described in
+<<sec_cavityViewMesh>>. It should appear as in <<fig_meshPlateHole>>.
+
+[[fig_meshPlateHole]]
+.Mesh of the hole in a plate problem
+image::images/tut_plateHole_mesh.png[scaledwidth="30%"]
+
+===== Boundary and initial conditions
+
+Once the mesh generation is complete, the initial field with boundary
+conditions must be set. For a stress analysis case without thermal stresses,
+only displacement math:[D] needs to be set. The filename:0/D[] is as follows:
+
+[source,'']
+-------------------------------------------------------------------------------
+include::{builddir}tutorials/assets/plateHole/D[]
+-------------------------------------------------------------------------------
+
+Firstly, it can be seen that the displacement initial conditions are set to
+math:[\unit[(0, 0, 0)\]{m}]. The `left` and `down` patches must be both of
+`symmetryPlane` type since they are specified as such in the mesh description
+in the filename:constant/polyMesh/boundary[] file. Similarly the `frontAndBack`
+patch is declared `empty`.
+
+The other patches are traction boundary conditions, set by a specialist
+`traction` (((`traction` keyword)))(((keyword,`traction`))) boundary type. The
+traction boundary conditions are specified by a linear combination of: (1) a
+boundary traction vector under keyword `traction`; (2) a pressure that produces
+a traction normal to the boundary surface that is defined as negative when
+pointing out of the surface, under keyword `pressure`.(((`pressure` keyword)))
+(((keyword,`pressure`))) The `up` and `hole` patches are zero
+traction so the boundary traction and pressure are set to zero. For the right
+patch the traction should be math:[\unit[(10^4, 0, 0)\]{Pa}] and the pressure
+should be math:[\unit[0\]{Pa}].
+
+===== Mechanical properties
+
+The physical properties for the case are set in the
+filename:mechanicalProperties[](((filename:mechanicalProperties[],dictionary)))
+(((dictionary,filename:mechanicalProperties[]))) dictionary in the
+dirname:constant[] directory. For this problem, we need to specify the
+mechanical properties of steel given in <<tab_mechanicalPropertiesSteel>>. In
+the mechanical properties dictionary, the user must also set `planeStress` to
+`yes`.
+
+[[tab_mechanicalPropertiesSteel]]
+.Mechanical properties for steel
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+|    Property     |           Units           |  Keyword |        Value
+| Density         | math:[\unitfrac{kg}{m^3}] | `rho`    | math:[7854]
+| Young's modulus | math:[\unit{Pa}] | `E`      | math:[2\times 10^{11}]
+| Poisson's ratio | --                        | `nu`     | math:[0.3]
+|==============================================================================
+
+===== Thermal properties
+
+The temperature field variable `T` is present in the `solidDisplacement`
+(((`solidDisplacement` solver)))(((solver,`solidDisplacement`))) solver
+since the user may opt to solve a thermal equation that is coupled with the
+momentum equation through the thermal stresses that are generated. The user
+specifies at run time whether {project} should solve the thermal equation by
+the `thermalStress` switch in the filename:thermalProperties[]
+(((filename:thermalProperties[],dictionary)))
+(((dictionary,filename:thermalProperties[]))) dictionary. This dictionary also
+sets the thermal properties for the case, 'e.g.' for steel as listed in
+<<tab_thermalPropertiesSteel>>.
+
+[[tab_thermalPropertiesSteel]]
+.Thermal properties for steel
+[grid="none",frame="topbot",options="header",cols="2,1,1,1"]
+|==============================================================================
+| Property                 | Units                     | Keyword | Value
+| Specific heat capacity   | math:[\unitfrac{J}{kg K}] | `C`     | math:[434]
+| Thermal conductivity     | math:[\unitfrac{W}{m K}]  | `k`     | math:[60.5]
+| Thermal epxansion coeff. | math:[\unitfrac{1}{K}]    | `alpha` |
+math:[1.1\times 10^{-5}]
+|==============================================================================
+
+In this case we do not want to solve for the thermal equation. Therefore we
+must set the `thermalStress` keyword entry to `no` in the
+filename:thermalProperties[](((filename:thermalProperties[],dictionary)))
+(((dictionary,filename:thermalProperties[]))) dictionary.
+
+===== Control
+
+As before, the information relating to the control of the solution procedure
+are read in from the filename:controlDict[]
+(((filename:controlDict[],dictionary))) (((dictionary,filename:controlDict[])))
+dictionary. For this case, the `startTime` is math:[\unit[0\]{s}]. The time
+step is not important since this is a steady state case; in this situation it
+is best to set the time step `deltaT` to `1` so it simply acts as an iteration
+counter for the steady-state case. The `endTime`, set to `100`, then acts as a
+limit on the number of iterations. The `writeInterval` can be set to `20`.
+
+The filename:controlDict[] entries are as follows:
+
+[source,'']
+-------------------------------------------------------------------------------
+include::{builddir}tutorials/assets/plateHole/controlDict[]
+-------------------------------------------------------------------------------
+
+===== Discretisation schemes and linear-solver control
+Let us turn our attention to the filename:fvSchemes[] dictionary. Firstly, the
+problem we are analysing is steady-state so the user should select
+`SteadyState` for the time derivatives in `timeScheme`. This essentially
+switches off the time derivative terms. Not all solvers, especially in fluid
+dynamics, work for both steady-state and transient problems but
+`solidDisplacement` does work, since the base algorithm is the same for both
+types of simulation.
+
+The momentum equation in linear-elastic stress analysis includes several
+explicit terms containing the gradient of displacement. The calculations
+benefit from accurate and smooth evaluation of the gradient. Normally, in the
+finite volume method the discretisation is based on Gauss's theorem. The Gauss
+method(((gradient,Gauss's theorem))) is suffiently accurate for most purposes
+but, in this case, the least squares method(((gradient,least square fit))) will
+be used. The user should therefore open the
+filename:fvSchemes[](((`fvSchemes`,dictionary)))(((dictionary,`fvSchemes`)))
+dictionary in the dirname:system[] directory and ensure the `leastSquares`
+(((`leastSquares` keyword)))(((keyword,`leastSquares`))) method is selected for
+the `grad(U)` gradient discretisation scheme in the `gradSchemes`
+sub-dictionary:
+
+[source,'']
+-------------------------------------------------------------------------------
+include::{builddir}tutorials/assets/plateHole/fvSchemes[]
+-------------------------------------------------------------------------------
+
+The filename:fvSolution[] dictionary in the dirname:system[] directory
+controls the linear equation solvers and algorithms used in the solution. The
+user should first look at the `solvers` sub-dictionary and notice that the
+choice of `solver` (((`solver` keyword)))(((keyword,`solver`))) for `D` is
+`GAMG`.(((`GAMG`,keyword entry)))(((keyword entry,`GAMG`))) The solver
+`tolerance` (((`tolerance` keyword)))(((keyword,`tolerance`))) should be set to
+math:[10^{-6}] for this problem. The solver relative tolerance, denoted by
+`relTol`,(((`relTol` keyword)))(((keyword,`relTol`))) sets the required
+reduction in the residuals within each iteration. It is uneconomical to set a
+tight (low) relative tolerance within each iteration since a lot of terms in
+each equation are explicit and are updated as part of the segregated iterative
+procedure. Therefore a reasonable value for the relative tolerance is `0.01`,
+or possibly even higher, say `0.1`, or in some cases even `0.9` (as in this
+case).
+
+[source,'']
+-------------------------------------------------------------------------------
+include::{builddir}tutorials/assets/plateHole/fvSolution[]
+-------------------------------------------------------------------------------
+
+==== Running the code
+The user should run the code here in the background from the command line as
+specified below, so he/she can look at convergence information in the log file
+afterwards.
+
+-------------------------------------------------------------------------------
+$ cd '<tutorials>'/stressAnalysis/solidDisplacementFoam/plateHole
+$ freefoam solidDisplacement > log &
+-------------------------------------------------------------------------------
+
+The user should check the convergence information by viewing the generated log
+file which shows the number of iterations and the initial and final residuals
+of the displacement in each direction being solved. The final residual should
+always be less than 0.9 times the initial residual as this iteration tolerance
+set. Once both initial residuals have dropped below the convergence tolerance
+of math:[10^{-6}] the run has converged and can be stopped by killing the batch
+job.
+
+[[sec_plateHolePost]]
+==== Post-processing
+
+Post processing can be performed as in <<sec_cavityPost>>. The
+`solidDisplacement` solver outputs the stress field math:[\sigma] as a
+symmetric tensor field `sigma`. This is consistent with the way variables are
+usually represented in {project} solvers by the mathematical symbol by which
+they are represented; in the case of Greek symbols, the variable is named
+phonetically.
+
+For post-processing individual scalar field components, math:[\sigma_{xx}],
+math:[\sigma_{xy}] 'etc.', can be generated by running the `calc` utility as
+before in <<sec_cavityFineGraphs>>, this time on `sigma`:
+
+-------------------------------------------------------------------------------
+$ freefoam calc components sigma
+-------------------------------------------------------------------------------
+
+Components named `sigmaxx`, `sigmaxy` 'etc.' are written to time directories of
+the case. The math:[\sigma_{xx}] stresses can be viewed in `para` as shown in
+<<fig_sigmaxxPlateHole>>.
+
+[[fig_sigmaxxPlateHole]]
+.Normal stress field in the plate with hole
+image::images/tut_plateHole_sigmaxx.{gfx-fmt}[scaledwidth="40%"]
+
+We would like to compare the analytical solution of <<eq_plateHoleAnalytical>>
+to our solution. We therefore must output a set of data of math:[\sigma_{xx}]
+along the left edge symmetry plane of our domain. The user may generate the
+required graph data using the `sample` utility. The utility uses a
+filename:sampleDict[] dictionary located in the filename:system[] directory,
+whose entries are summarised in <<tab_sampleDict>>. The sample line specified
+in `sets` is set between math:[(0.0,0.5,0.25)] and math:[(0.0,2.0,0.25)], and
+the fields are specified in the `fields` list:
+
+-------------------------------------------------------------------------------
+include::{builddir}tutorials/assets/plateHole/sampleDict[]
+-------------------------------------------------------------------------------
+
+The user should execute `sample` as normal. The `writeFormat`
+(((`writeFormat` keyword)))(((keyword,`writeFormat`))) is `raw` 2 column
+format. The data is written into files within time subdirectories of a
+dirname:sets[] directory, 'e.g.' the data at math:[t=\unit[100\]{s}] is found
+within the file filename:sets/100/leftPatch_sigmaxx.xy[]. In an application
+such as 'GnuPlot', typing the following at the command prompt would be
+sufficient to plot both the numerical data and analytical solution:
+
+[subs='verbatim']
+-------------------------------------------------------------------------------
+gnuplot> plot [0.5:2] [0:] 'sets/100/leftPatch_sigmaxx.xy', 1e4*(1+(0.125/(x**2))+(0.09375/(x**4)))
+-------------------------------------------------------------------------------
+
+An example plot is shown in <<fig_sigmaxx>>.
+
+[[fig_sigmaxx]]
+.Normal stress along the vertical symmetry
+image::images/tut_plateHole_sigmaxx_profile.{gfx-fmt}[scaledwidth="40%"]
+
+==== Exercises
+
+The user may wish to experiment with `solidDisplacement` by trying the
+following exercises:
+
+===== Increasing mesh resolution
+
+Increase the mesh resolution in each of the math:[x] and math:[y] directions.
+Use `mapFields`(((`mapFields` utility)))(((utility,`mapFields`))) to map the
+final coarse mesh results from <<sec_plateHolePost>> to the initial conditions
+for the fine mesh.
+
+===== Introducing mesh grading
+
+Grade the mesh so that the cells near the hole are finer than those away from
+the hole. Design the mesh so that the ratio of sizes between adjacent cells is
+no more than 1.1 and so that the ratio of cell sizes between blocks is similar
+to the ratios within blocks. Mesh grading is described in
+<<sec_cavityMeshGrade>>. Again use `mapFields` to map the final coarse mesh
+results from <<sec_plateHolePost>> to the initial conditions for the graded
+mesh. Compare the results with those from the analytical solution and previous
+calculations. Can this solution be improved upon using the same number of cells
+with a different solution?
+
+===== Changing the plate size
+
+The analytical solution is for an infinitely large plate with a finite sized
+hole in it. Therefore this solution is not completely accurate for a finite
+sized plate. To estimate the error, increase the plate size while maintaining
+the hole size at the same value.

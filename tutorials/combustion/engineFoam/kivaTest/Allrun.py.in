@@ -1,0 +1,61 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class engineKivaTestRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'engine_kivaTest')
+      self.add_step('prepare.1', self._preparePart1)
+      self.add_app_step('kivaToFoam',
+            args=['-file', os.path.join(self.case_dir, 'otape17')])
+      self.add_app_step('engine.1', app='engine')
+      self.add_step('prepare.2', self._preparePart2, skip_test=True)
+      self.add_app_step('engine.2', app='engine', skip_test=True)
+
+   def clean(self):
+      FreeFOAM.util.rename(self.case_dir+'/-180', self.case_dir+'/temp180')
+      FreeFOAM.util.rmtree(self.case_dir+'/0')
+      controlDict = self.case_dir+'/system/controlDict'
+      FreeFOAM.util.copytree(controlDict+'.1st', controlDict)
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rename(self.case_dir+'/temp180', self.case_dir+'/-180')
+
+   def clone_test(self):
+      FreeFOAM.tutorial.CaseRunner.clone_test(self)
+      FreeFOAM.util.copytree(
+            os.path.join(self.case_dir, '-180'),
+            os.path.join(self.test_dir, '-180'))
+
+   def _copyControlDict(self, part, case_dir, stamp_file):
+      controlDict = os.path.join(case_dir, 'system', 'controlDict')
+      try:
+         FreeFOAM.util.copytree(controlDict+'.'+part, controlDict)
+         stamp_file.write(
+               'Prepared part '+part+'\nREPORT: SUCCES\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write(
+               'Failed to prepare '+part+':\n'+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+   def _preparePart1(self, case_dir, stamp_file, test_mode):
+      return self._copyControlDict('1st', case_dir, stamp_file)
+
+   def _preparePart2(self, case_dir, stamp_file, test_mode):
+      assert not test_mode
+      return self._copyControlDict('2nd', case_dir, stamp_file)
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(engineKivaTestRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

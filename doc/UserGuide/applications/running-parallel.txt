@@ -1,0 +1,275 @@
+[[sec_runningParallel]]
+=== Running applications in parallel
+(((parallel,running))) (((run,parallel)))
+
+This section describes how to run {project} in parallel on distributed
+processors. The method of parallel computing used by {project} is known as
+domain decomposition, in which the geometry and associated fields are broken
+into pieces and allocated to separate processors for solution. The process of
+parallel computation involves: decomposition of mesh and fields; running the
+application in parallel; and, post-processing the decomposed case as described
+in the following sections. The parallel running uses the public domain
+'Open MPI' implementation of the standard message passing interface (MPI).
+
+==== Decomposition of mesh and initial field data
+(((mesh,decomposition))) (((field,decomposition))) (((decomposition,of mesh)))
+(((decomposition,of field)))
+
+The mesh and fields are decomposed using the
+`decomposePar` (((`decomposePar` utility)))(((utility,`decomposePar`)))
+utility. The underlying aim is to break up the domain with minimal effort but
+in such a way to guarantee a fairly economic solution. The geometry and fields
+are broken up according to a set of parameters specified in a dictionary named
+filename:decomposeParDict[](((filename:decomposeParDict[],dictionary)))
+(((dictionary,filename:decomposeParDict[])))
+that must be located in the dirname:system[] directory of the case of
+interest. An example filename:decomposeParDict[] dictionary can be copied from
+the dirname:interFoam/damBreak[] tutorial if the user requires one; the
+dictionary entries within it are reproduced below:
+
+[subs='verbatim']
+-------------------------------------------------------------------------------
+include::{builddir}applications/assets/decomposeParDict[]
+-------------------------------------------------------------------------------
+
+The user has a choice of four methods of decomposition, specified by the
+`method` keyword as described below.
+
+`simple` (((`simple`,keyword entry)))(((keyword entry,`simple`)))::
+  Simple geometric decomposition in which the domain is split into pieces by
+  direction, 'e.g.' 2 pieces in the math:[x] direction, 1 in math:[y] 'etc.'
+`hierarchical`::
+  (((`hierarchical`,keyword entry))) (((keyword entry,`hierarchical`)))
+  Hierarchical geometric decomposition which is the same as `simple` except the
+  user specifies the order in which the directional split is done, 'e.g.' first
+  in the math:[y]-direction, then the math:[x]-direction 'etc.'
+`scotch` (((`scotch`,keyword entry)))(((keyword entry,`scotch`)))::
+  Scotch decomposition which requires no geometric input from the user and
+  attempts to minimise the number of processor boundaries. The user can specify
+  a weighting for the decomposition between processors, through an optional
+  `processorWeights` (((`processorWeights` keyword)))
+  (((keyword,`processorWeights`))) keyword which can be useful on machines with
+  differing performance between processors. There is also an optional keyword
+  entry `strategy` (((`strategy` keyword)))(((keyword,`strategy`))) that
+  controls the decomposition strategy through a complex string supplied to
+  Scotch. For more information, see the source code file:
+  filename:src/decompositionMethods/decompositionMethods/scotchDecomp/scotchDecomp.C[]
+`metis` (((`metis`,keyword entry)))(((keyword entry,`metis`)))::
+  METIS decomposition is similar to Scotch, but the library is non-free for
+  commercial use, so will be discontinued in favour of Scotch in future
+  releases of {project}.
+`parMetis` (((`parMetis`,keyword entry)))(((keyword entry,`parMetis`)))::
+  ParMETIS decomposition is the parallelized version of METIS. Like METIS, it
+  is non-free for commercial use, and will be discontinued in favour of
+  PT-Scotch in the future.
+`manual` (((`manual`,keyword entry)))(((keyword entry,`manual`)))::
+  Manual decomposition, where the user directly specifies the allocation of
+  each cell to a particular processor.
+
+For each +method+ there are a set of coefficients specified in a sub-dictionary
+of filename:decomposeParDict[], named `<method>Coeffs` as shown in the
+dictionary listing. The only exception is the `parMetis` decomposition method,
+which also uses the `metisCoeffs` sub-dictionary. The full set of keyword
+entries in the filename:decomposeParDict[] dictionary are explained in
+<<tab_decomposeParDictKeywords>>.
+
+[[tab_decomposeParDictKeywords]]
+.Keywords in filename:decomposeParDict[] dictionary
+[grid="none",frame="topbot",cols="2,1,3"]
+|==============================================================================
+3+h| Compulsory entries
+| `numberOfSubdomains` (((`numberOfSubdomains` keyword)))
+(((keyword,`numberOfSubdomains`))) | Total number of subdomains | math:[N]
+| `method` (((`method` keyword)))(((keyword,`method`))) | Method of
+decomposition | `simple`, `hierarchical`, `scotch`, `metis`, `parMetis`,
+ `manual`
+ (((`simple`,keyword entry))) (((keyword entry,`simple`)))
+ (((`hierarchical`,keyword entry))) (((keyword entry,`hierarchical`)))
+ (((`scotch`,keyword entry))) (((keyword entry,`scotch`)))
+ (((`metis`,keyword entry))) (((keyword entry,`metis`)))
+ (((`parMetis`,keyword entry))) (((keyword entry,`parMetis`)))
+ (((`manual`,keyword entry))) (((keyword entry,`manual`)))
+3+h| `simpleCoeffs` entries
+| `n` (((`n` keyword)))(((keyword,`n`))) | Number of subdomains in math:[x],
+math:[y], math:[z] | `(nx ny nz)`
+| `delta` (((`delta` keyword)))(((keyword,`delta`))) | Cell skew factor |
+Typically, math:[10^{-3}]
+3+h| `hierarchicalCoeffs` entries
+| `n` (((`n` keyword)))(((keyword,`n`))) | Number of subdomains in math:[x],
+math:[y], math:[z] | `(nx ny nz)`
+| `delta` (((`delta` keyword)))(((keyword,`delta`))) | Cell skew factor |
+Typically, math:[10^{-3}]
+| `order` (((`order` keyword)))(((keyword,`order`))) | Order of decomposition |
+`xyz` / `xzy` / `yxz`...
+3+h| `scotchCoeffs` (((`scotchCoeffs` keyword)))(((keyword,`scotchCoeffs`)))
+entries
+| `processorWeights` (((`processorWeights` keyword)))
+(((keyword,`processorWeights`))) | List of weighting factors for allocation of
+cells to processors; `<wt1>` is the weighting factor for processor 1, 'etc.';
+weights are normalised so can take any range of values. | +(<wt1>...<wtN>)+
+| `strategy` (((`strategy` keyword)))(((keyword,`strategy`))) | Decomposition
+strategy; defaults to `"b"` |
+3+h| `metisCoeffs` (((`metisCoeffs` keyword)))(((keyword,`metisCoeffs`)))
+entries
+| `processorWeights` (((`processorWeights` keyword)))
+(((keyword,`processorWeights`))) | As above | +(<wt1>...<wtN>)+
+3+h| `manualCoeffs` (((`manualCoeffs` keyword)))(((keyword,`manualCoeffs`)))
+entries
+| `dataFile` | Name of file containing data of allocation of cells to
+processors | `"<fileName>"`
+3+h| Distributed data entries (optional) &mdash; see <<sec_distributingData>>
+| `distributed` (((`distributed` keyword)))(((keyword,`distributed`))) | Is the
+data distributed across several disks? | `yes/no`
+| `roots` (((`roots` keyword)))(((keyword,`roots`))) | Root paths to case
+directories; `<rt1>` is the root path for node 1, 'etc.' | +(<rt1>...<rtN>)+
+|==============================================================================
+
+The `decomposePar` (((`decomposePar` utility)))(((utility,`decomposePar`)))
+utility is executed in the normal manner by typing
+
+-------------------------------------------------------------------------------
+$ freefoam decomposePar
+-------------------------------------------------------------------------------
+
+On completion, a set of subdirectories will have been created, one for each
+processor, in the case directory. The directories are named
+filename:processor<N>[](((filename:processor[] directory)))
+(((directory,filename:processor[]))) where '<N>'{nbsp}={nbsp}0,1,... represents
+a processor number and contains a time directory, containing the decomposed
+field descriptions, and a filename:constant/polyMesh[] directory containing the
+decomposed mesh description.
+
+[[sec_runningCaseInParallelOpenmpi]]
+==== Running a decomposed case
+((('Open MPI',MPI))) ((('Open MPI',message passing interface)))
+(((MPI,'Open MPI'))) (((message passing interface,'Open MPI')))
+
+A decomposed {project} case is run in parallel using the 'Open MPI'
+implementation of MPI.
+
+'Open MPI' can be run on a local multiprocessor machine very simply but when
+running on machines across a network, a file must be created that contains the
+host names of the machines. The file can be given any name and located at any
+path. In the following description we shall refer to such a file by the generic
+name, including full path, filename:<machines>[].
+
+The filename:<machines>[] file contains the names of the machines listed one
+machine per line. The names must correspond to a fully resolved hostname in the
+filename:/etc/hosts[] file of the machine on which the 'Open MPI' is run. The
+list must contain the name of the machine running the 'Open MPI'. Where a
+machine node contains more than one processor, the node name may be followed by
+the entry `cpu=n` where `n` is the number of processors 'Open MPI' should run
+on that node.
+
+For example, let us imagine a user wishes to run 'Open MPI' from machine `aaa`
+on the following machines: `aaa`; `bbb`, which has 2 processors; and `ccc`. The
+filename:<machines>[] would contain:
+
+[subs='verbatim']
+-------------------------------------------------------------------------------
+aaa
+bbb cpu=2
+ccc
+-------------------------------------------------------------------------------
+
+An application is run in parallel using `mpirun`.
+
+[subs='verbatim']
+-------------------------------------------------------------------------------
+$ mpirun --hostfile <machines> -np <nProcs> freefoam <foamExec> <otherArgs> \
+    -parallel > log &
+-------------------------------------------------------------------------------
+
+where: `<nProcs>` is the number of processors; `<foamExec>` is the executable,
+'e.g.' `ico`; and, the output is redirected to a file named filename:log[]. For
+example, if `ico` is run on 4 nodes, specified in a file named
+filename:machines[], on the `cavity` tutorial in the
+filename:<tutorials>/incompressible/icoFoam[] directory, then the following
+command should be executed:
+
+[subs='verbatim']
+-------------------------------------------------------------------------------
+mpirun --hostfile machines -np 4 freefoam ico -parallel > log &
+-------------------------------------------------------------------------------
+
+That being said, the administrators of cluster computers normally configure the
+MPI system such that a filename:<machines>[] file is not required, even
+harmful. *Only use a filename:<machines>[] file on un-managed, ad-hoc
+clusters*.
+
+[[sec_distributingData]]
+==== Distributing data across several disks
+
+Data files may need to be distributed if, for example, if only local disks are
+used in order to improve performance. In this case, the user may find that the
+root path to the case directory may differ between machines. The paths must
+then be specified in the filename:decomposeParDict[] dictionary using
+`distributed` (((`distributed` keyword)))(((keyword,`distributed`))) and
+`roots` (((`roots` keyword)))(((keyword,`roots`))) keywords. The `distributed`
+entry should read
+
+[subs='verbatim']
+-------------------------------------------------------------------------------
+distributed yes;
+-------------------------------------------------------------------------------
+
+and the `roots` entry is a list of root paths, dirname:<root0>[],
+dirname:<root1>[], ..., for each node
+
+[subs='verbatim']
+-------------------------------------------------------------------------------
+roots
+<nRoots>
+(
+    "<root0>"
+    "<root1>"
+    ...
+);
+-------------------------------------------------------------------------------
+
+where `<nRoots>` is the number of roots. Each of the
+filename:processor[]math:[N] directories should be placed in the case directory
+at each of the root paths specified in the filename:decomposeParDict[]
+dictionary. The dirname:system[] directory and 'files' within the
+filename:constant[] directory must also be present in each case directory.
+Note: the files in the dirname:constant[] directory are needed, but the
+dirname:polyMesh[] directory is not.
+
+==== Post-processing parallel processed cases
+
+When post-processing cases that have been run in parallel the user has two
+options:
+
+- using a recent version of 'ParaView' which supports direct post-processing of
+  decomposed cases;
+- reconstruction of the mesh and field data to recreate the complete domain and
+  fields, which can be post-processed as normal;
+- post-processing each segment of decomposed domain individually.
+
+===== Reconstructing mesh and data
+
+After a case has been run in parallel, it can be reconstructed for
+post-processing. The case is reconstructed by merging the sets of time
+directories from each filename:processor<N>[] directory into a single set
+of time directories. The `reconstructPar` (((`reconstructPar` utility)))
+(((utility,`reconstructPar`))) utility performs such a reconstruction by
+executing the command:
+
+[subs='verbatim']
+-------------------------------------------------------------------------------
+$ freefoam reconstructPar
+-------------------------------------------------------------------------------
+
+When the data is distributed across several disks, it must be first copied to
+the local case directory for reconstruction.
+
+===== Post-processing decomposed cases
+
+The user may post-process decomposed cases using the `para` post-processor,
+described in <<sec_paraFoam>>. The whole simulation can be post-processed by
+reconstructing the case or alternatively it is possible to post-process a
+segment of the decomposed domain individually by simply treating the individual
+processor directory as a case in its own right. Recent versions of 'ParaView'
+can also directly reconstruct a decomposed case on the fly while importing the
+data. This has important advantages if 'ParaView' itself is run in parallel on
+a cluster system.

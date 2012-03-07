@@ -1,0 +1,52 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+import subprocess
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class SRFPimpleRotor2DRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'SRFPimple_rotor2D')
+      self.add_step('prepareMesh', self._prepareMesh)
+      self.add_app_step('blockMesh')
+      self._comp = FreeFOAM.tutorial.CompileApp(
+            os.path.join(self.case_dir, '..', 'SRFPimpleFoam'),
+            name='SRFPimple')
+      self.add_step('compileSRFPimple', self._comp)
+      self.add_app_step('SRFPimple', app=self._comp.app)
+
+   def _prepareMesh(self, case_dir, stamp_file, test_mode):
+      blockMeshDict = os.path.join(case_dir, 'constant', 'polyMesh',
+            'blockMeshDict')
+      try:
+         stamp_file.write('Creating blockMeshDict\n')
+         stat = subprocess.call('@M4_EXECUTABLE@',
+               stdin=open(blockMeshDict+'.m4', 'rt'),
+               stdout=open(blockMeshDict, 'wt')) == 0
+      except Exception:
+         e = sys.exc_info()[1]
+         stat = False
+         stamp_file.write('*** Error *** Creating blockMeshDict:\n'+str(e))
+      stamp_file.write('REPORT: ')
+      if stat:
+         stamp_file.write('SUCCESS\n')
+      else:
+         stamp_file.write('FAILURE\n')
+      return stat
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.tutorial.clean_application(self._comp.bindir)
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(SRFPimpleRotor2DRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

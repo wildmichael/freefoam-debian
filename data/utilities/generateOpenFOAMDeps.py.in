@@ -1,0 +1,674 @@
+#!@PYTHON_EXECUTABLE@
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#    generateOpenFOAMDeps
+#
+# Description
+#    Patches OpenFOAM to generate dependency files, runs Allwmake and then
+#    postprocesses the generated dependency files.
+#
+#------------------------------------------------------------------------------
+
+"""Usage: generateOpenFOAMDeps <WM_PROJECT_DIR>
+
+Patches OpenFOAM to generate dependency files, runs Allwmake and then
+postprocesses the generated dependency files.
+
+Requires that WM_PROJECT_DIR be a git-checkout and that git-python is
+installed and works.
+
+Options
+-------
+<WM_PROJECT_DIR> Top-level OpenFOAM source directory
+
+"""
+
+import sys
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import os
+import os.path as op
+import re
+import git
+import tempfile
+import subprocess
+
+blacklistPatterns = (
+      re.compile(r'^/usr/'),
+      )
+
+# argument parsing
+args = sys.argv[1:]
+if len(args) != 1:
+   echo('Error: the path to the OpenFOAM installation is required',
+         file=sys.stderr)
+   sys.exit(1)
+
+WM_PROJECT_DIR=op.abspath(args[0])
+
+# set up environment
+os.environ['FOAM_INST_DIR']     = op.dirname(WM_PROJECT_DIR)
+os.environ['WM_COMPILER']       = 'FreeFOAM'
+os.environ['WM_COMPILE_OPTION'] = 'Dep'
+os.environ['WM_MPLIB']          = 'SYSTEMOPENMPI'
+
+# sanity checks
+if not op.exists(op.join(WM_PROJECT_DIR, 'bin/foamInstallationTest')):
+   echo('Error: %s/bin/foamInstallationTest is missing', file=sys.stderr)
+   sys.exit(1)
+
+if not op.exists(op.join(WM_PROJECT_DIR, '.git/HEAD')):
+   echo('Error: %s/.git/HEAD is missing', file=sys.stderr)
+   sys.exit(1)
+
+repo = git.Repo(WM_PROJECT_DIR)
+
+if repo.is_dirty():
+   echo('Error: OpenFOAM checkout %s is dirty'%WM_PROJECT_DIR, file=sys.stderr)
+   sys.exit(1)
+
+if repo.head.is_detached:
+   echo('Error: OpenFOACM checkout %s is detached'%WM_PROJECT_DIR, file=sys.stderr)
+   sys.exit(1)
+
+# create new, temporary branch and check it out
+orig_branch = repo.active_branch
+try:
+   tmp_branch = repo.create_head('TMP_FREEFOAM_GENERATE_OPENFOAM_DEPS')
+except OSError as e:
+   echo('Error: Creating temporary branch %s failed with:\n%s'%
+         ('TMP_FREEFOAM_GENERATE_OPENFOAM_DEPS', str(e)), file=sys.stderr)
+   sys.exit(1)
+
+try:
+   tmp_branch.checkout()
+except git.GitCommandError as e:
+   echo('Error: Checking out the temporary branch %s failed with:\n%s'%
+         ('TMP_FREEFOAM_GENERATE_OPENFOAM_DEPS', str(e)), file=sys.stderr)
+   sys.exit(1)
+
+# apply patches
+wmakePatch = tempfile.TemporaryFile()
+wmakePatch.write(r"""
+From 3e7ebcead5c87781e84752ce42647c24b18ce2da Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Mon, 25 Jul 2011 08:38:08 +0200
+Subject: [PATCH] Patch wmake to only generate dependency files
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+
+diff --git a/Allwmake b/Allwmake
+index 55554dc..6047743 100755
+--- a/Allwmake
++++ b/Allwmake
+@@ -1,6 +1,8 @@
+ #!/bin/sh
+ cd ${0%/*} || exit 1    # run from this directory
+ 
++. etc/bashrc
++
+ if [ "$PWD" != "$WM_PROJECT_DIR" ]
+ then
+     echo "Error: Current directory is not \$WM_PROJECT_DIR"
+@@ -15,7 +17,7 @@ fi
+ # build ThirdParty sources
+ if [ -d "$WM_THIRD_PARTY_DIR" ]
+ then
+-    ( cd $WM_THIRD_PARTY_DIR && ./Allwmake )
++    : #( cd $WM_THIRD_PARTY_DIR && ./Allwmake )
+ fi
+ 
+ # build OpenFOAM libraries and applications
+diff --git a/wmake/Makefile b/wmake/Makefile
+index 2f2be98..878a7be 100644
+--- a/wmake/Makefile
++++ b/wmake/Makefile
+@@ -41,7 +41,7 @@ SHELL      = /bin/sh
+ #------------------------------------------------------------------------------
+ 
+ .SUFFIXES:
+-.SUFFIXES: .o
++.SUFFIXES: .d
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -106,7 +106,7 @@ SEXE            = a.out
+ #------------------------------------------------------------------------------
+ 
+ GENERAL_RULES = $(WM_DIR)/rules/General
+-RULES         = $(WM_DIR)/rules/$(WM_ARCH)$(WM_COMPILER)
++RULES         = $(WM_DIR)/rules/FreeFOAM
+ BIN           = $(WM_DIR)/bin/$(WM_ARCH)$(WM_COMPILER)
+ 
+ include $(GENERAL_RULES)/general
+@@ -148,16 +148,14 @@ LIB_HEADER_DIRS = \
+ 
+ $(EXE):  $(OBJECTS)
+ 	     @$(WM_SCRIPTS)/mkObjectDir $(EXE)
+-	     $(LINKEXE) $(OBJECTS) -L$(LIB_WM_OPTIONS_DIR) \
+-	     $(EXE_LIBS) $(PROJECT_LIBS) $(SYS_LIBS) $(LINK_LIBS) $(GLIBS) -o $(EXE)
++	     @touch $@
+ 
+ exe:     $(SEXE)
+ 	     @echo \'$(SEXE)\' is up to date.
+ 
+ $(SEXE): $(OBJECTS)
+ 	     @$(WM_SCRIPTS)/mkObjectDir $(SEXE)
+-	     $(LINKEXE) $(OBJECTS) $(EXE_LIBS) \
+-         $(SYS_LIBS) $(LINK_LIBS) $(GLIBS) -o $(SEXE)
++	     @touch $@
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -171,7 +169,7 @@ $(LIB).$(SO): $(OBJECTS)
+ 	     @$(WM_SCRIPTS)/mkObjectDir $(LIB)
+ 	     @rm -f so_locations
+ 	     @cd $(OBJECTS_DIR) ; \
+-	     $(LINKLIBSO) $(LOCAL_OBJECTS) -L$(LIB_WM_OPTIONS_DIR) $(LIB_LIBS) $(GLIB_LIBS) -o $(LIB).$(SO)
++	     touch $@
+ 
+ lib:     $(LIB).a
+ 	     @echo \'$(LIB).a\' is up to date.
+@@ -188,7 +186,7 @@ libo:    $(LIB).o
+ $(LIB).o: $(OBJECTS)
+ 	     @$(WM_SCRIPTS)/mkObjectDir $(LIB)
+ 	     @rm -f $(LIB).o
+-	     $(LD) -r -o $(LIB).o $(OBJECTS)
++	     @touch $@
+ 
+ jar:     $(LIB).jar
+ 	     @echo \'$(LIB).jar\' is up to date.
+diff --git a/wmake/MakefileFiles b/wmake/MakefileFiles
+index 6dc6e9d..d4f2d7d 100644
+--- a/wmake/MakefileFiles
++++ b/wmake/MakefileFiles
+@@ -30,7 +30,7 @@
+ #------------------------------------------------------------------------------
+ 
+ GENERAL_RULES = $(WM_DIR)/rules/General
+-RULES         = $(WM_DIR)/rules/$(WM_ARCH)$(WM_COMPILER)
++RULES         = $(WM_DIR)/rules/FreeFOAM
+ OBJECTS_DIR   = $(WM_OPTIONS)
+ FFLAGS        =
+ 
+diff --git a/wmake/MakefileOptions b/wmake/MakefileOptions
+index db304ba..ee4a871 100644
+--- a/wmake/MakefileOptions
++++ b/wmake/MakefileOptions
+@@ -30,7 +30,7 @@
+ #------------------------------------------------------------------------------
+ 
+ GENERAL_RULES = $(WM_DIR)/rules/General
+-RULES         = $(WM_DIR)/rules/$(WM_ARCH)$(WM_COMPILER)
++RULES         = $(WM_DIR)/rules/FreeFOAM
+ 
+ include $(GENERAL_RULES)/general
+ include $(RULES)/general
+diff --git a/wmake/rules/FreeFOAM/X b/wmake/rules/FreeFOAM/X
+new file mode 100644
+index 0000000..6133345
+--- /dev/null
++++ b/wmake/rules/FreeFOAM/X
+@@ -0,0 +1,3 @@
++XFLAGS     =
++XINC       = $(XFLAGS) -I/usr/include/X11
++XLIBS      =
+diff --git a/wmake/rules/FreeFOAM/c b/wmake/rules/FreeFOAM/c
+new file mode 100644
+index 0000000..49c780b
+--- /dev/null
++++ b/wmake/rules/FreeFOAM/c
+@@ -0,0 +1,12 @@
++.SUFFIXES: .c .h
++
++cc          = gcc
++
++cFLAGS      = $(GFLAGS) $(cDEP) $(LIB_HEADER_DIRS)
++
++ctoo        = $(WM_SCHEDULER) $(cc) $(cFLAGS) $$SOURCE -M -MF $(subst .o,.d,$@)
++
++LINK_LIBS   = $(cDBUG)
++
++LINKLIBSO   =
++LINKEXE     =
+diff --git a/wmake/rules/FreeFOAM/c++ b/wmake/rules/FreeFOAM/c++
+new file mode 100644
+index 0000000..b68cefa
+--- /dev/null
++++ b/wmake/rules/FreeFOAM/c++
+@@ -0,0 +1,17 @@
++.SUFFIXES: .C .cxx .cc .cpp
++
++CC          = g++
++
++ptFLAGS     = -DNoRepository
++
++c++FLAGS    = $(GFLAGS) $(ptFLAGS) $(LIB_HEADER_DIRS) -fPIC
++
++Ctoo        = $(WM_SCHEDULER) $(CC) $(c++FLAGS) $$SOURCE -M -MF $(subst .o,.d,$@)
++cxxtoo      = $(Ctoo)
++cctoo       = $(Ctoo)
++cpptoo      = $(Ctoo)
++
++LINK_LIBS   = $(c++DBUG)
++
++LINKLIBSO   =
++LINKEXE     =
+diff --git a/wmake/rules/FreeFOAM/general b/wmake/rules/FreeFOAM/general
+new file mode 100644
+index 0000000..27779cd
+--- /dev/null
++++ b/wmake/rules/FreeFOAM/general
+@@ -0,0 +1,10 @@
++CPP        = cpp -traditional-cpp $(GFLAGS)
++LD         = ld
++
++PROJECT_LIBS = -l$(WM_PROJECT) -ldl
++
++include $(GENERAL_RULES)/standard
++
++include $(RULES)/X
++include $(RULES)/c
++include $(RULES)/c++
+diff --git a/wmake/rules/FreeFOAM/mplib b/wmake/rules/FreeFOAM/mplib
+new file mode 100644
+index 0000000..8a84b40
+--- /dev/null
++++ b/wmake/rules/FreeFOAM/mplib
+@@ -0,0 +1,3 @@
++PFLAGS     = 
++PINC       = 
++PLIBS      = 
+diff --git a/wmake/rules/FreeFOAM/mplibSYSTEMOPENMPI b/wmake/rules/FreeFOAM/mplibSYSTEMOPENMPI
+new file mode 100644
+index 0000000..98fa814
+--- /dev/null
++++ b/wmake/rules/FreeFOAM/mplibSYSTEMOPENMPI
+@@ -0,0 +1 @@
++PFLAGS     = -DOMPI_SKIP_MPICXX
+diff --git a/wmake/rules/General/bison b/wmake/rules/General/bison
+index fe2e00a..e4ed987 100644
+--- a/wmake/rules/General/bison
++++ b/wmake/rules/General/bison
+@@ -4,8 +4,8 @@ ytoo = bison -v -d -y $$SOURCE ; mv y.tab.c $*.c ; mv y.tab.h $*.h ; $(cc) $(cFL
+ 
+ Ytoo = bison -v -d -y $$SOURCE ; mv y.tab.c $*.C ; mv y.tab.h $*.H ; $(CC) $(c++FLAGS) -c $*.C -o $@ 
+ 
+-.y.dep:
++.y.FreeFOAMdep:
+ 	$(MAKE_DEP)
+ 
+-.Y.dep:
++.Y.FreeFOAMdep:
+ 	$(MAKE_DEP)
+diff --git a/wmake/rules/General/btyacc b/wmake/rules/General/btyacc
+index f868b05..4fa52e8 100644
+--- a/wmake/rules/General/btyacc
++++ b/wmake/rules/General/btyacc
+@@ -2,5 +2,5 @@
+ 
+ ytoo = btyacc -v -d $(SKELETON) $$SOURCE ; mv y_tab.c $*.C ; mv y_tab.h $*.H ; $(CC) $(c++FLAGS) -c $*.C -o $@ 
+ 
+-.y.dep:
++.y.FreeFOAMdep:
+ 	$(MAKE_DEP)
+diff --git a/wmake/rules/General/btyacc++ b/wmake/rules/General/btyacc++
+index c65365c..b9f66b7 100644
+--- a/wmake/rules/General/btyacc++
++++ b/wmake/rules/General/btyacc++
+@@ -2,5 +2,5 @@
+ 
+ Ytoo = btyacc++ -v -d $(SKELETON) $$SOURCE ; mv y_tab.c $*.C ; mv y_tab.h $*.H ; $(CC) $(c++FLAGS) -c $*.C -o $@ 
+ 
+-.Y.dep:
++.Y.FreeFOAMdep:
+ 	$(MAKE_DEP)
+diff --git a/wmake/rules/General/byacc b/wmake/rules/General/byacc
+index 919da82..8292151 100644
+--- a/wmake/rules/General/byacc
++++ b/wmake/rules/General/byacc
+@@ -2,5 +2,5 @@
+ 
+ ytoo = byacc -v $(YYPREFIX) -d $$SOURCE ; mv y.tab.c $*.C ; mv y.tab.h $*.H ; $(CC) $(c++FLAGS) -c $*.C -o $@ 
+ 
+-.y.dep:
++.y.FreeFOAMdep:
+ 	$(MAKE_DEP)
+diff --git a/wmake/rules/General/flex b/wmake/rules/General/flex
+index 06defbb..11aeae7 100644
+--- a/wmake/rules/General/flex
++++ b/wmake/rules/General/flex
+@@ -2,5 +2,5 @@
+ 
+ ltoo = flex $$SOURCE ; mv lex.yy.c $*.c ; $(cc) $(cFLAGS) -c $*.c -o $@ 
+ 
+-.l.dep:
++.l.FreeFOAMdep:
+ 	$(MAKE_DEP)
+diff --git a/wmake/rules/General/flex++ b/wmake/rules/General/flex++
+index 304b131..4a29dd9 100644
+--- a/wmake/rules/General/flex++
++++ b/wmake/rules/General/flex++
+@@ -1,6 +1,6 @@
+ .SUFFIXES: .L
+ 
+-Ltoo = flex -+ -f $$SOURCE ; mv lex.yy.cc $*.C ; $(CC) $(c++FLAGS) -c $*.C -o $@
++Ltoo = flex -+ -f $$SOURCE ; mv lex.yy.cc $*.C ; $(CC) $(c++FLAGS) $*.C -M -MF $(subst .o,.d,$@)
+ 
+-.L.dep:
++.L.FreeFOAMdep:
+ 	$(MAKE_DEP)
+diff --git a/wmake/rules/General/flex++.test b/wmake/rules/General/flex++.test
+index 8503e57..bb0f976 100644
+--- a/wmake/rules/General/flex++.test
++++ b/wmake/rules/General/flex++.test
+@@ -1,6 +1,6 @@
+ .SUFFIXES: .L
+ 
+-Ltoo = flex++ $$SOURCE ; mv lex.yy.cc $*.C ; $(CC) $(c++FLAGS) -c $*.C -o $@ 
++Ltoo = flex++ $$SOURCE ; mv lex.yy.cc $*.C ; $(CC) $(c++FLAGS) $*.C -M -MF $(subst .o,.d,$@)
+ 
+-.L.dep:
++.L.FreeFOAMdep:
+ 	$(MAKE_DEP)
+diff --git a/wmake/rules/General/moc b/wmake/rules/General/moc
+index e85cb47..67ffced 100644
+--- a/wmake/rules/General/moc
++++ b/wmake/rules/General/moc
+@@ -2,5 +2,5 @@
+ 
+ qttoo = $(QTDIR)/bin/moc -f $$SOURCE -o $*.C ; $(CC) $(c++FLAGS) -c $*.C -o $@ 
+ 
+-.qt.dep:
++.qt.FreeFOAMdep:
+ 	$(MAKE_DEP)
+diff --git a/wmake/rules/General/sourceToDep b/wmake/rules/General/sourceToDep
+index 14e95d6..31ea59d 100644
+--- a/wmake/rules/General/sourceToDep
++++ b/wmake/rules/General/sourceToDep
+@@ -1,24 +1,24 @@
+-.SUFFIXES: .c .cc .cxx .cpp .C .F .f .dep
++.SUFFIXES: .c .cc .cxx .cpp .C .F .f .FreeFOAMdep
+ 
+ MKDEP       = $(BIN)/wmkdep -I$(*D) $(LIB_HEADER_DIRS)
+ 
+-.c.dep:
++.c.FreeFOAMdep:
+ 	$(MAKE_DEP)
+ 
+-.cc.dep:
++.cc.FreeFOAMdep:
+ 	$(MAKE_DEP)
+ 
+-.cxx.dep:
++.cxx.FreeFOAMdep:
+ 	$(MAKE_DEP)
+ 
+-.cpp.dep:
++.cpp.FreeFOAMdep:
+ 	$(MAKE_DEP)
+ 
+-.C.dep:
++.C.FreeFOAMdep:
+ 	$(MAKE_DEP)
+ 
+-.F.dep:
++.F.FreeFOAMdep:
+ 	$(MAKE_DEP)
+ 
+-.f.dep:
++.f.FreeFOAMdep:
+ 	$(MAKE_DEP)
+diff --git a/wmake/rules/General/version b/wmake/rules/General/version
+index 11f83c7..22951dd 100644
+--- a/wmake/rules/General/version
++++ b/wmake/rules/General/version
+@@ -7,7 +7,7 @@ Cvertoo = \
+     sed -e 's/VERSION_STRING/$(shell wmakePrintBuild -major)/' \
+         -e 's/BUILD_STRING/$(shell wmakePrintBuild -update)/' \
+         $$SOURCE > $*.C; \
+-    $(CC) $(c++FLAGS) -c $*.C -o $@
++    $(CC) $(c++FLAGS) $*.C -M -MF $(subst .o,.d,$@)
+ 
+-.Cver.dep:
++.Cver.FreeFOAMdep:
+ 	$(MAKE_DEP)
+diff --git a/wmake/rules/General/yacc b/wmake/rules/General/yacc
+index f9d393e..b99597e 100644
+--- a/wmake/rules/General/yacc
++++ b/wmake/rules/General/yacc
+@@ -4,8 +4,8 @@ ytoo = yacc -v -d $$SOURCE ; mv y.tab.c $*.c ; mv y.tab.h $(@D)/parser.h ; $(CC)
+ 
+ Ytoo = yacc -v -d $$SOURCE ; mv y.tab.c $*.C ; mv y.tab.h $(@D)/parser.H ; $(CC) $(c++FLAGS) -c $*.C -o $@ 
+ 
+-.y.dep:
++.y.FreeFOAMdep:
+ 	$(MAKE_DEP)
+ 
+-.Y.dep:
++.Y.FreeFOAMdep:
+ 	$(MAKE_DEP)
+diff --git a/wmake/scripts/addCompile b/wmake/scripts/addCompile
+index 04f0919..bb394f9 100755
+--- a/wmake/scripts/addCompile
++++ b/wmake/scripts/addCompile
+@@ -33,10 +33,10 @@
+ #------------------------------------------------------------------------------
+ 
+ sourceName=${1##*/}
+-objectName=${sourceName%.*}.o
++objectName=${sourceName%.*}.d
+ className=${sourceName%.*}.class
+ sub=${1##*.}
+-depName=${1%.*}.dep
++depName=${1%.*}.FreeFOAMdep
+ 
+ sourceDir=${1%/*}
+ 
+@@ -52,13 +52,13 @@ else
+     cat > $depName
+ fi
+ 
+-sed -e s%".*.o.*:"%'$(OBJECTS_DIR)/'"$objectName\:"%  \
++sed -e s%".*.d.*:"%'$(OBJECTS_DIR)/'"$objectName\:"%  \
+     -e s%$WM_PROJECT_DIR%'$(WM_PROJECT_DIR)'%         \
+     >> $depName
+ 
+ echo '$(OBJECTS_DIR)/'$objectName': $(EXE_DEP)' >> $depName
+ echo '$(OBJECTS_DIR)/'$objectName':' >> $depName
+-echo '	@SOURCE_DIR='$sourceDir >> $depName
+-echo '	SOURCE='$1' ; $('$sub'too)' >> $depName
++echo '	@SOURCE_DIR=$(PWD)/'$sourceDir >> $depName
++echo '	SOURCE=$(PWD)/'$1' ; $('$sub'too)' >> $depName
+ 
+ #------------------------------------------------------------------------------
+diff --git a/wmake/src/Makefile b/wmake/src/Makefile
+index 81603b6..741a06e 100644
+--- a/wmake/src/Makefile
++++ b/wmake/src/Makefile
+@@ -48,7 +48,7 @@ SHELL      = /bin/sh
+ #------------------------------------------------------------------------------
+ 
+ GENERAL_RULES = $(WM_DIR)/rules/General
+-RULES         = $(WM_DIR)/rules/$(WM_ARCH)$(WM_COMPILER)
++RULES         = $(WM_DIR)/rules/FreeFOAM
+ BIN           = $(WM_DIR)/bin/$(WM_ARCH)$(WM_COMPILER)
+ 
+ include $(RULES)/general
+diff --git a/wmake/src/wmkdep.l b/wmake/src/wmkdep.l
+index d22c695..78b2fab 100644
+--- a/wmake/src/wmkdep.l
++++ b/wmake/src/wmkdep.l
+@@ -166,10 +166,10 @@ int main(int argc, char* argv[])
+     /* initialise depFile to zero and use strncat rather than strncpy
+        because there is a bug in the SGI strncat that if 0 preceeds the .
+        it inserts a space */
+-    depFile = (char*)malloc(strlen(sourceFile) + 3);
++    depFile = (char*)malloc(strlen(sourceFile) + 11);
+     depFile[0] = 0;
+     strncat(depFile, sourceFile, (dotPtr - sourceFile)/sizeof(char));
+-    strcat(depFile, ".dep");
++    strcat(depFile, ".FreeFOAMdep");
+ 
+     if (strcmp(sourceExt, "java") == 0)
+     {
+@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
+         objectFile = (char*)malloc(strlen(sourceFile) + 16);
+         strcpy(objectFile, "$(OBJECTS_DIR)/");
+         strncat(objectFile, slashPtr, (dotPtr - slashPtr)/sizeof(char));
+-        strcat(objectFile, ".o");
++        strcat(objectFile, ".d");
+ 
+         printf("%s: %s\n", objectFile, depFile);
+     }
+diff --git a/wmake/wmakeDerivedFiles b/wmake/wmakeDerivedFiles
+index 8d522e9..1fe8294 100755
+--- a/wmake/wmakeDerivedFiles
++++ b/wmake/wmakeDerivedFiles
+@@ -79,7 +79,7 @@ rm tmpSourceFile
+ # ~~~~~~~~~~~~~~~~
+ sed -e 's%.*/%%'               \
+     -e 's%^%$(OBJECTS_DIR)/%'  \
+-    -e 's%\.[a-zA-Z]*$%\.o%'    \
++    -e 's%\.[a-zA-Z]*$%\.d%'    \
+     files.$$ > tmpObjectFiles
+ 
+ echo "OBJECTS = " > tmpObjectFiles2
+@@ -95,7 +95,7 @@ rm tmpObjectFiles tmpObjectFiles2
+ # make localObjectFiles
+ # ~~~~~~~~~~~~~~~~~~~~~
+ sed -e 's%.*/%%'               \
+-    -e 's%\.[a-zA-Z]*$%\.o%'    \
++    -e 's%\.[a-zA-Z]*$%\.d%'    \
+     files.$$ > tmpLocalObjectFiles
+ 
+ echo "LOCAL_OBJECTS = " > tmpLocalObjectFiles2
+@@ -110,7 +110,7 @@ rm tmpLocalObjectFiles tmpLocalObjectFiles2
+ 
+ # make dependencyFiles
+ # ~~~~~~~~~~~~~~~~~~~~
+-sed 's/\.[a-zA-Z]*$/\.dep/' \
++sed 's/\.[a-zA-Z]*$/\.FreeFOAMdep/' \
+      files.$$ > tmpDependencyFiles
+ 
+ echo "DEPENDENCIES = " > tmpDependencyFiles2
+@@ -125,7 +125,7 @@ rm tmpDependencyFiles tmpDependencyFiles2
+ 
+ # make includeDeps
+ # ~~~~~~~~~~~~~~~~
+-sed -e 's/\.[a-zA-Z]*$/.dep/'   \
++sed -e 's/\.[a-zA-Z]*$/.FreeFOAMdep/'   \
+     -e 's/^/include /'          \
+     files.$$ > includeDeps
+ 
+-- 
+1.7.4.1
+""")
+wmakePatch.seek(0)
+
+s = True
+try:
+   try:
+      repo.git.am(istream=wmakePatch)
+   except git.GitCommandError as e:
+      echo('Error: Failed to patch wmake:\n%s'%str(e), file=sys.stderr)
+      s = False
+      raise
+   wmakePatch.close()
+
+   try:
+      os.chdir(WM_PROJECT_DIR)
+      subprocess.check_call('./Allwmake')
+   except subprocess.CalledProcessError as e:
+      echo('Error: Running Allwmake failed with status %d:\n%s'%
+            (e.returncode, str(e)), file=sys.stderr)
+      s = False
+      raise
+finally:
+   try:
+      orig_branch.checkout()
+      repo.delete_head(tmp_branch, force=True)
+   except Exception as e:
+      echo('Error: Failed restoring branch %s and deleting %s:\n%s'%
+            (orig_branch.name, tmp_branch.name, str(e)), file=sys.stderr)
+      s = False
+
+if not s:
+   sys.exit(1)
+
+# post-process
+for parent, dirs, files in os.walk(WM_PROJECT_DIR):
+   if re.search(r'FreeFOAMDPDep(SYSTEMOPENMPI)?$', parent):
+      srcdir = op.dirname(op.dirname(parent))
+      for f in filter(lambda f: op.splitext(f)[1]=='.d', files):
+         f = op.join(parent, f)
+         lines = []
+         # sanitize strings
+         for l in open(f, 'rt'):
+            lines += l.strip().replace(' \\', '').split()
+         # remove first entry
+         del lines[0]
+         # resolve lnInclude entries, remove blacklisted files and strip prefix
+         length = len(lines)
+         for i, l in enumerate(reversed(lines)):
+            i = length-i-1
+            # if not absolute, make it so
+            if not op.isabs(l):
+               l = op.normpath(op.join(srcdir, l))
+            if l.find('lnInclude/') > -1:
+               # resolve
+               if op.exists(l) and op.islink(l):
+                  ll = os.readlink(l)
+                  if not op.isabs(ll):
+                     ll = op.normpath(op.join(op.dirname(l), ll))
+                  l = ll
+               else:
+                  echo('WARNING: "%s" does not exist or is not a symlink'%l,
+                        file=sys.stderr)
+            # remove blacklisted files
+            deleted=False
+            for p in blacklistPatterns:
+               if p.search(l) is not None:
+                  del lines[i]
+                  deleted=True
+                  break
+            if deleted:
+               continue
+            # strip WM_PROJECT_DIR
+            if l.startswith(WM_PROJECT_DIR):
+               l = op.relpath(l, WM_PROJECT_DIR)
+            # write back
+            lines[i] = l
+         # remove duplicates and sort
+         lines = sorted(set(lines))
+         open(op.splitext(f)[0]+'.ofd', 'wt').write(('\n'.join(lines))+'\n')
+
+# ------------------------- vim: set sw=3 sts=3 et: --------------- end-of-file

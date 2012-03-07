@@ -1,0 +1,48 @@
+= @FOAM_UPPER_EXE_PREFIX@SOLVERSWEEPS(1) =
+:mansource: @PROJECT_NAME@
+:manversion: @FOAM_VERSION_FULL@
+:manmanual: @PROJECT_NAME@ Manual
+
+NAME
+----
+@FOAM_EXE_PREFIX@solverSweeps - Extract solver statistics from a log file
+
+SYNOPSIS
+--------
+*@LOWER_PROJECT_NAME@ solverSweeps*
+
+DESCRIPTION
+-----------
+This utility script extracts solver statistics from a log file and prints them
+to the screen. The extracted quantities are:
+- execution time of the first iteration
+- overall execution time
+- the number of iterations
+- the first iteration number
+- the last iteration number
+- the number of solver sweeps for the velocity and pressure fields
+
+The program reads the name of the log file from standard input and writes the
+results to the standard output.
+
+
+SEE ALSO
+--------
+An overview of @PROJECT_NAME@ is given in linkff:@LOWER_PROJECT_NAME@[1].
+
+AUTHOR
+------
+OpenCFD Ltd.
+
+FREEFOAM
+--------
+Part of the linkff:@LOWER_PROJECT_NAME@[1] suite.
+
+COPYRIGHT
+---------
+* Copyright (C) 1991-2010 OpenCFD Ltd.
+* Copyright (C) 2008-2012 Michael Wild.
+
+/////////////////////////////////////////////////////////
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+/////////////////////////////////////////////////////////

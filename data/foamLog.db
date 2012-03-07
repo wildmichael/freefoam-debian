@@ -1,0 +1,43 @@
+#------------------------------------------------------------------------------
+# Query database for Foam Log extraction.
+# Each line stands for one query:
+#
+#    name '/' line selector '/' column selector
+#
+# e.g.
+#    kMin/bounding k,/min:
+#
+# The extraction will select a line using 'bounding k,' and in the line
+# takes the word following 'min:' as the value.
+#
+# A special entry is the 'Separator' entry which delimits one iteration
+# from the other.
+#
+#------------------------------------------------------------------------------
+
+#- String to recognize new iteration by (usually same as 'Time')
+^\s*(?P<Separator>\b)Time\s*=
+
+#- Time value:
+^s\*Time\s*=\s*(?P<Time>\S+)
+
+#- Continuity errors:
+^\s*time step continuity errors : sum local = (?P<contLocal>\S+), global = (?P<contGlobal>\S+), cumulative = (?P<contCumulative>\s+)
+
+#- Special for combustion code:
+min\(bprog\)\s*=\s*(?P<minBprog>\S+)
+
+#- Execution time:
+^\s*ExecutionTime\s*=\s*(?P<executionTime>\S+)
+
+#- Courant no:
+^\s*Courant Number mean:\s*(?P<CourantMean>\S+)\s+max:\s*(?P<CourantMax>\S+)
+
+#- K bounding
+^\s*bounding k, min:\s*(?P<kMin>\S+)\s+max:\s*(?P<kMax>\S+)\s*average:\s*(?P<kAvg>\S+)
+
+#- epsilon bounding
+^\s*bounding epsilon, min:\s*(?P<kMin>\S+)\s+max:\s*(?P<kMax>\S+)\s*average:\s*(?P<kAvg>\S+)
+
+#- alpha bounding
+Min\(alpha1?\)\s*=\s*(?P<alphaMin>\S+)\s+Max\(alpha1?\)\s*=\s*(?P<alphaMax>\S+)

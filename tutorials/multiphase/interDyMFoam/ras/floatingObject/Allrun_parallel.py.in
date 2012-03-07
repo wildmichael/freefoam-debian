@@ -1,0 +1,74 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class interDyMRASFloatingObjectRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self,
+            'interDyM_ras_floatingObject')
+      self.add_app_step('blockMesh')
+      for i in [1,2]:
+         cellSet = str(i)
+         self.add_step('copyCellSetDict.'+cellSet,
+               self._CopyCellSetDict(cellSet))
+         self.add_app_step('cellSet.'+cellSet, app='cellSet')
+      self.add_app_step('subsetMesh',
+            args='-overwrite c0 -patch floatingObject'.split())
+      self.add_step('prepare', self._prepare)
+      self.add_app_step('decomposePar')
+      self.add_app_step('setFields', parallel=True)
+      self.add_app_step('interDyM', parallel=True)
+      self.add_app_step('reconstructPar')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, '0'))
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, 'system', 'cellSetDict'))
+
+   def _prepare(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Copying 0.org to 0\n')
+         # always copy from self.case_dir, never self.test_dir
+         FreeFOAM.util.copytree(
+               os.path.join(self.case_dir, '0.org'),
+               os.path.join(case_dir, '0'))
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+   class _CopyCellSetDict:
+      def __init__(self, cellSet):
+         self._set = str(cellSet)
+
+      def __call__(self, case_dir, stamp_file, test_mode):
+         try:
+            stamp_file.write(
+               'Copying system/cellSetDict.%s to system/cellSetDict\n'%
+               self._set)
+            cellSetDict = os.path.join(case_dir, 'system', 'cellSetDict')
+            FreeFOAM.util.copytree(cellSetDict+'.'+self._set, cellSetDict)
+            stamp_file.write('REPORT: SUCCESS\n')
+            return True
+         except Exception:
+            e = sys.exc_info()[1]
+            stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+            return False
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(interDyMRASFloatingObjectRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

@@ -1,0 +1,26 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+
+class fireSmallPoolFire3DRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'fire_les_smallPoolFire3D')
+      self.add_app_step('blockMesh')
+      self.add_app_step('setSet',
+            args=('-batch', os.path.join(self.case_dir, 'makeFaceSet.setSet')))
+      self.add_app_step('createPatch', args='-overwrite')
+      self.add_app_step('decomposePar', args='-force')
+      self.add_app_step('fire', parallel=True)
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(fireSmallPoolFire3DRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

@@ -1,0 +1,748 @@
+{project} Installation Instructions for Version {fullver}
+=========================================================
+Michael Wild <themiwi@users.sourceforge.net>
+:Author Initials: MW
+v{fullver}, {localdate}
+{homepage}
+
+:apidoc: {homepage}/doc/v{fullver}/API
+:asciidoc: http://www.methods.co.nz/asciidoc[Asciidoc]
+:bash: http://www.gnu.org/software/bash/[BASH]
+:cd-adapco: http://www.cd-adapco.com[CD-adapco]
+:dblatex: http://dblatex.sourceforge.net[dblatex]
+:debian: http://debian.org[Debian]
+:dvipng: http://sourceforge.net/projects/dvipng[dvipng]
+:emacs: http://www.gnu.org/software/emacs[Emacs]
+:fop: http://xmlgraphics.apache.org/fop[Apache FOP]
+:latex: http://www.latex-project.org[LaTeX]
+:libccmio: http://freefoam.sf.net/nonfree/libccmio-2.6.1.tar.gz
+:linuxcommand: http://linuxcommand.org
+:mathjax: http://www.mathjax.org[MathJax]
+:metis: http://freefoam.sf.net/nonfree/metis-5.0.1.tar.gz
+:mgridgen: http://freefoam.sf.net/nonfree/ParMGridGen-1.0.tar.gz
+:parmetis: http://freefoam.sf.net/nonfree/ParMetis-3.1.tar.gz
+:scotch: http://master.dl.sourceforge.net/project/freefoam/ThirdParty/scotch/scotch_5.1.7.dfsg.orig.tar.gz
+:tarball: http://master.dl.sourceforge.net/sourceforge/freefoam/freefoam-{fullver}.tar.bz2
+:zlib: http://master.dl.sourceforge.net/project/freefoam/ThirdParty/zlib/zlib-1.2.5.tar.gz
+:zsh: http://www.zsh.org/[ZSH]
+
+Obtaining the Prerequisites
+---------------------------
+Some of the libraries {project} requires (or optionally can use) are often not
+readily available as an installable package and are quite tricky to install
+manually. {project} can automatically download and build these libraries for
+you, refer to below instructions. However, if you are behind a firewall or
+CMake is unable to download a source package, you can do so manually and place
+the files in the 'ThirdParty' directory in the {project} source tree. When you
+run CMake, it will detect the presence of the files and not try to download
+them.
+
+You can obtain the source packages from the following URLs:
+
+'zlib'::
+  {zlib}
+'METIS'::
+  {metis}
+'ParMetis'::
+  {parmetis}
+'scotch'::
+  {scotch}
+'MGRIDGEN'::
+  {mgridgen}
+'libccmio'::
+  {libccmio}
+
+[[installation]]
+Building {project}
+------------------
+- Install the prerequisites documented in the link:README.html[README] file. If
+  your distribution does not have 'zlib', 'METIS', 'ParMetis', 'MGRIDGEN' or
+  'libccmio' be not worried, {project} can handle those for you.
+- Download the {project} source and unpack it somewhere convenient. For the
+  further instructions we will use +$HOME/Source/+.
++
+---------------------------------------------------------------------------
+$ mkdir -p $HOME/Source
+$ cd $HOME/Source
+$ wget {tarball}
+$ tar xjf freefoam-{fullver}.tar.bz2
+---------------------------------------------------------------------------
+- Create a build tree and _cd_ into it:
++
+---------------
+$ mkdir $HOME/Source/freefoam-{fullver}-build
+$ cd $HOME/Source/freefoam-{fullver}-build
+---------------
+- Start the CMake-configuration:
++
+---------------
+$ ccmake $HOME/Source/freefoam-{fullver}
+---------------
+- Press the +c+ key. Use the arrow keys to navigate up and down and press
+  +enter+ to edit a field. To commit the change, press +enter+ again, or +ESC+
+  to abandon the change. ON/OFF fields are toggled by pressing +enter+.
+  Advanced options can be displayed by hitting the +t+ key.
+  * Set +CMAKE_BUILD_TYPE+ to 'Release' for an optimized build.
+  * If CMake complains that it can't find MPI, and you don't want to install
+    it, disable +FOAM_USE_MPI+.
+  * Select the default Pstream implementation by setting +FOAM_DEFAULT_PSTREAM+
+    to one of 'dummy' or 'mpi'. This setting will only influence the contents
+    of the <<globalconfig,global 'controlDict' file>>.
+  * If you want to use the 'metis' and 'parmetis' decomposition methods, make
+    sure that +FOAM_ENABLE_METIS+ and +FOAM_ENABLE_PARMETIS+ are enabled,
+    respectively. If you do not have 'METIS' or 'ParMetis' installed, enable
+    +FOAM_BUILD_PRIVATE_METIS+ or +FOAM_BUILD_PRIVATE_PARMETIS+, respectively.
+    CMake will then try to download and build the selected libraries for you.
+    Conversely, if one of the libraries is provided by your system, you can
+    turn the respective setting to 'OFF'. Please note that if your system
+    provides only 'ParMetis', you do not have to install 'METIS', as the former
+    also contains 'METIS' in an older version.
+  * If you want to use the 'MGridGen' agglomeration method for the GAMG solver,
+    you need to enable +FOAM_ENABLE_MGRIDGEN+ and if the library is not
+    installed on your system ensure that +FOAM_BUILD_PRIVATE_MGRIDGEN+ is
+    enabled. See <<enable-mgridgen,above>> regarding the unknown license status
+    of this package.
+  * In order to build 'ccm26ToFoam', a conversion utility for grids generated
+    with 'ProStar/ccm' (C) version 2.6, enable the setting
+    +FOAM_ENABLE_CCMIO+ and if 'libccmio' is not installed on your system,
+    also +FOAM_BUILD_PRIVATE_CCMIO+. Refer to the <<enable-ccmio,above>>
+    description of the 'libccmio' package for the license restrictions which
+    apply to this package. If you decide to build a private version, please
+    read the description of <<private-ccmio,+FOAM_BUILD_PRIVATE_CCMIO>>
+    carefully.
+  * If you plan on installing {project}, set +CMAKE_INSTALL_PREFIX+ to the base
+    directory under which {project} should reside.
+  * For more fine-grained control over what gets installed where, adjust
+    +FOAM_INSTALL_<XXX>_PATH+, where +<XXX>+ is one of +BIN+, +CMAKE+,
+    +CONFIG+, +DATA+, +DOC+, +FRAMEWORK+, +HEADER+, +LIBEXEC+, +LIBRARY+,
+    +MAN+, +PLUGIN+, +PYTHON+, +TUTORIALS+ and +USERDFOAM+. Refer to the
+    glossary for the detailed meaning of each of these variables. Paths
+    not starting with a slash ('/') will be relative to +CMAKE_INSTALL_PREFIX+.
+    If you include a leading slash, the paths are absolute.
+  * If you want {project} to use 'float' as the floating point type instead of
+    'double', change +FOAM_DOUBLE_PRECISION+ to 'OFF'.
+- Hit +c+ again. You shouldn't get any errors anymore now. Keep pressing +c+
+  until ccmake displays "++Press [g] to generate and exit++" in the legend at
+  the bottom of the interface.
+- Press +g+ to generate the Makefiles and exit the ccmake interface.
+- Start the native build tool. If you used the 'Makefile' generator
+  (which is the default for Unix-platforms), type
++
+----------------
+$ make
+----------------
+- If you have a multi-core/processor machine, you can speed things up
+  significantly by telling Make to run independent jobs in parallel.
+  A good choice for the number of parallel jobs to run is the
+  number of CPU's/cores you have in your machine plus 1 (to compensate
+  for disk-latency). For a typical dual-core machine, run
++
+----------------
+$ make -j3
+----------------
+
+Installing {project}
+--------------------
+If you want to, you can now install {project}. Depending on the
++CMAKE_INSTALL_PREFIX+ and the individual +FOAM_INSTALL_<XXX>_PATH+ it is
+possible that you have to do this as root, i.e. use +su -c+ or +sudo+.
+---------------
+$ make install
+---------------
+
+Using {project}
+---------------
+If you didn't change +CMAKE_INSTALL_PREFIX+ and +FOAM_INSTALL_BIN_PATH+ chances
+are that you can start using {project} right after you installed it without any
+further steps being necessary.
+
+[[globalconfig]]
+Global Configuration Files
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Unfortunately the OpenFOAM library (on which {project} builds) and some
+applications require some files to be present for start-up. It finds those
+in the following places (in the specified order, picking the first hit):
+
+1. Under the directory specified in the +$FREEFOAM_CONFIG_DIR+ environment
+   variable
+2. In '$HOME/.{project}/{shortver}'
+3. In '$HOME/.{project}'
+4. In the installation directory of the configuration files. There are
+   two possible places for this:
++
+   '<CMAKE_INSTALL_PREFIX>/<FOAM_INSTALL_CONFIG_PATH>':: if you specified
+     +<FOAM_INSTALL_CONFIG_PATH>+ as a relative path.
+   '<FOAM_INSTALL_CONFIG_PATH>':: if you specified +<FOAM_INSTALL_CONFIG_PATH>+
+     as an absolute path.
++
+The default location is '/usr/local/etc/{project}-{ver}'.
+
+Selecting the Parallel Communications Library
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Both, {project} and OpenFOAM abstract the parallel operations into the
+'Pstream' library, making it rather simple to firstly switch between parallel
+implementations and secondly port the software to a new communications library.
+However, {project} uses a much more flexible mechanism of determining which
+'Pstream' implementation library to use than OpenFOAM. The latter does this by
+adjusting the +LD_LIBRARY_PATH+ environment variable. As {project} wants to be
+a well behaved Linux citizen, this is not an option. Instead, {project}
+dynamically loads the desired 'Pstream' library at startup (i.e. as a plug-in).
+The following list details how {project} determines what library to load (if at
+all):
+
+1. If the environment variable +FREEFOAM_PSTREAM_LIBRARY+ is set,
+   {project} will try to load the library specified by it.
+2. If the sub-dictionary +PstreamImplementation+ exists in the global
+   'controlDict' file (see <<globalconfig,'Global Configuration Files'>>), it
+   reads the value of the entry +configName+ therein. It then expects that a
+   sub-dictionary of +PstreamImplementation+ with the name specified in
+   +configName+ exists. If that sub-dictionary contains the entry +library+, it
+   will try to load a library specified by the value of that entry.
+
+After {project} (possibly) loaded the library, it will try to instantiate
+concrete implementations of the abstract base classes +PstreamImpl+,
++IPstreamImpl+ and +OPstreamImpl+. Which classes are to be instantiated
+is determined as follows:
+
+1. {project} queries the environment variables +FREEFOAM_PSTREAM_CLASS+,
+   +FREEFOAM_IPSTREAM_CLASS+ and +FREEFOAM_OPSTREAM_CLASS+ for the class
+   names to be instantiated.
+2. For any of the variables not set, it requires the sub-dictionary
+   +PstreamImplementation+ to be present in the global 'controlDict', reads the
+   value of +configName+ and similarly to the library loading, loads the
+   sub-dictionary specified by that value. It then expects to find the entries
+   +Pstream+, +IPstream+ and +OPstream+ which specify the names of the classes
+   to load.
+
+This means that one can create a global 'controlDict' file containing
+(among other things) something like the following:
+=========
+---------
+PstreamImplementation
+{
+    //configName dummy;
+    configName mpi;
+
+    dummy
+    {
+        library libdummyPstream.so;
+        Pstream dummyPstreamImpl;
+        OPstream dummyOPstreamImpl;
+        IPstream dummyIPstreamImpl;
+    }
+
+    mpi
+    {
+        library libmpiPstream.so;
+        Pstream mpiPstreamImpl;
+        OPstream mpiOPstreamImpl;
+        IPstream mpiIPstreamImpl;
+    }
+}
+---------
+=========
+
+This way the administrator can provide a global 'controlDict' in the {project}
+installation. Every user can then override that 'controlDict' by supplying her
+own file in her home directory as detailed in <<globalconfig,'Global
+Configuration Files'>>. In order to select a particular 'Pstream'
+implementation for a specific communications library, the user can then either
+adjust the +PstreamImplementation::configName+ entry in the global
+'controlDict' file, set the +FREEFOAM_PSTREAM_CONFIG+ variable or for full
+control, set the variables +FREEFOAM_PSTREAM_LIBRARY+,
++FREEFOAM_PSTREAM_CLASS+, +FREEFOAM_IPSTREAM_CLASS+ and
++FREEFOAM_OPSTREAM_CLASS+.
+
+Running {project} From the Build Tree
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can use {project} without installing it first, directly from the build
+tree. However, this might take a little bit more effort to set up because most
+likely you will have to adjust the following environment variables:
+
+`PATH`::
+  Must contain '$HOME/Source/freefoam-{fullver}-build/bin'
+`LD_LIBRARY_PATH`::
+  Must contain '$HOME/Source/freefoam-{fullver}-build/lib/{project}-{ver}'
+`FREEFOAM_CONFIG_DIR`::
+ Should point to '$HOME/Source/freefoam-{fullver}-build/etc'
+
+Where it is assumed that you followed the <<installation,installation
+instructions>>. If you used different paths for downloading and compiling
+{project}, you will have to adjust these names. Refer to
+<<environment,'Extending Search Paths And Setting Environment Variables
+Permanently'>> if you need help setting these variables.
+
+Running the tutorials
+---------------------
+Now you should be able to run the tutorial cases. For this copy the +tutorials+
+directory to some convenient place:
+---------------
+$ mkdir -p $HOME/{project}/$LOGNAME-{shortver}/run
+$ cp -r $HOME/Source/freefoam-{fullver}-build/tutorials \
+  $HOME/{project}/$LOGNAME-{shortver}/run/
+$ cd $HOME/{project}/$LOGNAME-{shortver}/run/tutorials
+---------------
+And try to run e.g. the 'cavity' tutorial case:
+---------------
+$ cd incompressible/icoFoam
+$ freefoam blockMesh -case cavity
+$ freefoam checkMesh -case cavity
+$ freefoam ico -case cavity
+---------------
+Things should run smoothly and finish without an error.
+
+All the tutorials contain a script for automatic execution since some of the
+cases are quite intricate and it is not obvious how to run them. Also, these
+scripts are used for automated testing. The scripts are called 'Allrun', where
+the one located in the 'tutorials' directory is a driver script to run all the
+other tutorials.
+
+Obtaining the Source Code from the GIT repository
+-------------------------------------------------
+- Clone the {project} repository (here the clone is placed in
+  +$HOME/Source/{project}+):
++
+---------------------------------------------------------------------------
+$ mkdir -p $HOME/Source
+$ git clone git://repo.or.cz/freefoam.git $HOME/Source/{project}
+---------------------------------------------------------------------------
+- Proceed in the same way (replacing the path names appropriately) as in the
+  above build instructions.
+
+Shell completion scripts
+------------------------
+{project} comes with completions scripts for the {bash} and {zsh} shells. The
+former is quite simplistic and only offers very basic completion of the
+available application names. The ZSH completion, however, is quite complete and
+also completes options and arguments for all applications. These completion
+functions are not installed by +make install+, because no two systems have the
+same locations for these kinds of scripts. You find them for manual
+installation in the {project} sources in the directory
+'data/shellFunctions/bashCompletion' and 'data/shellFunctions/zshCompletion'
+respectively. Please refer to the documentation of your system/shell on where
+to place them.
+
+Emacs mode
+----------
+{project} includes a rudimentary major mode for the {emacs} programming editor.
+If you want to use this mode, place the file
+'data/editor-modes/foamdict-mode.el' in a directory where your Emacs
+installation finds it. Please refer to the Emacs documentation for further
+instructions.
+
+Build Configuration Reference
+-----------------------------
+All installation paths below, if not absolute, are relative to
+'CMAKE_INSTALL_PREFIX'.
+
+///////////////////////////
+KEEP ALPHABETICALLY SORTED!
+///////////////////////////
+
+[glossary]
++CMAKE_BUILD_TYPE+::
+  One of '<empty>', 'Debug', 'Release', 'RelWithDebInfo' and 'MinSizeRel'.
+  Refer to the CMake documentation for more detail.
++CMAKE_INSTALL_PREFIX+::
+  Installation prefix under which to install {project}.
++FOAM_DOUBLE_PRECISION+::
+  If set to 'ON' {project} will be compiled using 'double' as the
+  floating point type. If set to 'OFF' it will use 'float'.
++FOAM_BUILD_FRAMEWORKS+::
+  If this is enabled, the libraries are built as frameworks. Only available on
+  Mac OS X.
++FOAM_BUILD_PRIVATE_CCMIO+::
+  [[private-ccmio]]
+  Automatically download and build libccmio. Unfortunately this process may
+  fail in the download step if CMake cannot find either 'wget' or 'curl' on
+  your system, since CMake itself currently does not support 'https' URLs. If
+  this happens, the build process will abort. To fix the issue, Download the
+  file {libccmio} manually and place it in +ThirdParty/ccmio/src+ (relative to
+  the build directory). It is important that you re-run CMake *before*
+  restarting the build in order to notify the build system that the file is now
+  there.
++FOAM_BUILD_PRIVATE_METIS+::
+  Automatically download and build 'METIS'.
++FOAM_BUILD_PRIVATE_MGRIDGEN+::
+  Automatically download and build 'MGRIDGEN'.
++FOAM_BUILD_PRIVATE_PARMETIS+::
+  Automatically download and build 'ParMetis'.
++FOAM_BUILD_PRIVATE_ZLIB+::
+  Automatically download and build the 'ZLIB' compression library.
++FOAM_DEFAULT_PSTREAM+::
+  The default Pstream selection in the global 'controlDict' file.
++FOAM_DOXYDOCS_FOR_SF+::
+  This setting is for the maintainers of the {project} and indicates whether
+  the Doxygen documentation should be built for deployment on {homepage}
+[[enable-ccmio]]
++FOAM_ENABLE_CCMIO+::
+  Enable the use of 'libccmio'. This is required to build the grid conversion
+  utility 'ccm26ToFoam'.
++
+[WARNING]
+The license of 'libccmio' (C) is proprietary and requires the consent of the
+copyright holders ({cd-adapco}) to download and use the
+library. Further it is not allowed to redistribute it in any form. The request
+for permission of inclusion with {debian} was answered as
+follows by mailto:geoffrey.prewett@us.cd-adapco.com[Geoffrey Prewett]:
++
+-------------------------------------------------------------------------------
+Gerber,
+
+Sorry for the delay in response.  I checked back with our development director,
+and he felt that it would be best to not include libccmio with Debian.
+Instead, we would prefer to continue our current policy and keep it on our
+web/FTP and have people ask for it.  There are three reasons for this:
+
+1) We don't support STAR on Debian, and don't want to give the impression that
+   we do.
+2) We would like to keep a list of people that we give the library to.
+3) This is not a general purpose library;  its sole purpose is to communicate
+between our products.  Accepting outside changes risks committing a change that
+would break our own software in possibly subtle ways.
+
+So I regret to tell you that my company has declined to permit libccmio to be
+distributed as part of Debian.
+
+Regards,
+Geoff Prewett
+-------------------------------------------------------------------------------
++
++FOAM_ENABLE_DOXYGEN_DOCS+::
+  Enable building of the 'Doxygen API documentation'. The documentation will
+  only be built once and is not updated automatically. This is because it
+  depends on a huge number of files and would make dependency tracking very
+  slow and difficult to maintain. To force the re-generation of the API
+  documentation execute +make apidoc+.
++FOAM_ENABLE_METIS+::
+  Enable the use of the 'METIS' graph partitioning library which is required to
+  implement the 'metis' decomposition method.
+[[enable-mgridgen]]
++FOAM_ENABLE_MGRIDGEN+::
+  Enable the use of 'MGRIDGEN' which is required to build
+  'MGridGenGamgAgglomeration' providing the 'MGridGen' agglomeration method for
+  the GAMG solver.
++
+[WARNING]
+The license of 'MGRIDGEN' is unknown and the upstream authors so far have not
+answered any inquiries to resolve the issue. If you enable the use of
+'MGRIDGEN' you alone are responsible for ensuring that you don't violate any
+license conditions applying to these libraries. The authors of {project} will
+and cannot take any responsibility for your actions.
++
++FOAM_ENABLE_MANPAGE_HELP+::
+  [[foam_enable_manpage_help]]
+  Build (and install) the help-pages in manpage format. This requires a
+  complete {asciidoc} toolchain to be present.
++FOAM_ENABLE_MATHJAX+::
+  When 'FOAM_ENABLE_XHTML_GUIDES' is enabled, use {mathjax} for the math
+  rendering.
++FOAM_ENABLE_PARMETIS+::
+  Enable the use of the 'ParMetis' graph partitioning library which is required
+  to implement the 'parMetis' decomposition method.
++FOAM_ENABLE_PDF_GUIDES+::
+  Build a PDF version of the user guide. In addition to a complete {asciidoc}
+  toolchain, this requires either {dblatex} (for better results) or {fop} to be
+  installed. If FOP is used, {latex} and {dvipng} are required.
++FOAM_ENABLE_XHTML_GUIDES+::
+  Build a XHTML version of the user guide. This requires a complete {asciidoc}
+  toolchain. If +FOAM_ENABLE_MATHJAX+ is disabled, this also requires {latex}
+  and {dvipng} to be available.
++FOAM_ENABLE_XHTML_HELP+::
+  Build (and install) the help-pages in XHTML format for the display in a web
+  browser. The requirements are the same as for
+  <<foam_enable_manpage_help,+FOAM_ENABLE_MANPAGE_HELP+>>.
++FOAM_EXE_PREFIX+::
+  Prefix used to mangle application names. Normally this shouldn't be changed.
++FOAM_ENABLE_FULL_TUTORIAL_TESTS+::
+  Run the full tutorials as tests, don't limit their run-time to a single time
+  step.
++FOAM_INSTALL_BIN_PATH+::
+  Installation path of the binaries.
++FOAM_INSTALL_CMAKE_PATH+::
+  Installation path of the CMake development files.
++FOAM_INSTALL_CONFIG_PATH+::
+  Installation path of the configuration files.
++FOAM_INSTALL_DATA_PATH+::
+  Installation path of the architecture-independent files.
++FOAM_INSTALL_DOC_PATH+::
+  Installation path of the documentation files.
++FOAM_INSTALL_FRAMEWORK_PATH+::
+  Installation path of the Mac OS X frameworks. This is only available and
+  takes effect if {project} is compiled on Mac OS X, and if
+  'FOAM_BUILD_FRAMEWORKS' is enabled.
++FOAM_INSTALL_HEADER_PATH+::
+  Installation path of the header files. On Mac OS X, and if
+  'FOAM_BUILD_FRAMEWORKS' is enabled, this setting is ignored.
++FOAM_INSTALL_LIBEXEC_PATH+::
+  Installation path of the binaries which should not be on the +PATH+.
++FOAM_INSTALL_LIBRARY_PATH+::
+  Installation path of the libraries.
++FOAM_INSTALL_MAN_PATH+::
+  Installation path of the manpage files.
++FOAM_INSTALL_PLUGIN_PATH+::
+  Installation base-path of plugins.
++FOAM_INSTALL_PYTHON_PATH+::
+  Installation path for Python modules.
++FOAM_INSTALL_USERDFOAM_PATH+::
+  Installation path of the Ensight plug-in.
++FOAM_INSTALL_TUTORIALS_PATH+::
+  Installation path of the tutorials.
++FOAM_USE_FOP+::
+  Use {fop} instead of {dblatex} when building the PDF of the user guide.
++FOAM_USE_MPI+::
+  If enabled, {project} will use the MPI parallel communications library.
+  This is required in order to build some of the libraries and utilities.
++FOAM_USE_LOCAL_DOXYGEN_DOCS+::
+  This setting influences the location in which the Doxygen source
+  code documentation is looked for if any of the {project} applications
+  is invoked with the '-doc' or '-srcDoc' options. If it is disabled,
+  the documentation will be loaded over the network from
+  {apidoc}. If you enable it, the
+  documentation will be loaded locally. This requires that you either
+  build and install the documentation by enabling +FOAM_ENABLE_DOXYGEN_DOCS+,
+  or provide the required HTML files otherwise.
++HTML_DOC_BROWSER+::
+  This is the program used to display the Doxygen source code documentation
+  if any of the {project} applications is invoked with the '-doc' or '-srcDoc'
+  options. The special value of 'ECHO' changes the behaviour to just write
+  the location of the HTML file to the output. This is a good setting if
+  you're system doesn't have any kind of HTML browser installed (such
+  as on a cluster).
++FOAM_HTML_DOC_BROWSER_COMMAND+::
+  This is the command with which to invoke the HTML browser. By default
+  it calls the program named in +HTML_DOC_BROWSER+ and passes it the
+  name/URL of the documentation file to be displayed. You shouldn't
+  have to change this unless your HTML browser requires some unusual
+  options or arguments.
+
+Troubleshooting
+---------------
+
+The {project} Executables Are Not Found By The Shell
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There are three possible reasons for this:
+
+1. Your shell (notably 'csh', 'tcsh' and 'zsh') requires you to refresh the
+   cache of available executables. You can do so by entering the command:
++
+--------------
+$ rehash
+--------------
++
+2. If 'rehashing' didn't solve the problem, the problem most likely is that you
+   installed {project} into a non-standard location by changing the
+   configuration variables +CMAKE_INSTALL_PREFIX+ or +FOAM_INSTALL_BIN_PATH+ in
+   which case the executables where installed into a directory not searched by
+   the shell. In this case you have to add the installation directory of the
+   executables to the +PATH+ variable. There are two possible locations:
++
+--
+'<CMAKE_INSTALL_PREFIX>/<FOAM_INSTALL_BIN_PATH>':: if you specified
+  +FOAM_INSTALL_BIN_PATH+ as a relative path
+'<FOAM_INSTALL_BIN_PATH>':: if you specified +FOAM_INSTALL_BIN_PATH+ as an
+  absolute path
+--
++
+After extending the +PATH+ variable with the installation directory of the
+executables, you should be able to run all {project} applications as any other
+binary available on the system. See <<environment,'Extending Search Paths And
+Setting Environment Variables Permanently'>> for
+instructions on how to extend the search path.
+
+3. This option is similar to the previous solution and applies if you want to
+   run {project} from the build tree (i.e. without running +make install+). In
+   this case you again have to make sure that your shell finds the executables
+   built by CMake by extending the +PATH+ variable. Further, you have to tell
+   {project} where to find the global configuration files (see
+   <<globalconfig,'Global Configuration Files'>>). Here, you have the option to
+   place the files under your home directory or set an environment variable.
+   The former can be achieved by:
++
+--------------
+$ mkdir -p $HOME/.{project}/{shortver}
+$ cp $HOME/Source/freefoam-{fullver}-build/etc/controlDict \
+    $HOME/.{project}/{shortver}
+$ cp $HOME/Source/freefoam-{fullver}-build/etc/cellModels \
+    $HOME/.{project}/{shortver}
+$ cp -r $HOME/Source/freefoam-{fullver}-build/etc/thermoData \
+    $HOME/.{project}/{shortver}
+--------------
++
+The latter (and recommended) method is to set the environment variable
++FREEFOAM_CONFIG_DIR+ to '$HOME/Source/freefoam-{fullver}-build/etc'. Adjust
+the paths to match the build tree to your actual setup.
+
+Starting Any {project} Application Fails Because Some Libraries Cannot Be Found
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Although CMake should have taken care of this by using +RPATH+ on Linux and
++install_name+ on Mac OS X, it might be necessary on some systems to adjust the
+library search paths:
+
++LD_LIBRARY_PATH+:: This variable is used by all Unix like systems (e.g. Linux,
+  Mac OS X, etc.)
++DYLD_LIBRARY_PATH+:: This variable is used by Mac OS X.
+
+If you installed {project}, there are (as with the executables), two possible
+installation directories:
+
+'<CMAKE_INSTALL_PREFIX>/<FOAM_INSTALL_LIBRARY_PATH>':: if you specified
+  +FOAM_INSTALL_LIBRARY_PATH+ as a relative path.
+'<FOAM_INSTALL_LIBRARY_PATH>':: if you specified +FOAM_INSTALL_LIBRARY_PATH+ as
+  an absolute path.
+
+If you are trying to run from the build tree, you have to include
+'$HOME/Source/freefoam-{fullver}-build/lib/{project}-{ver}' in the above
+mentioned search paths (where you have to adjust the location of the build tree
+to your actual setup).
+
+A Running {project} Application Aborts Because It Can't 'dlopen' A Library
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+{project} (and OpenFOAM) often dynamically load libraries at run-time (a.k.a
+plug-ins) to add features the user requested without requiring that the whole
+application be recompiled. This makes it very simple to add new boundary
+conditions, turbulence and combustion models etc. However, it also requires
+that {project} must be able to find these libraries at run-time. The operating
+system function which does the loading of the libraries ('dlopen') usually
+tries to find the library with the given name in several places; namely a
+default search path and a search path configured by one or multiple environment
+variables such as +LD_LIBRARY_PATH+ or +DYLD_LIBRARY_PATH+ (on Mac OS X). The
+details vary from platform to platform, so you best consult the documentation
+of 'dlopen' for the details.
+
+Additionally {project} allows you to configure a custom search path for
+plug-ins in the <<globalconfig,global 'controlDict'>> file by listing the
+directories to be searched in the list +LibrarySearchPaths+. By default
+{project} is configured to search for plug-ins in the location where CMake
+installed them.
+
+If you want to add your own plug-in libraries (e.g. you want to add your own
+boundary conditions class), you most probably will want to extend this search
+path.
+
+{project} Aborts When Trying To Instantiate a Plugin Class
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you get a warning message similar to the following
+
+ --> FOAM Warning :
+     From function dlLibraryTable::open(const dictionary& dict, const word& libsEntry, const TablePtr tablePtr)
+     in file XXX/src/OpenFOAM/db/dlLibraryTable/dlLibraryTableTemplates.C at line 68
+     library "libfieldFunctionObjects.so" did not introduce any new entries
+
+(where +XXX+ is the path to the {project} source code and the actual library
+name can be different), followed by a fatal error stating that {project} does
+not know a class or type, e.g.
+
+ --> FOAM FATAL ERROR:
+ Unknown function type fieldAverage
+
+ Table of functionObjects is empty
+
+
+     From function functionObject::New(const word& name, const Time&, const dictionary&)
+     in file XXX/src/OpenFOAM/db/functionObjects/functionObject/functionObject.C at line 74.
+
+ FOAM exiting
+
+and you are absolutely sure that the named type actually exists in the library
+mentioned in the preceding warning message, the issue is very likely that
+{project} is loading the plugin library from a different binary tree than the
+executable belongs to.
+
+[IMPORTANT]
+Always make sure that you never load plugins from different binary trees (where
+the build tree and the install tree count as such). If you want to run a binary
+from the build tree but already have a corresponding installation tree, use the
++FREEFOAM_CONFIG_DIR+ environment variable to point {project} to the directory
+'<path to build tree>/etc/' containing the global 'controlDict' file in the
+**build tree**. Otherwise the binaries are likely to be incompatible with each
+other.
+
+[[environment]]
+Extending Search Paths And Setting Environment Variables Permanently
+--------------------------------------------------------------------
+The way one sets environment variables and extends the executable and library
+search paths permanently strongly depends on the shell used. Usually one has to
+create or change an initialization file in the users home directory. In the
+following this will be discussed very briefly for the popular shells 'BASH' and
+'tcsh'. However, if you need more help or want information on using the shell,
+there is an excellent tutorial available at {linuxcommand}.
+
+BASH
+~~~~
+The BASH shell is the default shell for most Linux/Unix distributions. Most
+systems configure the BASH shell such that it reads the text file
+'$HOME/.bashrc' when starting up, so this is the place where one appends
+customizations of the environment variables. On some systems this file is not
+processed by default (notably Mac OS X). In this case you can use
+'$HOME/.bash_profile'.
+
+Referencing A Variable
+^^^^^^^^^^^^^^^^^^^^^^
+To retrieve the value stored in a shell variable or environment variable, one
+prefixes its name with the dollar (+$+) character.
+
+Setting A Variable
+^^^^^^^^^^^^^^^^^^
+The syntax for setting a variable and making it available to child-processes of
+the shell is the following:
+-------
+$ export variable_name=variable_value
+-------
+Note that no white-space characters are allowed surrounding the +=+ sign.
+
+Extending A Search Path
+^^^^^^^^^^^^^^^^^^^^^^^
+The shell and other Unix system facilities use environment variables to locate
+executables and dynamically linked libraries. These search paths consist of
+strings naming directories in which the executables and libraries should be
+searched for. The individual paths are separated by a colon (+:+) character. To
+add the e.g. the directory '$HOME/bin' to the search path for executables, one
+would do the following:
+-------
+$ export PATH=$PATH:$HOME/bin
+-------
+which appends '$HOME/bin' to the end of the +PATH+ variable.
+
+TCSH
+~~~~
+Some users and administrators prefer to use a 'C-Shell', such as the TCSH. Here
+you can use e.g. the file '$HOME/.tcshrc' to customize the environment.
+
+Referencing A Variable
+^^^^^^^^^^^^^^^^^^^^^^
+As with the BASH, one retrieves the value stored in a shell variable or
+environment variable by prefixing its name with the dollar (+$+) character.
+Sometimes it is also necessary to protect the variable name by surrounding it
+with curly braces (+{+ and +}+).
+
+Setting A Variable
+^^^^^^^^^^^^^^^^^^
+The syntax for setting a variable and making it available to child-processes of
+the shell is the following:
+-------
+$ setenv variable_name variable_value
+-------
+
+Extending A Search Path
+^^^^^^^^^^^^^^^^^^^^^^^
+The shell and other Unix system facilities use environment variables to locate
+executables and dynamically linked libraries. These search paths consist of
+strings naming directories in which the executables and libraries should be
+searched for. The individual paths are separated by a colon (+:+) character. To
+add the e.g. the directory '$HOME/bin' to the search path for executables, one
+would do the following:
+[subs="verbatim"]
+-------
+$ setenv PATH ${PATH}:${HOME}/bin
+-------
+which appends '$HOME/bin' to the end of the +PATH+ variable. Note that
+'C-shells' usually require the user to type 'rehash' after changing the +PATH+
+variable to update the cache of available programs.
+
+////////////////////////////////////////////////////////////////////
+Process with: asciidoc -a toc -f data/asciidoc/html.conf INSTALL
+
+Vim users, this is for you:
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+////////////////////////////////////////////////////////////////////

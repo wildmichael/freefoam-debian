@@ -1,0 +1,43 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       polyBoundaryMesh;
+    location    "constant/polyMesh";
+    object      boundary;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+3
+(
+    xPeriodic
+    {
+        type            cyclic;
+        nFaces          512;
+        startFace       14464;
+        featureCos      0.9;
+    }
+    yPeriodic
+    {
+        type            cyclic;
+        nFaces          640;
+        startFace       14976;
+        featureCos      0.9;
+    }
+    zPeriodic
+    {
+        type            cyclic;
+        nFaces          640;
+        startFace       15616;
+        featureCos      0.9;
+    }
+)
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

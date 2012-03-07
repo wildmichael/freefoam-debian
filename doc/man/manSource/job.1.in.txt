@@ -1,0 +1,67 @@
+= @FOAM_UPPER_EXE_PREFIX@JOB(1) =
+:mansource: @PROJECT_NAME@
+:manversion: @FOAM_VERSION_FULL@
+:manmanual: @PROJECT_NAME@ Manual
+
+NAME
+----
+@FOAM_EXE_PREFIX@job - Runs a @PROJECT_NAME@ job in the background
+
+SYNOPSIS
+--------
+*@LOWER_PROJECT_NAME@ job* [-case '<caseDir>'] [-s] [-p] [-hosts '<hostFile>']
+               [-log '<logFile>'] [-fg] [-help] '<application>' ['<options>']
+
+DESCRIPTION
+-----------
+Runs the @PROJECT_NAME@ application '<application>'. Unless the *-fg* option is
+specified, the job is run in the background (this options is ignored if *-s* is
+specified). The output is written to the file 'log', which can be overridden
+using the *-log* option. If *-s* is specified, the output will also be sent to
+the screen. The *-p* option will start the application in parallel using the
+setting of 'parRunTemplate' in the global 'controlDict' (see
+linkff:@LOWER_PROJECT_NAME@[1]). The option *-hosts* can be used to provide a file
+containing a list of host names for the parallel run.
+
+OPTIONS
+-------
+*-case* '<caseDir>'::
+  Specify the case directory. Defaults to the current working directory.
+*-s*::
+  Also sends output to screen
+*-p*::
+  Run the job in parallel
+*-hosts* '<hostFile>'::
+  Specify file with host names
+*-log* '<logFile>'::
+  Specify logfile name for output, defaults to 'log'
+*-fg*::
+  Run the job in the foreground (i.e. don't background it).
+  This option is ignored if *-s* is specified.
+*-help*::
+  Display an option summary
+'<application>'::
+  The application to run
+'<options>'::
+  Options to be passed to '<application>'
+
+SEE ALSO
+--------
+An overview of @PROJECT_NAME@ is given in linkff:@LOWER_PROJECT_NAME@[1].
+
+AUTHOR
+------
+OpenCFD Ltd.
+
+FREEFOAM
+--------
+Part of the linkff:@LOWER_PROJECT_NAME@[1] suite.
+
+COPYRIGHT
+---------
+* Copyright (C) 1991-2010 OpenCFD Ltd.
+* Copyright (C) 2008-2012 Michael Wild.
+
+/////////////////////////////////////////////////////////
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+/////////////////////////////////////////////////////////

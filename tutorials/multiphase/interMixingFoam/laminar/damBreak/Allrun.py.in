@@ -1,0 +1,44 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class interMixingDamBreakRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'interMixing_damBreak')
+      self.add_app_step('blockMesh')
+      self.add_step('prepare', self._prepare)
+      self.add_app_step('setFields')
+      self.add_app_step('interMixing')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      for i in (1,2,3):
+         FreeFOAM.util.rmtree(
+               os.path.join(self.case_dir, '0', 'alpha%d.gz'%i))
+
+   def _prepare(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Copying 0/alpha*.org to 0/alpha*\n')
+         for i in (1,2,3):
+            alpha = os.path.join(case_dir, '0', 'alpha%d'%i)
+            FreeFOAM.util.copytree(alpha+'.org', alpha)
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         samp.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(interMixingDamBreakRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

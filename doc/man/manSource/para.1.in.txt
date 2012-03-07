@@ -1,0 +1,48 @@
+= @FOAM_UPPER_EXE_PREFIX@PARA(1) =
+:mansource: @PROJECT_NAME@
+:manversion: @FOAM_VERSION_FULL@
+:manmanual: @PROJECT_NAME@ Manual
+
+NAME
+----
+@FOAM_EXE_PREFIX@para - Start ParaView3 to visualize a case
+
+SYNOPSIS
+--------
+*@LOWER_PROJECT_NAME@ para* [-case '<caseDir>'] [-h | -help]
+
+DESCRIPTION
+-----------
+This utility script starts ParaView3 to visualize a simulation case. It sets up
+the environment such that ParaView3 can find the plugins required to read the
+file format.
+
+OPTIONS
+-------
+*-case* '<caseDir>'::
+  Visualize the case located in '<caseDir>'. This defaults to the current
+  working directory.
+
+*-h* | *-help*::
+  Display an option summary
+
+SEE ALSO
+--------
+An overview of @PROJECT_NAME@ is given in linkff:@LOWER_PROJECT_NAME@[1].
+
+AUTHOR
+------
+OpenCFD Ltd.
+
+FREEFOAM
+--------
+Part of the linkff:@LOWER_PROJECT_NAME@[1] suite.
+
+COPYRIGHT
+---------
+* Copyright (C) 1991-2010 OpenCFD Ltd.
+* Copyright (C) 2008-2012 Michael Wild.
+
+/////////////////////////////////////////////////////////
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+/////////////////////////////////////////////////////////

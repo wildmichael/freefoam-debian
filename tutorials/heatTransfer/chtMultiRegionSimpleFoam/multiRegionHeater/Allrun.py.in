@@ -1,0 +1,113 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+import glob
+
+class chtMultiRegionSimpleMultiRegionHeaterRunner(
+      FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self,
+            'chtMultiRegionSimple_multiRegionHeater')
+      self.add_step('prepareMesh.1', self._prepareMesh1)
+      self.add_app_step('blockMesh')
+      self.add_app_step('setSet', args=['-batch',
+         os.path.join(self.case_dir, 'makeCellSets.setSet')])
+      self.add_step('prepareMesh.2', self._prepareMesh2)
+      self.add_app_step('setsToZones', args=['-noFlipMap'])
+      self.add_app_step('splitMeshRegions', args=['-cellZones'])
+      self.add_step('prepareRegions', self._prepareRegions)
+      for i in 'bottomAir topAir heater leftSolid rightSolid'.split():
+         self.add_app_step('changeDictionary.'+i, app='changeDictionary',
+               args=['-region', i])
+      #-- Run on single processor
+      self.add_app_step('chtMultiRegionSimple')
+      #for i in 'bottomAir topAir heater leftSolid rightSolid'.split():
+      #   self.add_app_step('decomposePar.'+i, app='decomposePar',
+      #         args=['-region', i])
+      #self.add_app_step('chtMultiRegionSimple', parallel=True)
+      #for i in 'bottomAir topAir heater leftSolid rightSolid'.split():
+      #   self.add_app_step('reconstructPar.'+i, app='reconstructPar',
+      #         args=['-region', i])
+      self.add_step('preparePostProcessing', self._preparePostProcessing)
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, 'VTK'))
+      constant = os.path.join(self.case_dir, 'constant')
+      FreeFOAM.util.rmtree(os.path.join(constant, 'cellToRegion'))
+      FreeFOAM.util.rmtree(os.path.join(constant, 'polyMesh', 'sets'))
+      for i in 'bottomAir topAir heater leftSolid rightSolid'.split():
+         FreeFOAM.util.rmtree(os.path.join(self.case_dir, '0', i))
+         FreeFOAM.util.rmtree(os.path.join(constant, i, 'polyMesh'))
+
+   def _prepareMesh1(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Removing sets from mesh\n')
+         FreeFOAM.util.rmtree(
+               os.path.join(case_dir, 'constant', 'polyMesh', 'sets'))
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+   def _prepareMesh2(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Removing sets/*_old from mesh\n')
+         for i in glob.glob(
+            os.path.join(case_dir, 'constant', 'polyMesh', 'sets', '*_old')):
+            FreeFOAM.util.rmtree(i)
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+   def _prepareRegions(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Removing fluid fields from solid regions\n')
+         for i in 'heater leftSolid rightSolid'.split():
+            for d in glob.glob(os.path.join(case_dir, '0*')):
+               for f in 'mut alphat epsilon k p_rgh p U'.split():
+                  FreeFOAM.util.rmtree(os.path.join(d, i, f))
+         stamp_file.write('Removing solid fields from fluid regions\n')
+         for i in 'bottomAir topAir'.split():
+            for d in glob.glob(os.path.join(case_dir, '0*')):
+               for f in 'cp Kcond rho'.split():
+                  FreeFOAM.util.rmtree(os.path.join(d, i, f))
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+   def _preparePostProcessing(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Creating files for paraview post-processing\n')
+         for i in 'bottomAir topAir heater leftSolid rightSolid'.split():
+           foamfile = os.path.join(case_dir, 'multiRegionHeater{%s}.foam'%i)
+           open(foamfile, 'wt').write('\n')
+           stamp_file.write('Created %s\n'%foamfile)
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(chtMultiRegionSimpleMultiRegionHeaterRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

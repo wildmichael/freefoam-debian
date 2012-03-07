@@ -1,0 +1,78 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class simpleMotorBikeRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'simple_motorBike',
+            skip_test=True)
+      self.add_step('prepare.1', self._prepare1)
+      self.add_app_step('blockMesh')
+      self.add_app_step('snappyHexMesh', args=['-overwrite'])
+      self.add_step('prepare.2', self._prepare2)
+      self.add_app_step('potentialFoam', args=['-writep'])
+      self.add_step('prepare.3', self._prepare3)
+      self.add_app_step('simple')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, 'system', 'fvSolution'))
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, '0'))
+
+   def _prepare1(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Copying system/fvSolution.org to system/fvSolution\n')
+         fvSolution = os.path.join(case_dir, 'system', 'fvSolution')
+         FreeFOAM.copytree(fvSolution+'.org', fvSolution)
+         stamp_file.write('Copying 0.org to 0\n')
+         zero = os.path.join(case_dir, '0')
+         FreeFOAM.util.copytree(zero+'.org', zero)
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+   def _prepare2(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write(
+               'Setting nNonOrthogonalCorrectors to 10 in system/fvSolution\n')
+         fvSolution = os.path.join(case_dir, 'system', 'fvSolution')
+         FreeFOAM.tutorial.modify_file(fvSolution
+               ((r'(nNonOrthogonalCorrectors).*',r'\g<1> 10;')))
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+   def _prepare3(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write(
+               'Setting nNonOrthogonalCorrectors to 0 in system/fvSolution\n')
+         fvSolution = os.path.join(case_dir, 'system', 'fvSolution')
+         FreeFOAM.tutorial.modify_file(fvSolution
+               ((r'(nNonOrthogonalCorrectors).*',r'\g<1> 0;')))
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(simpleMotorBikeRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

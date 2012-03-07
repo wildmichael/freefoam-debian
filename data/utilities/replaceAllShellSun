@@ -1,0 +1,39 @@
+#!/usr/xpg4/bin/sh
+
+# Replace all shell script headers with 
+if [ $# -ne 1 -o ! -d "$1" ]; then
+    echo "Usage: `basename $0` <dir>"
+    echo ""
+    echo "Replaces all occurrences of #!/bin/sh with #!/usr/xpg4/bin/sh inside a directory tree."
+    exit 1
+fi
+
+inlineReplace() {
+  if [ $# -lt 3 ]; then
+    echo "Usage: inlineReplace <string1> <string2> <file1> .. <filen>"
+    echo ""
+    echo "Replaces all occurrences of string1 by string2 in files."
+    echo "(replacement of sed -i on those systems that don't support it)"
+    exit 1
+  fi
+  FROMSTRING=$1
+  shift
+  TOSTRING=$1
+  shift
+
+  for f in $*
+  do
+    if grep "$FROMSTRING" "$f" >/dev/null
+    then
+      cp "$f" "${f}_bak"
+      sed -e "s@$FROMSTRING@$TOSTRING@g" "${f}"_bak > "$f"
+      rm -f "${f}"_bak
+    fi
+  done
+}
+
+find $1 -type f -print | \
+while read f; do
+  inlineReplace '^#\!/bin/sh' '#\!/usr/xpg4/bin/sh' "$f"
+done
+

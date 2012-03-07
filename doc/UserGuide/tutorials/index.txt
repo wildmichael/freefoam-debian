@@ -1,0 +1,34 @@
+[[chap_tutorials]]
+== Tutorials
+
+In this chapter we shall describe in detail the process of setup, simulation
+and post-processing for some {project} test cases, with the principal aim of
+introducing a user to the basic procedures of running {project}. The
+dirname:tutorials[] directory in the {project} distribution contains many more
+cases that demonstrate the use of all the solvers and many utilities supplied
+with {project}. Before attempting to run the tutorials, the user must first
+make sure that they have installed {project} correctly.
+
+The tutorial cases describe the use of the `blockMesh` pre-processing tool,
+case setup and running {project} solvers and post-processing using `para`.
+Those users with access to third-party post-processing tools supported in
+{project} have an option: either they can follow the tutorials using `para`; or
+refer to the description of the use of the third-party product in
+<<chap_postProcessing>> when post-processing is required.
+
+Copies of all tutorials are available from the
+dirname:tutorials[](((dirname:tutorials[] directory)))
+(((directory,dirname:tutorials[]))) directory of the {project} installation.
+The tutorials are organised into a set of directories according to the type of
+flow and then subdirectories according to solver. For example, all the
+`ico` cases are stored within a subdirectory dirname:incompressible/icoFoam[],
+where 'incompressible' indicates the type of flow. If the user wishes to run a
+range of example cases, it is recommended that the user copy the
+dirname:tutorials[] directory into a local directory. We will refer to this
+directory as '<tutorials>' for the remainder of this guide.
+
+include::cavity.txt[]
+
+include::plateHole.txt[]
+
+include::damBreak.txt[]

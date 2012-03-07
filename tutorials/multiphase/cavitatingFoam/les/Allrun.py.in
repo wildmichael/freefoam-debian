@@ -1,0 +1,110 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class cavitatingLesThrottleRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'cavitating_les_throttle',
+            'throttle')
+      self.add_app_step('blockMesh')
+      for i in [1,2,3]:
+         add_refine_step(self, i)
+      self.add_app_step('cavitating')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, 'constant', 'polyMesh', 'sets'))
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, '0', 'polyMesh'))
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, 'system', 'cellSetDict'))
+
+class cavitatingLesThrottle3DRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self, throttle_runner):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'cavitating_les_throttle3D',
+            'throttle3D')
+      self._throttle_runner = throttle_runner
+      self.add_step('prepare', self._prepare)
+      self.add_app_step('blockMesh')
+      for i in [1,2,3]:
+         add_refine_step(self, i)
+      self.add_step('mapFields', self._mapFields)
+      self.add_app_step('decomposePar')
+      self.add_app_step('cavitating', parallel=True)
+      self.add_app_step('reconstructPar')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, 'constant', 'polyMesh', 'sets'))
+      zero = os.path.join(self.case_dir, '0')
+      FreeFOAM.util.copytree(zero+'.org', zero)
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, 'system', 'cellSetDict'))
+
+   def _prepare(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Copying 0.org to 0\n')
+         zero = os.path.join(case_dir, '0')
+         FreeFOAM.util.rmtree(zero)
+         # always copy from self.case_dir, never from self.test_dir
+         FreeFOAM.util.copytree(os.path.join(self.case_dir, '0.org'), zero)
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+   def _mapFields(self, case_dir, stamp_file, test_mode):
+      if test_mode:
+         src = self._throttle_runner.test_dir
+      else:
+         src = self._throttle_runner.case_dir
+      runner = FreeFOAM.tutorial.RunApp('mapFields', args=[src, '-sourceTime',
+         'latestTime'])
+      return runner(case_dir, stamp_file, test_mode)
+
+def add_refine_step(runner, cellSet):
+   cellSet = str(cellSet)
+   runner.add_step('copyCellSetDict.'+cellSet, CopyCellSetDict(cellSet))
+   runner.add_app_step('cellSet.'+cellSet, app='cellSet')
+   runner.add_app_step('refineMesh.'+cellSet, app='refineMesh',
+         args='-dict -overwrite'.split())
+
+class CopyCellSetDict:
+   def __init__(self, cellSet):
+      self._set = str(cellSet)
+
+   def __call__(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write(
+            'Copying system/cellSetDict.%s to system/cellSetDict\n'%self._set)
+         cellSetDict = os.path.join(case_dir, 'system', 'cellSetDict')
+         FreeFOAM.util.copytree(cellSetDict+'.'+self._set, cellSetDict)
+         stamp_file.write('REPORT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nREPORT: FAILURE\n')
+         return False
+
+def register_cases(manager):
+   throttle_runner = cavitatingLesThrottleRunner()
+   manager.add_case(throttle_runner)
+   manager.add_case(cavitatingLesThrottle3DRunner(throttle_runner))
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   register_cases(runner)
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

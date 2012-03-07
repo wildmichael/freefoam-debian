@@ -1,0 +1,38 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+import optparse
+import glob
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.util
+import FreeFOAM.run
+
+def main():
+   parser = optparse.OptionParser(usage='Usage: %prog [options]')
+   parser.add_option('-l', dest='latest', action='store_true', default=False,
+         help='Only sample te latest time')
+   (opts, args) = parser.parse_args()
+   args = []
+   if opts.latest:
+      args = ['-latestTime']
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+
+   if FreeFOAM.run.Runner().run('sample', args=args) != 0:
+      FreeFOAM.util.cerror('Failed to run the sample application.\n')
+      sys.exit(1)
+   fs = None
+   example_file = filter(os.path.isfile, glob.glob('sets/*/*')).next()
+   fs = os.path.basename(example_file).split('_', 1)[1]
+   for d in filter(os.path.isdir, glob.glob('sets/*')):
+      fid = open(os.path.join(d, 'biconic_'+fs), 'wt')
+      for f in 'cone25 cone55 base'.split():
+         fid.writelines(open(os.path.join(d, f+'_'+fs), 'rt').readlines())
+      fid.close()
+
+if __name__ == '__main__':
+   sys.exit(main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

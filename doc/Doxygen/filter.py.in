@@ -1,0 +1,25 @@
+#!@PYTHON_EXECUTABLE@
+import sys
+import re
+sys.path.insert(0, '@CMAKE_BINARY_DIR@/data/python')
+import FreeFOAM.doxyFilter
+from FreeFOAM.compat import *
+
+filter_table = {
+@doxyfilters@
+# catch-all for optional applications
+'@CMAKE_SOURCE_DIR@/applications/.*': None,
+}
+
+basedir = '@CMAKE_SOURCE_DIR@'
+incdir = '@CMAKE_BINARY_DIR@/include'
+
+fname = sys.argv[1]
+for p, name in filter_table.items():
+  if re.match(p, fname):
+    topOnly = name==None and fname[-2:]=='.C'
+    FreeFOAM.doxyFilter.filter(fname, libName=name, baseDir=basedir,
+                               topOnly=topOnly, incWrapperDir=incdir)
+    sys.exit(0)
+echo("ERROR: Failed to match source file", fname, file=sys.stderr)
+sys.exit(1)

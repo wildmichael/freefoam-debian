@@ -1,0 +1,1162 @@
+#compdef freefoam
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   'FreeFOAM: The Cross-Platform CFD Toolkit'
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Description
+#   ZSH completion script for FreeFOAM.
+#
+#------------------------------------------------------------------------------
+
+# TODO provide completers for field names, patch names, set names, time names etc.
+
+# TODO perhaps it would be better to auto-generate this from the header comments.
+# Or even better, extend the Foam::argList class with help strings and make it
+# create a real -help output and add a -completerList which produces output
+# that can easily be transformed into completer functions for various shells.
+# Otherwise, maintaining this file is a PITA.
+
+_freefoam() {
+
+local -a solvers utils
+# set solvers
+solvers=(                                                                  \
+   'boundary' 'bubble' 'buoyantBoussinesqPimple' 'buoyantBoussinesqSimple' \
+   'buoyantPimple' 'buoyantSimple' 'buoyantSimpleRadiation' 'cavitating'   \
+   'channel' 'chtMultiRegion' 'chtMultiRegionSimple' 'coalChemistry'       \
+   'coldEngine' 'compressibleInter' 'compressibleInterDyM' 'diesel'        \
+   'dieselEngine' 'dns' 'dsmc' 'electrostatic' 'engine' 'financial' 'fire' \
+   'ico' 'inter' 'interDyM' 'interMixing' 'interPhaseChange' 'laplacian'   \
+   'md' 'mdEquilibration' 'mhd' 'MRFInter' 'MRFMultiphaseInter'            \
+   'multiphaseInter' 'nonNewtonianIco' 'PDR' 'PDRAutoRefine' 'pimple'      \
+   'pimpleDyM' 'piso' 'porousExplicitSourceReactingParcel' 'porousInter'   \
+   'porousSimple' 'potential' 'reacting' 'reactingParcel' 'rhoCentral'     \
+   'rhoCentralDyM' 'rhoPimple' 'rhoPiso' 'rhoPorousMRFPimple'              \
+   'rhoPorousSimple' 'rhoReacting' 'rhoSimple' 'scalarTransport' 'settling'\
+   'shallowWater' 'simple' 'solidDisplacement'                             \
+   'solidEquilibriumDisplacement' 'sonic' 'sonicDyM' 'sonicLiquid'         \
+   'twoLiquidMixing' 'twoPhaseEuler' 'uncoupledKinematicParcel' 'Xi'       \
+)
+
+# set utilities
+utils=(                                                                    \
+   'adiabaticFlameT' 'ansysToFoam' 'applyBoundaryLayer'                    \
+   'applyWallFunctionBoundaryConditions' 'attachMesh' 'autoPatch'          \
+   'autoRefineMesh' 'blockMesh' 'boxTurb' 'calc' 'ccm26ToFoam' 'cellSet'   \
+   'cfx4ToFoam' 'changeDictionary' 'checkMesh' 'chemkinToFoam'             \
+   'clearPolyMesh' 'Co' 'collapseEdges' 'combinePatchFaces' 'copySettings' \
+   'createBaffles' 'createPatch' 'createTurbulenceFields' 'debugSwitches'  \
+   'decomposePar' 'deformedGeom' 'dsmcFieldsCalc' 'dsmcInitialise'         \
+   'engineCompRatio' 'engineSwirl' 'enstrophy' 'equilibriumCO'             \
+   'equilibriumFlameT' 'estimateScalarError' 'execFlowFunctionObjects'     \
+   'expandDictionary' 'extrude2DMesh' 'extrudeMesh' 'faceSet' 'flattenMesh'\
+   'flowType' 'fluent3DMeshToFoam' 'fluentMeshToFoam' 'foamDataToFluent'   \
+   'foamMeshToFluent' 'foamToEnsight' 'foamToEnsightParts'                 \
+   'foamToFieldview9' 'foamToGMV' 'foamToStarMesh' 'foamToVTK'             \
+   'formatConvert' 'gambitToFoam' 'gmshToFoam' 'graphExecTime' 'graphResKE'\
+   'graphResUVWP' 'icoErrorEstimate' 'icoMomentError' 'ideasUnvToFoam'     \
+   'IFCLookUpTableGen' 'infoExec' 'insideCells' 'job' 'kivaToFoam'         \
+   'Lambda2' 'log' 'Mach' 'mapFields' 'mdInitialise' 'mergeMeshes'         \
+   'mergeOrSplitBaffles' 'mirrorMesh' 'mixtureAdiabaticFlameT' 'modifyMesh'\
+   'momentScalarError' 'moveDynamicMesh' 'moveEngineMesh' 'moveMesh'       \
+   'mshToFoam' 'netgenNeutralToFoam' 'objToVTK' 'para' 'particleTracks'    \
+   'patchAverage' 'patchIntegrate' 'patchSummary' 'pdfPlot' 'Pe'           \
+   'plot3dToFoam' 'pointSet' 'polyDualMesh' 'postChannel' 'pPrime2'        \
+   'probeLocations' 'ptot' 'Q' 'R' 'reconstructPar' 'reconstructParMesh'   \
+   'redistributeMeshPar' 'refineHexMesh' 'refinementLevel' 'refineMesh'    \
+   'refineWallLayer' 'removeFaces' 'renumberMesh' 'rotateMesh' 'sammToFoam'\
+   'sample' 'selectCells' 'setFields' 'setSet' 'setsToZones' 'smapToFoam'  \
+   'snappyHexMesh' 'solverSweeps' 'splitCells' 'splitMesh'                 \
+   'splitMeshRegions' 'star4ToFoam' 'starToFoam' 'stitchMesh'              \
+   'streamFunction' 'stressComponents' 'subsetMesh' 'surfaceAdd'           \
+   'surfaceAutoPatch' 'surfaceCheck' 'surfaceClean' 'surfaceCoarsen'       \
+   'surfaceConvert' 'surfaceFeatureConvert' 'surfaceFeatureExtract'        \
+   'surfaceFind' 'surfaceMeshConvert' 'surfaceMeshConvertTesting'          \
+   'surfaceMeshExport' 'surfaceMeshImport' 'surfaceMeshTriangulate'        \
+   'surfaceOrient' 'surfacePointMerge' 'surfaceRedistributePar'            \
+   'surfaceRefineRedGreen' 'surfaceSmooth' 'surfaceSplitByPatch'           \
+   'surfaceSplitNonManifolds' 'surfaceSubset' 'surfaceToPatch'             \
+   'surfaceTransformPoints' 'tetgenToFoam' 'transformPoints'               \
+   'upgradeFvSolution' 'uprime' 'vorticity' 'wallGradU' 'wallHeatFlux'     \
+   'wallShearStress' 'wdot' 'writeCellCentres' 'writeMeshObj' 'yPlusLES'   \
+   'yPlusRAS' 'zipUpMesh'                                                  \
+  )
+
+# describe the solvers and utilities (two "classes", no brief descriptions,
+# that would be way too long).
+#
+# TODO search for additional stuff on FREEFOAM_PATH using something like
+# 'freefoam -listApps'
+# TODO make sure the application really exists (e.g. freefoam-para is not
+# always installed).
+#
+(( $+functions[_freefoam_applications] )) ||
+_freefoam_applications() {
+  # output
+  _describe -t solvers 'FreeFOAM solvers' solvers
+  _describe -t utils 'FreeFOAM utilities' utils
+}
+
+#
+# utilities
+#
+
+# utility match generators for numbers
+_freefoam_match_int() {
+   local garbage
+   zparseopts -K -D -a garbage M: J: V: 1 2 n F: X:
+   _guard '[0-9]#' "$*"
+}
+_freefoam_match_float() {
+   local garbage
+   zparseopts -K -D -a garbage M: J: V: 1 2 n F: X:
+   _guard '[0-9]#(|.[0-9]#)' "$*"
+}
+_freefoam_match_float01() {
+   local garbage
+   zparseopts -K -D -a garbage M: J: V: 1 2 n F: X:
+   _guard '(0#(|.[0-9]#[1-9])|1(|.0)' "$*"
+}
+_freefoam_match_vector() {
+   #TODO come up with something real...
+   _message 'Enter 3D vector of the form (x y z)'
+}
+
+# option sets (for _arguments) for often used options and their combinations
+local -a _freefoam_case_opt _freefoam_par_opt _freefoam_std_opt
+local -a _freefoam_common_opt _freefoam_overwrite_opt
+local -a _freefoam_latest_time_opt _freefoam_time_opt _freefoam_all_time_opt
+local -a _freefoam_region_opt _freefoam_faceSet_opt _freefoam_cellSet_opt
+local -a _freefoam_help_opt _freefoam_scaleVec_opt _freefoam_scale_opt
+local -a _freefoam_coord_dict_opt _freefoam_clean_opt _freefoam_scale_in_opt
+local -a _freefoam_from_coord_opt _freefoam_scale_out_opt
+local -a _freefoam_to_coord_opt
+local app
+
+# -case option
+_freefoam_case_opt=('-case[case directory]::directory:_directories')
+# -parallel option
+_freefoam_par_opt=('-parallel[run in parallel]')
+# -help option
+_freefoam_help_opt=('-help[display help message]')
+# standard options (-help, -doc and -srcDoc)
+_freefoam_std_opt=( \
+   $_freefoam_help_opt[@] \
+   '-doc[open Doxygen documentation of this application]' \
+   '-srcDoc[open source code of this application]' \
+   )
+# common (often used in combination) options,
+# namely -case, -parallel, -help, -doc and -srcDoc
+_freefoam_common_opt=( \
+   $_freefoam_case_opt[@] \
+   $_freefoam_par_opt[@] \
+   $_freefoam_std_opt[@] \
+   )
+# -scale options
+_freefoam_scale_opt=( \
+   '-scale[scale factor]:number:_freefoam_match_float "scale factor"')
+_freefoam_scaleVec_opt=( \
+   '-scale[scaling factors in x, y and z direction]:vector (sx sy sz):_freefoam_match_vector')
+_freefoam_scale_in_opt=( \
+   '-scaleIn[scaling factor when reading]:number:_freefoam_match_float "scale factor for input"')
+_freefoam_scale_out_opt=( \
+   '-scaleOut[scaling factor when writing]:number:_freefoam_match_float "scale factor for output"')
+# -overwrite option
+_freefoam_overwrite_opt=('-overwrite[overwrite existing data]')
+# -time option
+_freefoam_time_opt=( \
+   '-time[apply only to specific time]:time:_freefoam_match_float "time value"')
+# -latestTime option
+_freefoam_latest_time_opt=('-latestTime[only apply to latest time step]')
+# common (often used in combination) time options,
+# namely -noZero, -constant, -time and -latestTime
+_freefoam_all_time_opt=( \
+   '-noZero[ignore timestep 0]' \
+   '-constant[include the constant directory]' \
+   $_freefoam_time_opt[@] \
+   $_freefoam_latest_time_opt[@] \
+   )
+# -region option
+_freefoam_region_opt=( \
+   '-region[only apply to named mesh region]::name of mesh region:')
+
+# set options
+_freefoam_faceSet_opt=('-faceSet[only apply to named face set]:face set name:')
+_freefoam_cellSet_opt=('-cellSet[only apply to named cell set]:cell set name:')
+
+# other options
+_freefoam_coord_dict_opt=( \
+   '-dict[use named dictionary instead of constant/coordinateSystems]:dictionary name:_files')
+_freefoam_clean_opt=( \
+   '-clean[perform some surface checking/cleanup on the input surface]')
+_freefoam_from_coord_opt=( \
+   '-from[source coordinate system]:coordinate system name:')
+_freefoam_to_coord_opt=( \
+   '-to[target coordinate system]:coordinate system name:')
+
+# file extensions handled by Foam::triSurface
+local _freefoam_surface_read_ex='*.(ftr|stl|stlb|gts|obj|off|tri|ac|nas)'
+local _freefoam_surface_write_ex='*.(ftr|stl|stlb|gts|obj|off|vtk|tri|dx|ac|smesh)'
+
+#
+# completers for indivudual commands
+#
+
+# common completion (i.e. everything which doesn't have it's own function or
+# otherwise special treatment)
+(( $+functions[_freefoam-common_apps] )) ||
+_freefoam-common_apps() {
+   _arguments -S $_freefoam_common_opt[@] && ret=0
+}
+for app in $solvers cellSet dsmcInitialize engineCompRatio engineSwirl \
+   equilibriumCO faceSet flattenMesh foamToGMV mdInitialise mirrorMesh \
+   moveDynamicMesh moveEngineMesh moveMesh pdfPlot pointSet R zipUpMesh
+do
+  functions[_freefoam-$app]=$functions[_freefoam-common_apps]
+done
+
+(( $+functions[_freefoam-mshToFoam] )) ||
+_freefoam-mshToFoam() {
+   _arguments -S ':.msh file:_files -g \*.msh' '-hex[read hex cells]' \
+   $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-gmshToFoam] )) ||
+_freefoam-gmshToFoam() {
+   _arguments -S ':.msh file:_files -g \*.msh' \
+   '-keepOrientation[do not check ordering]' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-ideasUnvToFoam] )) ||
+_freefoam-ideasUnvToFoam() {
+   _arguments -S ':.unv file:_files -g \*.unv' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-ansysToFoam] )) ||
+_freefoam-ansysToFoam() {
+   _arguments -S ':ANSYS input file:_files' \
+   $_freefoam_scale_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-cfx4ToFoam] )) ||
+_freefoam-cfx4ToFoam() {
+   _arguments -S ':CFX geom file:_files' \
+   $_freefoam_scale_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-chemkinToFoam] )) ||
+_freefoam-chemkinToFoam() {
+   _arguments -S ':CHEMKIN File:_files' ':CHEMKIN ThermodynamicsFile:_files' \
+   ':FOAM ChemistryFile:_files' ':FOAM ThermodynamicsFile:_files' \
+   $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-fluent3DMeshToFoam] )) ||
+_freefoam-fluent3DMeshToFoam() {
+   _arguments -S ':Fluent mesh file:_files'  \
+   '-ignoreFaceGroups[ignore face groups]:face group names:' \
+   '-ignoreCellGroups[ignore cell groups]:cell group names:' \
+   $_freefoam_scale_opt[@] \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@] \
+}
+
+(( $+functions[_freefoam-fluentMeshToFoam] )) ||
+_freefoam-fluentMeshToFoam() {
+   _arguments -S ':Fluent mesh file:_files' \
+   '-writeSets[write patch sets]' '-writeZones[write cell zones]' \
+   $_freefoam_scale_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceAdd] )) ||
+_freefoam-surfaceAdd() {
+   _arguments -S ':first surface file:_files -g'$_freefoam_surface_read_ex \
+   ':second surface file:_files -g'$_freefoam_surface_read_ex \
+   ':output surface file:_files -g'$_freefoam_surface_write_ex \
+   '-points[add points from file]::Foam points file:_files' \
+   '-mergeRegions[merge the regions]' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceCoarsen] )) ||
+_freefoam-surfaceCoarsen() {
+   _arguments -S ':input surface file:_files -g'$_freefoam_surface_read_ex \
+   ':reduction factor:_freefoam_match_float01 "reduction factor in (0,1]' \
+   ':output surface file:_files -g'$_freefoam_surface_write_ex \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceOrient] )) ||
+_freefoam-surfaceOrient() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   ':visible point:_freefoam_match_vector' ':output file:_files' \
+   '-inside[the point is inside instead of outside]' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-gambitToFoam] )) ||
+_freefoam-gambitToFoam() {
+   _arguments -S ':GAMBIT file:_files -g \*.neu' \
+   $_freefoam_scale_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-netgenNeutralToFoam] )) ||
+_freefoam-netgenNeutralToFoam() {
+   _arguments -S ':Neutral file:_files -g \*.netgen' $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-objToVTK] )) ||
+_freefoam-objToVTK() {
+   _arguments -S ':OBJ file:_files -g \*.obj' \
+   ':output VTK file:_files -g \*.vtk' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-plot3dToFoam] )) ||
+_freefoam-plot3dToFoam() {
+   _arguments -S ':PLOT3D geom file:_files -g \*.xyz' \
+   '-noBlank[do not expect blanking]' '-2D[data is 2D]::thickness:_freefoam_match_float' \
+   '-singleBlock[data is in a single block]' \
+   $_freefoam_scale_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-sammToFoam] )) ||
+_freefoam-sammToFoam() {
+   _arguments -S ':SAMM mesh file prefix:_files' \
+   $_freefoam_scale_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-smapToFoam] )) ||
+_freefoam-smapToFoam() {
+   _arguments -S ':SMAP fileName:_files -g \*.smap' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-starToFoam] )) ||
+_freefoam-starToFoam() {
+   _arguments -S ':STAR mesh file prefix:_files' \
+   $_freefoam_scale_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-ccm26ToFoam] )) ||
+_freefoam-ccm26ToFoam() {
+   _arguments -S ':ccm26 file:_files -g \*.ccm' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-refineHexMesh] )) ||
+_freefoam-refineHexMesh() {
+   _arguments -S ':cell set name:' \
+   $_freefoam_overwrite_opt[@] $_freefoam_common_opt[@]
+}
+
+# common completer for adiabaticFlameT, equilibriumFlameT and
+# mixtureAdiabaticFlameT
+(( $+functions[_freefoam-flameT_apps] )) ||
+_freefoam-flameT_apps() {
+   _arguments -S ':control file:_files' \
+   $_freefoam_common_opt[@]
+}
+for app in {adiabatic,equilibrium,mixtureAdiabatic}FlameT; do
+  functions[_freefoam-$app]=$functions[_freefoam-flameT_apps]
+done
+
+(( $+functions[_freefoam-splitCells] )) ||
+_freefoam-splitCells() {
+   _arguments -S ':edge angle [0..360]:_freefoam_match_float' \
+   '-geometry[geometry based splitting for hex cells]' \
+   '-tol[edge snap tolerance]:tolerance:_freefoam_match_float' \
+   '-set[cell set to split]:cell set name:' \
+   $_freefoam_overwrite_opt[@]  $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-collapseEdges] )) ||
+_freefoam-collapseEdges() {
+   _arguments -S ':edge length [m]:_freefoam_match_float' \
+   ':merge angle [degrees]:_freefoam_match_float' \
+   $_freefoam_overwrite_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-splitMesh] )) ||
+_freefoam-splitMesh() {
+   _arguments -S ':face set:' ':master patch:' ':slave patch:' \
+   $_freefoam_overwrite_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-removeFaces] )) ||
+_freefoam-removeFaces() {
+   _arguments -S :'face set:' \
+   $_freefoam_overwrite_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-combinePatchFaces] )) ||
+_freefoam-combinePatchFaces() {
+   _arguments -S ':feature angle [0..180]:_freefoam_match_float' \
+   '-snapMesh[remove loose points on edges]' \
+   '-concaveAngle[maximum allowed concave angle]:angle [0..180]:_freefoam_match_float' \
+   $_freefoam_overwrite_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-autoPatch] )) ||
+_freefoam-autoPatch() {
+   _arguments -S ':feature angle [0-180]:_freefoam_match_float' \
+   $_freefoam_overwrite_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-polyDualMesh] )) ||
+_freefoam-polyDualMesh() {
+   _arguments -S ':feature angle [0-180]:_freefoam_match_float' \
+   '-concaveMultiCells[Creates multiple cells for each point on a concave edge]' \
+   '-splitAllFaces[Create a single face for every original cell the face passes through]' \
+   '-doNotPreserveFaceZones[Do not preserve face zones]' \
+   $_freefoam_overwrite_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+# common completer for patchAverage and  patchIntegrate
+(( $+functions[_freefoam-patchCalc_apps] )) ||
+_freefoam-patchCalc_apps() {
+   _arguments -S ':field name:' ':patch name:' \
+   $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+for app in patch{Average,Integrate}; do
+  functions[_freefoam-$app]=$functions[_freefoam-patchCalc_apps]
+done
+
+(( $+functions[_freefoam-tetgenToFoam] )) ||
+_freefoam-tetgenToFoam() {
+   _arguments -S ':file prefix:_files' \
+   '-noFaceFile[ignore the face file]' \
+   $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceFeatureConvert] )) ||
+_freefoam-surfaceFeatureConvert() {
+   _arguments -S ':input file:files_ -g \*."(nas|eMesh)"' \
+   ':output file:_files -g \*."(eMesh|vtk)"' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceSplitByPatch] )) ||
+_freefoam-surfaceSplitByPatch() {
+   _arguments -S ':input file:_files -g'$_freefoam_surface_read_ex \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceAutoPatch] )) ||
+_freefoam-surfaceAutoPatch() {
+   _arguments -S ':input surface file:_files -g'$_freefoam_surface_read_ex \
+   ':output surface file:_files -g'$_freefoam_surface_write_ext \
+   ':included angle [0..180]:_freefoam_match_float' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceConvert] )) ||
+_freefoam-surfaceConvert() {
+   _arguments -S ':input surface file:_files -g'$_freefoam_surface_read_ex \
+   ':output surface file:_files -g'$_freefoam_surface_write_ext \
+   '-clean[clean up surface]' $_freefoam_scale_opt[@] \
+   '-group[reorder faces into groups by region]' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-expandDictionary] )) ||
+_freefoam-expandDictionary() {
+   _arguments -S ':dictionary to expand:_files' \
+   $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-mergeMeshes] )) ||
+_freefoam-mergeMeshes() {
+   _arguments -S \
+   ':parent directory of master case:_directories' ':master case name:' \
+   ':parent directory of case to add:_directories' ':name of case to add:' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-stitchMesh] )) ||
+_freefoam-stitchMesh() {
+   _arguments -S ':master patch name:' ':slave patch name:' \
+   '-perfect[the patches, vertices and face centres are perfectly aligned]' \
+   '-partial[the surface overlap only partialy]' \
+   '-toleranceDict[file with tolerances]:dictionary name:_files' \
+   $_freefoam_overwrite_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-rotateMesh] )) ||
+_freefoam-rotateMesh() {
+   _arguments -S \
+      ':old direction (nx,ny,nz):_freefoam_match_vector' ':new direction (nx,ny,nz):_freefoam_match_vector' \
+   $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceMeshTriangulate] )) ||
+_freefoam-surfaceMeshTriangulate() {
+   _arguments -S ':output file:_files -g'$_freefoam_surface_write_ex \
+   '-patches[list of patches]:(patch0 .. patchN):' \
+   '-excludeProcPatches[if not run parallel, exclude processor patches]' \
+   $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-refineWallLayer] )) ||
+_freefoam-refineWallLayer() {
+   _arguments -S \
+      ':name of patch to refine:' ':refinement factor [0,1]:_freefoam_match_float01' \
+   '-useSet[refine named cell set]::cell set name:' \
+   $_freefoam_overwrite_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-star4ToFoam] )) ||
+_freefoam-star4ToFoam() {
+   _arguments -S ':pro-STAR file prefix:_files' '-ascii[the data is ASCII]' \
+   '-solids[treat solid cells as fluid cells]' \
+   $_freefoam_scale_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-deformedGeom] )) ||
+_freefoam-deformedGeom() {
+   _arguments -S ':scaling factor for deformation:_freefoam_match_float' \
+   $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-createBaffles] )) ||
+_freefoam-createBaffles() {
+   _arguments -S ':cell set name:' ':patch name:' \
+   $_freefoam_overwrite_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-subsetMesh] )) ||
+_freefoam-subsetMesh() {
+   _arguments -S ':cell set name:' ':patch name:' \
+   $_freefoam_overwrite_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-mapFields] )) ||
+_freefoam-mapFields() {
+   _arguments -S ':source case directory:_directories' \
+   '-consistent[meshes are consistent]' \
+   '-parallelSource[the source case is decomposed' \
+   '-sourceTime[time of the source]::scalar:_freefoam_match_float' \
+   '-parallelTarget[the target case is decomposed' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-insideCells] )) ||
+_freefoam-insideCells() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   ':cell set name:' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfacePointMerge] )) ||
+_freefoam-surfacePointMerge() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   ':(absolute) merge distance:_freefoam_match_float' \
+   ':output surface file:_files -g'$_freefoam_surface_write_ex \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceClean] )) ||
+_freefoam-surfaceClean() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   ':min length:_freefoam_match_float' ':output surface file:_files -g'$_freefoam_surface_write_ex \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceRefineRedGreen] )) ||
+_freefoam-surfaceRefineRedGreen() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   ':surface output file:_files -g'$_freefoam_surface_write_ex \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceSplitNonManifolds] )) ||
+_freefoam-surfaceSplitNonManifolds() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   ':surface output file:_files -g'$_freefoam_surface_write_ex \
+   '-debug[generate debugging output]' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceTransformPoints] )) ||
+_freefoam-surfaceTransformPoints() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   ':surface output file:_files -g'$_freefoam_surface_write_ex \
+   '-translate[translation vector]::vector:_freefoam_match_vector' \
+   '-rollPitchYaw[rotation angles]::(roll pitch yaw):_freefoam_match_vector' \
+   '-yawPitchRoll[rotation angles]::(yaw pitch roll):_freefoam_match_vector' \
+   '-rotate[rotate from first to second direction]::(vector vector):' \
+   $_freefoam_scaleVec_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceSmooth] )) ||
+_freefoam-surfaceSmooth() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   ':underrelaxation factor (0..1):' ':number of iterations:_freefoam_match_floag01' \
+   ':output surface file:_files -g'$_freefoam_surface_write_ex \
+   $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceToPatch] )) ||
+_freefoam-surfaceToPatch() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   '-tol[search toleracne]::fraction of mesh size:' \
+   $_freefoam_faceSet_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceCheck] )) ||
+_freefoam-surfaceCheck() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   '-noSelfIntersection[check for self-intersection]' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceFind] )) ||
+_freefoam-surfaceFind() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   '-x[x-coordinate of sample point]::X:_freefoam_match_float' \
+   '-y[y-coordinate of sample point]::Y:_freefoam_match_float' \
+   '-z[z-coordinate of sample point]::Z:_freefoam_match_float' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceFeatureExtract] )) ||
+_freefoam-surfaceFeatureExtract() {
+   _arguments -S ':surface file:_files -g'$_freefoam_surface_read_ex \
+   ':output file:_files' \
+   '-minLen[minimum cumulative length of feature]:_freefoam_match_float' \
+   '-includedAngle[construct set from included angle]:included angle [0..180]:_freefoam_match_float' \
+   '-deleteBox[delete axis-aligned box]:((x0 y0 z0)(x1 y1 z1)):' \
+   '-minElem[minimum number of edges in feature]:_freefoam_match_int' \
+   '-subsetBox[extract all edges in axis-aligned box]:((x0 y0 z0)(x1 y1 z1)):' \
+   '-set[use existing set]:name of input feature set:' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceSubset] )) ||
+_freefoam-surfaceSubset() {
+   _arguments -S ':surfaceSubsetDic:_files -g surfaceSubsetDict' \
+   ':surface file:_files -g'$_freefoam_surface_read_ex \
+   ':output surface file:_files -g'$_freefoam_surface_write_ex \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-extrude2DMesh] )) ||
+_freefoam-extrude2DMesh() {
+   _arguments -S ':thickness:_freefoam_match_float "thickness"' \
+   $_freefoam_overwrite_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-applyBoundaryLayer] )) ||
+_freefoam-applyBoundaryLayer() {
+   _arguments -S \
+   $_freefoam_common_opt[@] \
+   '-writenut[output turbulent viscosity]' \
+   - set1 \
+      '-Cbl[coefficient for scaling of the average distance from the wall]::scalar:_freefoam_match_float' \
+   - set2 \
+      '-ybl[specify the uniform boundary layer thickness]::scalar:_freefoam_match_float'
+}
+
+# common completer for autoRefineMesh, boxTurb, foamMeshToFluent and selectCells
+# taking -case, -help, -doc and -srcDoc
+(( $+functions[_freefoam-std_noPar_apps] )) ||
+_freefoam-std_noPar_apps() { _arguments -S $_freefoam_case_opt[@] $_freefoam_std_opt[@] }
+for app in autoRefineMesh boxTurb foamMeshToFluent selectCells; do
+  functions[_freefoam-$app]=$functions[_freefoam-std_noPar_apps]
+done
+
+(( $+functions[_freefoam-splitMeshRegions] )) ||
+_freefoam-splitMeshRegions() {
+   _arguments -S '-cellZones[split different cell zones]' \
+   '-detectOnly[do no processing]' \
+   '-blockedFaces[split at give face set]::name of face set:' \
+   '-sloppyCellZones[try to match regions to existing cell zones]' \
+   '-makeCellZones[create mesh with cells in different cell zones]' \
+   $_freefoam_overwrite_opt[@] $_freefoam_common_opt[@] \
+   - set1 \
+      '-insidePoint[only keep region containing specified point]::point:_freefoam_match_vector' \
+   - set2 \
+      '-largestOnly[only keep largest region]'
+}
+
+(( $+functions[_freefoam-infoExec] )) ||
+_freefoam-infoExec() {
+   _arguments -S \
+   '-dictionary[use specified dictionary]:dictionary name:_files' \
+   '-entry[use specified entry from dictionary (parent:child notation)]:entry name:' \
+   '-keywords[list keywords in the dictionary]' \
+   '-times[list all time steps]' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-decomposePar] )) ||
+_freefoam-decomposePar() {
+   _arguments -S '-ifRequired[only decompose if required]' \
+   '-force[overwrite existing data]' \
+   '-cellDist[write cell distribution as a labelList]' \
+   '-fields[use existing decomposed mesh, only decompose fields]' \
+   '-filterPatches[remove empty patches]' \
+   '-copyUniform[also copy any "uniform" directories]' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-extrudeMesh] )) ||
+_freefoam-extrudeMesh() {
+   _arguments -S '-mergeFaces[merge faces for axisymmetric cases]' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@] \
+   - set1 \
+      '-sourceRoot[parent directory of the source case]:directory containing the case:_directories' \
+      '-sourceCase[source case name]:source case name:' \
+      '-sourcePatch[source patch]:name of source patch to extrude:' \
+   - set2 \
+      '-surface[specify surface file to extrude]:surface file:_files -g'$_freefoam_surface_read_ex
+}
+
+(( $+functions[_freefoam-redistributeMeshPar] )) ||
+_freefoam-redistributeMeshPar() {
+   _arguments -S \
+   '-mergeTol[relative merge distance]:number:_freefoam_match_float' \
+   $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-log] )) ||
+_freefoam-log() {
+   _arguments -S '-n[create single-column file with data only]' \
+   '-s[suppress default information and only print extracted variables]' \
+   ':log file:_files'
+}
+
+(( $+functions[_freefoam-checkMesh] )) ||
+_freefoam-checkMesh() {
+   _arguments -S '-noTopology[do not check mesh-topology]' \
+   '-allTopology[more extensive topology checks]' \
+   '-allGeometry[more extensive geometry checks]' \
+   $_freefoam_region_opt[@] $_freefoam_latest_time_opt[@] \
+   $_freefoam_time_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-foamToEnsightParts] )) ||
+_freefoam-foamToEnsightParts() {
+   _arguments -S '-ascii[write in ASCII instead of "C binary"]' \
+   '-index[ignore the time index in the time file]:start:_freefoam_match_int "start index"' \
+   '-noMesh[suppress writing the geometry]' \
+   $_freefoam_all_time_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-foamToEnsight] )) ||
+_freefoam-foamToEnsight() {
+   _arguments -S '-ascii[write in ASCII instead of "C binary"]' \
+   '-patches[only use named patches]:patch list:' \
+   '-noPatches[supress writing any patches]' \
+   $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-setSet] )) ||
+_freefoam-setSet() {
+   _arguments -S '-batch[read commands from batch file]::batch file:_files' \
+   '-noVTK[do not export to VTK]' \
+   $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+
+# apps taking time, case and standard options.
+# common completer for foamDataToFluent and postChannel.
+(( $+functions[_freefoam-std_noPar_time_apps] )) ||
+_freefoam-std_noPar_time_apps() { _arguments -S \
+   $_freefoam_all_time_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+for app in foamDataToFluent postChannel; do
+  functions[_freefoam-$app]=$functions[_freefoam-std_noPar_time_apps]
+done
+
+# apps taking all time options and all common options.
+(( $+functions[_freefoam-common_time_apps] )) ||
+_freefoam-common_time_apps() {
+   _arguments -S $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+for app in createTurbulenceFields estimateScalarError formatConvert            \
+           icoErrorEstimate icoMomentError momentScalarError pPrime2           \
+           patchSummary probeLocations ptot sample setFields streamFunction    \
+           stressComponents wallGradU wallHeatFlux                             \
+           wallShearStress wdot writeCellCentres; do
+  functions[_freefoam-$app]=$functions[_freefoam-common_time_apps]
+done
+
+(( $+functions[_freefoam-common_compressible_time_apps] )) ||
+_freefoam-common_compressible_time_apps() {
+   _arguments -S '-compressible[operate in compressible mode]' \
+   $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+for app in yPlus{RAS,LES} applyWallFunctionBoundaryConditions; do
+  functions[_freefoam-$app]=$functions[_freefoam-common_compressible_time_apps]
+done
+
+(( $+functions[_freefoam-setsToZones] )) ||
+_freefoam-setsToZones() {
+   _arguments -S '-noFlipMap[no automatic face flipping]' \
+   $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-foamToStarMesh] )) ||
+_freefoam-foamToStarMesh() {
+   _arguments -S '-tri[extract a triangulated surface]' \
+   '-noBnd[suppress writing of a .bnd file]' \
+   '-surface[only extract the surfaces]' \
+   $_freefoam_scale_opt[@] $_freefoam_all_time_opt[@] \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-writeMeshObj] )) ||
+_freefoam-writeMeshObj() {
+   _arguments -S \
+   '-face[export face with specified label]::face label:_freefoam_match_int "face index"' \
+   '-patchFaces[also export patch faces]' \
+   '-cell[export cell with specified label]::cell label:_freefoam_match_int "cell index"' \
+   '-point[export point with specified label]::point label:_freefoam_match_int "point index"' \
+   $_freefoam_cellSet_opt[@] $_freefoam_faceSet_opt[@] $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-foamToFieldview9] )) ||
+_freefoam-foamToFieldview9() {
+   _arguments -S '-noWall[do not export the walls]' \
+   $_freefoam_all_time_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+# apps taking -dict, all time and common options.
+_freefoam-common_time_dict_apps() {
+   _arguments -S \
+   '-dict[use named dictionary instead of system/controlDict]:dictionary name:_files' \
+   $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+for app in Lambda2 flowType dsmcFieldsCalc; do
+  functions[_freefoam-$app]=$functions[_freefoam-common_time_dict_apps]
+done
+
+# apps taking -noWrite, -dict, all time and common options.
+# common completer for Co, Mach, Pe, Q, enstrophy, execFlowFunctionObjects,
+# uprime and vorticity.
+(( $+functions[_freefoam-common_time_dict_noWrite_apps] )) ||
+_freefoam-common_time_dict_noWrite_apps() {
+   _arguments -S '-noWrite[suppress output to files]' \
+   '-dict[use named dictionary instead of system/controlDict]:dictionary name:_files' \
+   $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+for app in Co Mach Pe Q enstrophy execFlowFunctionObjects uprime vorticity; do
+  functions[_freefoam-$app]=$functions[_freefoam-common_time_dict_noWrite_apps]
+done
+
+(( $+functions[_freefoam-renumberMesh] )) ||
+_freefoam-renumberMesh() {
+   _arguments -S \
+   '-blockOrder[order cells into regions and faces into region-internal/external]' \
+   '-writeMaps[write renumber map (new to old)]' \
+   '-orderPoints[order points into internal/boundary points]' \
+   $_freefoam_overwrite_opt[@] $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-reconstructPar] )) ||
+_freefoam-reconstructPar() {
+   _arguments -S \
+   '-fields[only reconstruct named fields]:list of fields:' \
+   '-noLagrangian[do not reconstruct Lagrangian fields]' \
+   $_freefoam_region_opt[@] $_freefoam_all_time_opt[@] \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-reconstructParMesh] )) ||
+_freefoam-reconstructParMesh() {
+   _arguments -S '-fullMatch[check all boundary faces]' \
+   '-mergeTol[relative merge distance]:number:_freefoam_match_float' \
+   $_freefoam_region_opt[@] $_freefoam_all_time_opt[@] \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-foamToVTK] )) ||
+_freefoam-foamToVTK() {
+   _arguments -S '-surfaceFields[write cell-surface fields]' \
+   '-ascii[write in ASCII instead of binary]' \
+   '-nearCellValue[output cell value on patches instead of patch value]' \
+   '-pointSet[only apply to named point set]:point set name:' \
+   '-noLinks[do not link processor files to master (in parallel)]' \
+   '-excludePatches[exclude specified patches]:list of patches to exclude:' \
+   '-useTimeName[use the time index in the VTK file name instead of the time index]' \
+   '-allPatches[combine all patches into a single file]' \
+   '-noFaceZones[do not export faceZones]' \
+   '-fields[convert selected fields only]::list of fields:' \
+   '-noPointValues[do not export point fields]' \
+   '-noInternal[only export data on patches]' \
+   $_freefoam_faceSet_opt[@] $_freefoam_cellSet_opt[@] $_freefoam_region_opt[@] \
+   $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-attachMesh] )) ||
+_freefoam-attachMesh() {
+   _arguments -S \
+   $_freefoam_overwrite_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-refineMesh] )) ||
+_freefoam-refineMesh() {
+   _arguments -S \
+   '-dict[refine according to refineMeshDict]::specify refineMeshDict:_files -g refineMeshDict' \
+   $_freefoam_overwrite_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-createPatch] )) ||
+_freefoam-createPatch() {
+   _arguments -S $_freefoam_overwrite_opt[@] $_freefoam_common_opt[@]
+}
+
+# common  completer for apps taking -overwrite and common options
+(( $+functions[_freefoam-common_overwrite_apps] )) ||
+_freefoam-common_overwrite_apps() {
+   _arguments -S $_freefoam_overwrite_opt[@] $_freefoam_common_opt[@]
+}
+for app in modifyMesh snappyHexMesh; do
+   functions[_freefoam-$app]=$functions[_freefoam-common_overwrite_apps]
+done
+
+(( $+functions[_freefoam-mergeOrSplitBaffles] )) ||
+_freefoam-mergeOrSplitBaffles() {
+   _arguments -S '-split[split duplicate surfaces]' \
+   '-detectOnly[do no processing]' \
+   $_freefoam_overwrite_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-refinementLevel] )) ||
+_freefoam-refinementLevel() {
+   _arguments -S '-readLevel[read reference refinementLevel file]' \
+   $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-blockMesh] )) ||
+_freefoam-blockMesh() {
+   _arguments -S \
+   '-dict[specify an alternative dictionary]::dictionary file:_files' \
+   '-blockTopology[write the topology as a set of edges in OBJ format]' \
+   $_freefoam_region_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+# common completer for apps taking -region and common options
+(( $+functions[_freefoam-common_region_apps] )) ||
+_freefoam-common_region_apps() {
+   _arguments -S $_freefoam_region_opt[@] $_freefoam_common_opt[@]
+}
+for app in changeDictionary particleTracks; do
+   functions[_freefoam-$app]=$functions[_freefoam-common_region_apps]
+done
+
+(( $+functions[_freefoam-transformPoints] )) ||
+_freefoam-transformPoints() {
+   _arguments -S \
+   '-translate[translate by given vector]::vector:_freefoam_match_vector' \
+   '-rotateFields[also rotate vector/tensor fields]' \
+   '-rotate[rotate from first to second direction]::(vector vector):' \
+   $_freefoam_scaleVec_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-potential] )) ||
+_freefoam-potential() {
+   _arguments -S '-writep[also write the pressure field]' \
+   $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-kivaToFoam] )) ||
+_freefoam-kivaToFoam() {
+   _arguments -S \
+   '-zHeadMin[minimum cylinder-head height]::scalar:_freefoam_match_float "minimum cylinder-head height"' \
+   '-file[use a different kiva file from otape17]::kiva file:_files' \
+   '-version[specify kiva version]::kiva version:compadd -- kiva3{,v}' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-copySettings] )) ||
+_freefoam-copySettings() {
+   _arguments -S ':source directory:_directories' \
+   ':destination directory:_directories'
+}
+
+(( $+functions[_freefoam-clearPolyMesh] )) ||
+_freefoam-clearPolyMesh() {
+   _arguments -S $_freefoam_region_opt[@] $_freefoam_case_opt[@]
+}
+
+# common completer for freefoam-graph* utilities
+(( $+functions[_freefoam-graph_apps] )) ||
+_freefoam-graph_apps() {
+   _arguments -S ':log file:_files'
+}
+for app in graphExecTime graphResKE graphResUVWP; do
+  functions[_freefoam-$app]=$functions[_freefoam-graph_apps]
+done
+
+(( $+functions[_freefoam-job] )) ||
+_freefoam-job() {
+   _arguments -S \
+   '-p[run job in parallel]' \
+   '-hosts[specify file with host names]:hostfile:_files' \
+   '-log[specify alternate logfile name for output]:logfile:_files' \
+   $_freefoam_case_opt[@] $_freefoam_help_opt[@] \
+   - set1 \
+      '-s[also send output to screen]' \
+   - set2 \
+      '-fg[run the job in the foreground (i.e. do not background it)]'
+}
+
+(( $+functions[_freefoam-para] )) ||
+_freefoam-para() {
+   _arguments -S $_freefoam_help_opt[@] $_freefoam_case_opt[@]
+}
+
+(( $+functions[_freefoam-solverSweeps] )) ||
+_freefoam-solverSweeps() {
+   _message "no arguments or options"
+}
+
+(( $+functions[_freefoam-debugSwitches] )) ||
+_freefoam-debugSwitches() {
+   _message "no arguments or options"
+}
+
+(( $+functions[_freefoam-calc] )) ||
+_freefoam-calc() {
+   #TODO better completion here based on the operation
+   _arguments -S ':operation:' ':fields:' \
+   '-noWrite[suppress output to files]' \
+   '-dictionary[use specified dictionary]:dictionary name:_files' \
+   $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-IFCLookUpTableGen] )) ||
+_freefoam-IFCLookUpTableGen() {
+   _arguments -S ':control file:_files' \
+   $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceMeshConvert] )) ||
+_freefoam-surfaceMeshConvert() {
+   _arguments -S ':input surface file:_files -g'$_freefoam_surface_read_ex \
+   ':output surface file:_files -g'$_freefoam_surface_write_ex \
+   $_freefoam_coord_dict_opt[@] $_freefoam_scale_in_opt[@] \
+   $_freefoam_from_coord_opt[@]  $_freefoam_scale_out_opt[@] \
+   $_freefoam_to_coord_opt[@] \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceMeshConvertTesting] )) ||
+_freefoam-surfaceMeshConvertTesting() {
+   _arguments -S ':input surface file:_files -g'$_freefoam_surface_read_ex \
+   ':output surface file:_files -g'$_freefoam_surface_write_ex \
+   $_freefoam_scale_opt \
+   '-surfMesh[also write surface mesh]' \
+   '-unsorted[use the unsorted elements for input/output]' \
+   '-triFace[use triFace elements for input/output]' \
+   $_freefoam_clean_opt[@] \
+   '-orient[check the face orientation of the input surface]' \
+   '-triSurface[use the triSurface library for input/output]' \
+   $_freefoam_scale_opt[@] \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceMeshExport] )) ||
+_freefoam-surfaceMeshExport() {
+   _arguments -S ':output surface file:_files -g'$_freefoam_surface_write_ex \
+   '-name[specify alternative surface name for writing]:surface name:' \
+   $_freefoam_coord_dict_opt[@] $_freefoam_clean_opt[@] \
+   $_freefoam_scale_in_opt[@] $_freefoam_from_coord_opt[@] \
+   $_freefoam_scale_out_opt[@] $_freefoam_to_coord_opt[@] \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceMeshImport] )) ||
+_freefoam-surfaceMeshImport() {
+   _arguments -S ':input surface file:_files -g'$_freefoam_surface_read_ex \
+   '-name[specify alternative surface name for writing]:surface name:' \
+   $_freefoam_coord_dict_opt[@] $_freefoam_clean_opt[@] \
+   $_freefoam_scale_in_opt[@] $_freefoam_from_coord_opt[@] \
+   $_freefoam_scale_out_opt[@] $_freefoam_to_coord_opt[@] \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+(( $+functions[_freefoam-surfaceRedistributePar] )) ||
+_freefoam-surfaceRedistributePar() {
+   _arguments -S ':input triSurfaceMesh file:_files -g'$_freefoam_surface_read_ex \
+   ':distribution type:' \
+   '-keepNonMapped[preserve surface outside of mesh bounds]' \
+   $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-uncoupledKinematicParcel] )) ||
+_freefoam-uncoupledKinematicParcel() {
+   _arguments -S \
+   '-cloudName[use an alternative cloude name to kinematicCloud]:cloud name:' \
+   $_freefoam_common_opt[@]
+}
+
+(( $+functions[_freefoam-upgradeFvSolution] )) ||
+_freefoam-upgradeFvSolution() {
+   _arguments -S \
+   '-test[suppress writing the updated fvSolution file]' \
+   $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+}
+
+local curcontext=$curcontext ret=1
+local state line
+declare -A opt_args
+
+# handle arguments to the 'freefoam' command
+_arguments -C -S \
+'-b[FreeFOAM base directory]::directory:_directories' \
+'-P[also use the system PATH variable]' \
+'-p[print command line instead of executing it]' \
+'(-h -help)'{-h,-help}'[display help message]' \
+'(-v -version)'{-v,-version}'[display version information]' \
+'*::arg:->cmd_or_options' && return
+# if we have a sub-command, invoke its respective completer
+case $state in
+   (cmd_or_options)
+      if (( CURRENT == 1 )); then
+         # list the available commands
+         _freefoam_applications
+      else
+         curcontext="${curcontext%:*:*}:freefoam-$words[1]:"
+         # if we defined a specific completer for the command, invoke it
+         if (( $+functions[_freefoam-$words[1]] )); then
+            _call_function ret _freefoam-$words[1]
+         fi
+      fi
+      ;;
+esac
+
+return ret
+
+}
+
+_freefoam
+
+# ------------------------- vim: set sw=3 sts=3 et: --------------- end-of-file

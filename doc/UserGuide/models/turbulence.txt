@@ -1,0 +1,130 @@
+=== Turbulence models
+
+The filename:turbulenceProperties[]
+(((filename:turbulenceProperties[],dictionary)))
+(((dictionary,filename:turbulenceProperties[]))) dictionary is read by any
+solver that includes turbulence modelling. Within that file is the
+`simulationType`(((`simulationType` keyword)))(((keyword,`simulationType`)))
+keyword that controls the type of turbulence modelling to be used, either:
+
+`laminar` (((`laminar`,keyword entry)))(((keyword entry,`laminar`)))::
+  uses no turbulence models;
+`RASModel` (((`RASModel`,keyword entry)))(((keyword entry,`RASModel`)))::
+  uses Reynolds-averaged stress (RAS) modelling;
+`LESModel` (((`LESModel`,keyword entry)))(((keyword entry,`LESModel`)))::
+  uses large-eddy simulation (LES) modelling.
+
+If `RASModel` is selected, the choice of RAS modelling is specified in a
+filename:RASProperties[] file, also in the dirname:constant[] directory. The
+RAS turbulence model is selected by the `RASModel` entry from a long list of
+available models that are listed in <<tab_turbulenceModelLibraries>>.
+Similarly, if `LESModel` is selected, the choice of LES modelling is specified
+in a filename:LESProperties[](((filename:LESProperties[],dictionary)))
+(((dictionary,filename:LESProperties[]))) dictionary and the LES turbulence
+model is selected by the `LESModel` entry.
+
+The entries required in the filename:RASProperties[] are listed in
+<<tab_RASProperties>> and those for filename:LESProperties[] dictionaries are
+listed in <<tab_LESProperties>>.
+
+[[tab_RASProperties]]
+.Keyword entries in the filename:RASProperties[] dictionary
+[grid="none",frame="topbot"]
+|==============================================================================
+| `RASModel`(((`RASModel` keyword)))(((keyword,`RASModel`))) | Name of RAS
+turbulence model
+| `turbulence`(((`turbulence` keyword)))(((keyword,`turbulence`))) | Switch to
+turn turbulence modelling on/off
+| `printCeoffs`(((`printCeoffs` keyword)))(((keyword,`printCeoffs`))) | Switch
+to print model coeffs to terminal at simulation startup
+| `<RASModel>Coeffs`(((`<RASModel>Coeffs` keyword)))
+(((keyword,`<RASModel>Coeffs`))) | Optional dictionary of coefficients for the
+respective `RASModel`
+|==============================================================================
+
+[[tab_LESProperties]]
+.Keyword entries in the filename:LESProperties[] dictionary
+[grid="none",frame="topbot"]
+|==============================================================================
+| `LESModel`(((`LESModel` keyword)))(((keyword,`LESModel`))) | Name of LES
+model
+| `delta`(((`delta` keyword)))(((keyword,`delta`))) | Name of delta
+math:[\delta] model
+| `<LESModel>Coeffs`(((`<LESModel>Coeffs` keyword)))
+(((keyword,`<LESModel>Coeffs`))) | Dictionary of coefficients for the
+respective `LESModel`
+| `<delta>Coeffs`(((<`delta`>`Coeffs` keyword)))
+(((keyword,`<delta>Coeffs`))) | Dictionary of coefficients for each `delta`
+model
+|==============================================================================
+
+The incompressible and compressible RAS turbulence models, isochoric and
+anisochoric LES models and delta models are all named and described in
+<<tab_turbulenceModelLibraries>>. Examples of their use can be found in the
+dirname:<tutorials>[].
+
+==== Model coefficients
+
+The coefficients for the RAS turbulence models are given default values in
+their respective source code. If the user wishes to override these default
+values, then they can do so by adding a sub-dictionary entry to the
+filename:RASProperties[] file, whose keyword name is that of the model with
+`Coeffs` appended, 'e.g.' `kEpsilonCoeffs` for the `kEpsilon` model. If the
+`printCoeffs` switch is `on` in the filename:RASProperties[] file, an example
+of the relevant `...Coeffs` dictionary is printed to standard output when the
+model is created at the beginning of a run. The user can simply copy this into
+the filename:RASProperties[] file and edit the entries as required.
+
+==== Wall functions
+
+A range of wall function models is available in {project} that are applied as
+boundary conditions on individual patches. This enables different wall function
+models to be applied to different wall regions. The choice of wall function
+model is specified through: math:[\nu_t] in the filename:0/nut[] file for
+incompressible RAS; math:[\mu_t] in the filename:0/mut[] file for compressible
+RAS; math:[\nu_\text{sgs}] in the filename:0/nuSgs[] file for incompressible
+LES; math:[\mu_\text{sgs}] in the filename:0/muSgs[] file for incompressible
+LES. For example, a filename:0/nut[] file:
+
+-------------------------------------------------------------------------------
+dimensions      [0 2 -1 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    movingWall
+    {
+        type         nutWallFunction;
+        value        uniform 0;
+    }
+    fixedWalls
+    {
+        type         nutWallFunction;
+        value        uniform 0;
+    }
+    frontAndBack
+    {
+        type         empty;
+    }
+}
+-------------------------------------------------------------------------------
+
+There are a number of wall function models available in the release, 'e.g.'
+`nutWallFunction`, `nutRoughWallFunction`,
+`nutSpalartAllmarasStandardRoughWallFunction`,
+`nutSpalartAllmarasStandardWallFunction` and `nutSpalartAllmarasWallFunction`.
+The user can consult the relevant directories for a full list of wall function
+models:
+
+-------------------------------------------------------------------------------
+$ find src/turbulenceModels -name wallFunctions
+-------------------------------------------------------------------------------
+
+Within each wall function boundary condition the user can over-ride default
+settings for math:[E], math:[\kappa] and math:[C_\mu] through optional `E`,
+`kappa` and `Cmu` keyword entries. Having selected the particular wall
+functions on various patches in the filename:nut[]/filename:mut[] file, the
+user should select `epsilonWallFunction` on corresponding patches in the
+filename:epsilon[] field and `kqRwallFunction` on corresponding patches in the
+turbulent fields filename:k[], filename:q[] and filename:R[].

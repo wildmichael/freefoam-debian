@@ -1,0 +1,233 @@
+#!@PYTHON_EXECUTABLE@
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
+#
+# Script
+#     freefoam-new.py.in
+#
+#------------------------------------------------------------------------------
+
+"""Usage:
+     freefoam@PY_SCRIPT_SUFFIX@ new [-h|-help]
+     freefoam@PY_SCRIPT_SUFFIX@ new source (H|C|I|IO|app) <name>
+     freefoam@PY_SCRIPT_SUFFIX@ new template (H|C|I|IO) <name>
+     freefoam@PY_SCRIPT_SUFFIX@ new cmake (lib|app)
+
+Create new source and CMake files.
+
+Options
+-------
+-d      Output-directory, defaults to the current working directory.
+-h
+-help   Display this help message
+
+In the following the arguments `source', `template' and `cmake' are explained:
+
+`source':
+   Creates a new @PROJECT_NAME@ header (H), source (C), included implementation
+   (I), iostream operators (IO) or application (app) file. The last argument
+   specifies the class name and is used to construct the file name.
+
+`template':
+   Creates a new @PROJECT_NAME@ header (H), source (C), included implementation
+   (I) or iostream operators (IO) file for a templated class. The next argument
+   specifies the class name and is used to construct the file name. All
+   following arguments are template parameters.
+
+`cmake':
+   This type scans the output directory for sources and creates a suitable
+   CMakeLists.txt file. It takes an argument specifying whether the sources are
+   used to build a library (lib) or an application (app).
+
+See Also
+--------
+wmakeToCMake - Converts simple wmake based build system to CMake.
+
+"""
+import os
+import os.path
+import sys
+import re
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+
+def create_source(kind, name, outdir):
+   suffix = ''
+   if kind == 'C' or kind == 'H':
+      template = 'foamTemplate'
+      ext = '.'+kind
+   elif kind == 'I':
+      template = 'foamTemplateI'
+      ext = '.H'
+      suffix = kind
+   elif kind == 'IO':
+      template = 'foamTemplateIO'
+      ext = '.C'
+      suffix = kind
+   elif kind == 'App' or kind == 'app':
+      template = 'foamAppTemplate'
+      ext = '.C'
+   else:
+      echo('ERROR: Unknown sub-type "%s"'%kind, file=sys.stderr)
+      sys.exit(1)
+   template = os.path.join(
+         os.path.normpath('@FOAM_DATA_DIR@'),
+         'templates', template+ext)
+   outname = os.path.join(outdir, name+suffix+ext)
+   # sanity checks
+   if not os.path.isdir(outdir):
+      echo('ERROR: "%s" is not a directory'%dir, file=sys.stderr)
+      sys.exit(1)
+   if os.path.exists(outname):
+      echo("ERROR: Cannot make %s, file exists"%outname, file=sys.stderr)
+      sys.exit(1)
+   outfile = open(outname, 'wt')
+   for l in open(template):
+      outfile.write(l.replace('className', name))
+   outfile.close()
+
+def create_template(kind, name, tArgs, outdir):
+   suffix = ''
+   if kind == 'C' or kind == 'H':
+      template = 'foamTemplateTemplate'
+      ext = '.'+kind
+   elif kind == 'I':
+      template = 'foamTemplateTemplateI'
+      ext = '.H'
+      suffix = kind
+   elif kind == 'IO':
+      template = 'foamTemplateTemplateIO'
+      ext = '.C'
+      suffix = kind
+   else:
+      echo('ERROR: Unknown sub-type "%s"'%kind, file=sys.stderr)
+      sys.exit(1)
+   template = os.path.join(
+         os.path.normpath('@FOAM_DATA_DIR@'),
+         'templates', template+ext)
+   outname = os.path.join(outdir, name+suffix+ext)
+   # sanity checks
+   if not os.path.isdir(outdir):
+      echo('ERROR: "%s" is not a directory'%dir, file=sys.stderr)
+      sys.exit(1)
+   if os.path.exists(outname):
+      echo("ERROR: Cannot make %s, file exists"%outname, file=sys.stderr)
+      sys.exit(1)
+   outfile = open(outname, 'wt')
+   for l in open(template):
+      l = l.replace(
+            'className', name).replace(
+            'TemplateClassArgument', 'class '+', class '.join(tArgs)).replace(
+            'TemplateArgument', ', '.join(tArgs))
+      outfile.write(l)
+   outfile.close()
+
+def create_cmakelists(kind, outdir):
+   cml = os.path.join(outdir, 'CMakeLists.txt')
+
+   # sanity checks
+   if not os.path.isdir(outdir):
+      echo('ERROR: "%s" is not a directory'%outdir, file=sys.stderr)
+      sys.exit(1)
+
+   if os.path.isfile(cml):
+      echo('ERROR: "%s" already exists, exiting'%cml, file=sys.stderr)
+      sys.exit(1)
+
+   # all sources
+   sources = []
+   for parent, dirs, files in os.walk(outdir):
+      d = os.path.relpath(parent, outdir)
+      if d == '.':
+         d = ''
+      sources.extend(map(lambda f: os.path.join(d,f),
+         filter(lambda f: os.path.splitext(f)[1] == '.C', files)))
+
+   # the name of the application
+   target_name=os.path.basename(outdir)
+   if kind == 'lib':
+      target_kind = 'library'
+   else:
+      target_kind = 'executable'
+
+   # configure CMakeLists.txt
+   open(cml, 'wt').write(
+   """
+cmake_minimum_required(VERSION 2.8)
+project(%(target_name)s)
+
+find_package(@PROJECT_NAME@ REQUIRED)
+include(${FOAM_USE_FILE})
+
+foam_add_%(target_kind)s(%(target_name)s
+  %(sources)s
+  )
+
+target_link_libraries(%(target_name)s FOAM_finiteVolume)
+
+# ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file
+"""%{
+      'target_kind': target_kind,
+      'target_name': target_name,
+      'sources': '\n  '.join(sources),
+      }
+   )
+
+# argument parsing
+args = sys.argv[1:]
+f_type = None
+f_sub_type = None
+class_name = None
+f_dir = os.getcwd()
+while len(args):
+   a = args[0]
+   if a == '-h' or a == '-help':
+      echo(__doc__)
+      sys.exit(0)
+   elif a == '-d':
+      f_dir = args[1]
+      del args[:2]
+   elif re.match(r'(?i)(class|template)', a) :
+      f_type = a.lower()
+      f_sub_type = args[1]
+      class_name = args[2]
+      del args[:3]
+      if f_type == 'class':
+         create_source(f_sub_type, class_name, f_dir)
+      else:
+         create_template(f_sub_type, class_name, args, f_dir)
+      break
+   elif a == 'cmake':
+      f_type = args[1]
+      del args[:2]
+      create_cmakelists(f_type, f_dir)
+      break
+
+# ------------------------- vim: set sw=3 sts=3 et: --------------- end-of-file

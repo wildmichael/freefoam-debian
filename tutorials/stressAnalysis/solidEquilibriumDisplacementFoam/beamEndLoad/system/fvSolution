@@ -1,0 +1,52 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    D
+    {
+        solver          GAMG;
+        tolerance       1e-06;
+        relTol          0.99;
+        smoother        GaussSeidel;
+        cacheAgglomeration true;
+        nCellsInCoarsestLevel 6;
+        agglomerator    faceAreaPair;
+        mergeLevels     1;
+    }
+
+    Dcorr
+    {
+        solver          GAMG;
+        tolerance       1e-06;
+        relTol          0.99;
+        smoother        GaussSeidel;
+        cacheAgglomeration true;
+        nCellsInCoarsestLevel 6;
+        agglomerator    faceAreaPair;
+        mergeLevels     1;
+    }
+}
+
+stressAnalysis
+{
+    nCorrectors     1;
+    D               1e-10;
+    accelerationFactor 2;
+}
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

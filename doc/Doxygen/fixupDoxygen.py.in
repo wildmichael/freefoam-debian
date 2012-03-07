@@ -1,0 +1,194 @@
+#!@PYTHON_EXECUTABLE@
+import sys
+import re
+import glob
+import os.path as op
+import time
+sys.path.insert(0, '@CMAKE_BINARY_DIR@/data/python')
+from FreeFOAM.compat import *
+
+echo('Fixing up Doxygen generated API documentation')
+
+srcdir = '@PROJECT_SOURCE_DIR@'
+
+# escaping table
+# actually, there are many more characters to escape, but those
+# should be the only ones relevant for FreeFOAM
+escapeTable = (
+      ('_', '__'),
+      ('/', '_2'),
+      ('.', '_8'),
+      )
+
+# regular expression to match includes
+incRegex = re.compile(
+      r'(?P<ptxt>.*<span\s+class="preprocessor">\s*\s*#\s*include\s+' +
+      r'(?:(?P<qinc>&quot;)|(?P<sinc>&lt;)))(?P<hdr>\S+.[CH])' +
+      r'(?P<atxt>(?(qinc)&quot;|&gt;).*)')
+
+glob_pattern = op.join(
+      '@CMAKE_CURRENT_BINARY_DIR@', '..', 'html', 'API',
+      '*_source.html')
+
+class FilePathParser(HTMLParser.HTMLParser):
+   '''Parse file name and includes from Doxygen-generated documentation'''
+   def __init__(self):
+      HTMLParser.HTMLParser.__init__(self)
+      self.inNavPath = False
+      self.inHeaderTitle = False
+      self._path = ''
+      self._includes = []
+
+   def parse(self, fname):
+      '''Parse the HTML file `fname`'''
+      lines = open(fname, 'rt').readlines()
+      self.feed(''.join(lines))
+      self.close()
+      # can't use HTMLParse for includes because of the discared white space
+      for l in lines:
+         m = incRegex.search(l)
+         if m is not None:
+            self._includes.append(m)
+      return op.normpath(self._path), self._includes
+
+   def handle_starttag(self, tag, attrs):
+      if tag == 'div':
+         if ('class', 'navpath') in attrs:
+            self.inNavPath = True
+         elif ('class', 'headertitle') in attrs:
+            self.inHeaderTitle = True
+
+   def handle_endtag(self, tag):
+      if tag == 'div':
+         if self.inNavPath:
+            self.inNavPath = False
+         elif self.inHeaderTitle:
+            self.inHeaderTitle = False
+
+   def handle_data(self, data):
+      data = data.strip()
+      if len(data):
+         if self.inNavPath or self.inHeaderTitle:
+            self._path = op.join(self._path, data)
+
+def parse_wrapper(hdr):
+   incdir = op.join('@CMAKE_BINARY_DIR@', 'include')
+   wrapper = op.normpath(op.join(srcdir, incdir, hdr))
+   realHdr = None
+   if op.isfile(wrapper):
+      # parse the file for the first #include statement and extract
+      # the file path
+      for ll in open(wrapper, 'rt'):
+         mm = re.match(r'#include "(.*)"', ll)
+         if mm:
+            realHdr = mm.group(1)
+            break
+      if not realHdr:
+         echo('ERROR: Failed to parse include wrapper "%s"'%wrapper,
+               file=sys.stderr)
+         sys.exit(1)
+      # construct the absolute path to the header
+      realHdr = op.normpath(
+            op.join(incdir, op.dirname(hdr), realHdr))
+      if not op.isfile(realHdr):
+         echo('ERROR: Wrapped include file "%s" does not exist'%realHdr,
+               file=sys.stderr)
+         sys.exit(1)
+   return op.relpath(realHdr, srcdir)
+
+htmlDocMap = {}
+sysHdrMap = {}
+quoteHdrMap = {}
+echo('- Parsing *_source.html')
+for f in glob.glob(glob_pattern):
+   parser = FilePathParser()
+   p, incs = parser.parse(f)
+   htmlDocMap[f] = p
+   for i in incs:
+      sysinc = i.group('sinc')!=None
+      hdr = i.group('hdr')
+      if sysinc:
+         if hdr not in sysHdrMap:
+            realHdr = parse_wrapper(hdr)
+            sysHdrMap[hdr] = realHdr
+      else:
+         if p not in quoteHdrMap:
+            quoteHdrMap[p] = {}
+         if hdr not in quoteHdrMap[p]:
+            realHdr = op.normpath(op.join(op.dirname(p), hdr))
+            if not op.isfile(op.join(srcdir, realHdr)):
+               echo('ERROR: Failed to find include file "%s" in %s'%(hdr, p),
+                     file=sys.stderr)
+               sys.exit(1)
+            quoteHdrMap[p][hdr] = realHdr
+
+# find shortest unique partial paths and mimick the name-mangling used by
+# doxygen
+echo('- Computing mangled file names')
+sources = set(htmlDocMap.values())
+docMap = dict(zip(sources, sources))
+for b in map(op.basename, docMap.values()):
+   subDocMap = dict(
+         filter(lambda hd: op.basename(hd[0])==b, docMap.items()))
+   if len(subDocMap) == 1:
+      prefix = op.dirname(tuple(subDocMap.values())[0])+op.sep
+   else:
+      prefix = op.commonprefix(subDocMap.values())
+   l = len(prefix)
+   for h, d in subDocMap.items():
+      d = d[l:]
+      for o, n in escapeTable:
+         d = d.replace(o, n)
+      # mimick file name truncation of Doxygen
+      if len(d) >= 128:
+         d = d[:128-32] + md5(d).hexdigest()
+      docMap[h] = d
+
+# now do the actual work of fixing up the docs
+echo('- Fixing #include linkes in the *_source.html files')
+for f, p in htmlDocMap.items():
+   lines = open(f, 'rt').readlines()
+   for i, l in enumerate(lines):
+      m = incRegex.match(l)
+      if m is not None:
+         hdr = m.group('hdr')
+         sysinc = m.group('sinc')!=None
+         if sysinc:
+            realHdr = sysHdrMap[hdr]
+         else:
+            realHdr = quoteHdrMap[p][hdr]
+         lines[i] = ''.join((
+            m.group('ptxt'),
+            '<a class="code" href="%s.html">%s</a>'%(docMap[realHdr], hdr),
+            m.group('atxt'),
+            '\n'))
+   open(f, 'wt').writelines(lines)
+
+# replace #CONFIG_YEAR# and #CONFIG_DATE_STAMP#, delete
+# #include <FOAM_LOCAL/hdr.H> and make #include "src/../hdr.H" links
+echo('- Fixing remaining #include links and expanding placeholders')
+year = time.strftime('%Y')
+stamp = time.strftime('%a, %d %b %Y %H:%M:%S %Z')
+for f in glob.glob(op.join(
+   '@CMAKE_CURRENT_BINARY_DIR@', '..', 'html', 'API', '*.html')):
+   lines = open(f, 'rt').readlines()
+   for i, l in enumerate(lines):
+      lines[i] = lines[i].replace('#CONFIG_YEAR#', year)
+      lines[i] = lines[i].replace('#CONFIG_DATE_STAMP#', stamp)
+      if re.match(r'^\s*<p><code>#include &lt.*>FOAM_LOCAL/', lines[i]):
+         del lines[i]
+         continue
+      m = re.match(r'(\s*<code>#include &quot;)((?:src|applications)/\S+\.H)' +
+            r'(&quot;</code>.*)', lines[i])
+      if m is not None:
+         hdr = m.group(2)
+         if hdr in docMap:
+            html = docMap[hdr]
+            lines[i] = ''.join((
+              m.group(1),
+              '<a href="%s.html">%s</a>'%(html, hdr),
+              m.group(3)))
+         else:
+            echo('WARNING: Failed to find HTML file for "%s"'%hdr,
+                  file=sys.stderr)
+   open(f, 'wt').writelines(lines)

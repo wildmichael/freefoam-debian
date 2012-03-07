@@ -1,0 +1,32 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class dsmcSupersonicCornerRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'dsmc_supersonicCorner')
+      self.add_app_step('blockMesh')
+      self.add_app_step('decomposePar')
+      self.add_app_step('dsmcInitialise', parallel=True)
+      self.add_app_step('dsmc', parallel=True)
+      self.add_app_step('reconstructPar', args=['-noLagrangian'])
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, '0', 'lagrangian'))
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, '0', 'dsmcSigmaTcRMax'))
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, '0', 'uniform'))
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(dsmcSupersonicCornerRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

@@ -1,0 +1,48 @@
+[[sec_fileStructureFoamCases]]
+=== File structure of {project} cases
+((({project},cases))) (((cases)))
+
+The basic directory structure for a {project} case, that contains the minimum
+set of files required to run an application, is shown in the following diagram.
+
+image::images/case_directoryStructure.{gfx-fmt}[]
+
+A dirname:constant[] directory::
+  (((dirname:constant[] directory))) (((directory,dirname:constant[])))
+  that contains a full description of the case mesh in a subdirectory
+  dirname:polyMesh[](((dirname:polyMesh[] directory)))
+  (((directory,dirname:polyMesh[]))) (see <<sec_polyMesh>>) and files
+  specifying physical properties for the application concerned, 'e.g.'
+  filename:transportProperties[] (see <<chap_models>>).
+A dirname:system[] directory::
+  (((dirname:system[] directory))) (((directory,dirname:system[])))
+  for setting parameters associated with the solution procedure itself. It
+  contains 'at least' the following 3 files:
+  - filename:controlDict[](((filename:controlDict[],dictionary)))
+    (((dictionary,filename:controlDict[]))) where run control parameters are
+    set including start/end time, time step and parameters for data output (see
+    <<sec_controlDict>>)
+  - filename:fvSchemes[](((filename:fvSchemes[],dictionary)))
+    (((dictionary,filename:fvSchemes[]))) where discretisation schemes used in
+    the solution may be selected at run-time (see <<sec_fvSchemes>>)
+  - filename:fvSolution[](((filename:fvSolution[],dictionary)))
+    (((dictionary,filename:fvSolution[]))) where the equation solvers,
+    tolerances and other algorithm controls are set for the run (see
+    <<sec_fvSolution>>)
+The `time' directories::
+  containing individual files of data for particular fields. The data can be:
+  either, initial values and boundary conditions that the user must specify to
+  define the problem; or, results written to file by {project}. Note that the
+  {project} fields must always be initialised, even when the solution does not
+  strictly require it, as in steady-state problems. The name of each time
+  directory is based on the simulated time at which the data is written and is
+  described fully in <<sec_controlDict>>. It is sufficient to say now that
+  since we usually start our simulations at time math:[t=0], the initial
+  conditions are usually stored in a directory named dirname:0[]
+  (((dirname:0[] directory)))(((directory,dirname:0[]))) or
+  dirname:0.000000e+00[],(((dirname:0.000000e+00[] directory)))
+  (((directory,dirname:0.000000e+00[]))) depending on the name format
+  specified. For example, in the `cavity` tutorial, the velocity field
+  math:[\U] and pressure field math:[p] are initialised from files
+  filename:0/U[] and filename:0/p[] respectively (see <<sec_fieldData>>).
+

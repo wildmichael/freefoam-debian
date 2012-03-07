@@ -1,0 +1,45 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      decomposeParDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+numberOfSubdomains 3;
+
+method          simple;
+
+simpleCoeffs
+{
+    n               ( 1 3 1 );
+    delta           0.001;
+}
+
+hierarchicalCoeffs
+{
+    n               ( 3 2 1 );
+    delta           0.001;
+    order           xyz;
+}
+
+manualCoeffs
+{
+    dataFile        "cellDecomposition";
+}
+
+metisCoeffs
+{
+}
+
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

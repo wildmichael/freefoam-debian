@@ -1,0 +1,98 @@
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
+
+file(RELATIVE_PATH TUTORIAL_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+
+foam_configure_files(installScriptFiles DESTDIR ${TUTORIAL_DIR}
+  Allrun.py.in
+  )
+
+foam_configure_files(installFiles DESTDIR ${TUTORIAL_DIR}
+  COPYONLY
+  0/G
+  0/H2O
+  0/N2
+  0/O2
+  0/T
+  0/U
+  0/alphat
+  0/epsilon
+  0/k
+  0/mut
+  0/p
+  0.org/G
+  0.org/H2O
+  0.org/N2
+  0.org/O2
+  0.org/T
+  0.org/U
+  0.org/alphat
+  0.org/epsilon
+  0.org/k
+  0.org/mut
+  0.org/p
+  constant/RASProperties
+  constant/chemistryProperties
+  constant/energySourceProperties
+  constant/g
+  constant/massSourceProperties
+  constant/momentumSourceProperties
+  constant/parcelInjectionProperties
+  constant/particleTrackProperties
+  constant/porousZones
+  constant/radiationProperties
+  constant/reactingCloud1Properties
+  constant/reactions
+  constant/thermo.incompressiblePoly
+  constant/thermophysicalProperties
+  constant/turbulenceProperties
+  constant/polyMesh/blockMeshDict
+  system/cellSetDict
+  system/changeDictionaryDict
+  system/controlDict
+  system/decomposeParDict
+  system/fvSchemes
+  system/fvSolution
+  system/sets.setSet
+  )
+
+install(PROGRAMS ${installScriptFiles}
+  DESTINATION ${FOAM_INSTALL_TUTORIALS_PATH}/${TUTORIAL_DIR}
+  COMPONENT tutorials
+  )
+
+foam_install_configured_files(FILES ${installFiles}
+  DESTINATION ${FOAM_INSTALL_TUTORIALS_PATH}
+  COMPONENT tutorials
+  )
+
+foam_add_tutorial_tests()
+
+# ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file

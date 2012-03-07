@@ -1,0 +1,66 @@
+= @FOAM_UPPER_EXE_PREFIX@GRAPHRESUVWP(1) =
+:mansource: @PROJECT_NAME@
+:manversion: @FOAM_VERSION_FULL@
+:manmanual: @PROJECT_NAME@ Manual
+
+NAME
+----
+@FOAM_EXE_PREFIX@graphResUVWP - Extract the residuals of 'U', 'V', 'W' and 'p' at each time step
+
+SYNOPSIS
+--------
+*@LOWER_PROJECT_NAME@ graphResUVWP* '<logFile>'
+
+DESCRIPTION
+-----------
+The utility extracts the residuals of the velocity components 'U', 'V' and 'W'
+and the pressure 'p' at each time step and writes them to 'residualUVWP.dat'.
+The file has the following format:
+=====================
+---------------------
+
+1 <resU1>
+2 <resU2>
+...
+
+1 <resV1>
+2 <resV2>
+...
+
+1 <resW1>
+2 <resW2>
+...
+
+1 <resP1>
+2 <resP2>
+...
+---------------------
+=====================
+where '<resUX>', '<resVX>', '<resWX>' and '<resPX>' are the residuals for 'U',
+'V', 'W' and 'p', respectively, at a given time-step 'X'.
+
+OPTIONS
+-------
+'<logFile>'::
+  A @PROJECT_NAME@ log file (i.e. the screen-output created by a @PROJECT_NAME@ solver)
+
+SEE ALSO
+--------
+An overview of @PROJECT_NAME@ is given in linkff:@LOWER_PROJECT_NAME@[1].
+
+AUTHOR
+------
+OpenCFD Ltd.
+
+FREEFOAM
+--------
+Part of the linkff:@LOWER_PROJECT_NAME@[1] suite.
+
+COPYRIGHT
+---------
+* Copyright (C) 1991-2010 OpenCFD Ltd.
+* Copyright (C) 2008-2012 Michael Wild.
+
+/////////////////////////////////////////////////////////
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+/////////////////////////////////////////////////////////

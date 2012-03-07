@@ -1,0 +1,430 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 1991-2010 OpenCFD Ltd.
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Application
+    surfaceMeshConvertTesting
+
+Description
+    Converts from one surface mesh format to another, but primarily
+    used for testing functionality.
+
+Usage
+    - surfaceMeshConvertTesting inputFile outputFile [OPTION]
+
+    @param \<inputfile\> \n
+    Surface file to be converted.
+
+    @param \<outputFile\> \n
+    File into which to write the converted surface.
+
+    @param -clean \n
+    Perform some surface checking/cleanup on the input surface.
+
+    @param -orient \n
+    Check face orientation on the input surface.
+
+    @param -scale \<scale\> \n
+    Specify a scaling factor for writing the files.
+
+    @param -triSurface \n
+    Use triSurface library for input/output.
+
+    @param -keyed \n
+    Use keyedSurface for input/output.
+
+    @param -case \<dir\> \n
+    Specify the case directory.
+
+    @param -help \n
+    Display short usage message.
+
+    @param -doc \n
+    Display Doxygen documentation page.
+
+    @param -srcDoc \n
+    Display source code.
+
+Note
+    The filename extensions are used to determine the file format type.
+
+\*---------------------------------------------------------------------------*/
+
+#include <OpenFOAM/argList.H>
+#include <OpenFOAM/timeSelector.H>
+#include <OpenFOAM/Time.H>
+#include <OpenFOAM/polyMesh.H>
+#include <triSurface/triSurface.H>
+#include <surfMesh/surfMesh.H>
+#include <surfMesh/surfFields.H>
+#include <surfMesh/surfPointFields.H>
+#include <OpenFOAM/PackedBoolList.H>
+
+#include <surfMesh/MeshedSurfaces.H>
+#include <surfMesh/UnsortedMeshedSurfaces.H>
+
+using namespace Foam;
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+//  Main program:
+
+int main(int argc, char *argv[])
+{
+    argList::noParallel();
+    argList::validArgs.append("inputFile");
+    argList::validArgs.append("outputFile");
+    argList::validOptions.insert("clean", "");
+    argList::validOptions.insert("orient", "");
+    argList::validOptions.insert("surfMesh", "");
+    argList::validOptions.insert("scale", "scale");
+    argList::validOptions.insert("triSurface", "");
+    argList::validOptions.insert("unsorted", "");
+    argList::validOptions.insert("triFace", "");
+#   include <OpenFOAM/setRootCase.H>
+    const stringList& params = args.additionalArgs();
+
+    scalar scaleFactor = 0;
+    args.optionReadIfPresent("scale", scaleFactor);
+
+    fileName importName(params[0]);
+    fileName exportName(params[1]);
+
+    if (importName == exportName)
+    {
+        FatalErrorIn(args.executable())
+            << "Output file " << exportName << " would overwrite input file."
+            << exit(FatalError);
+    }
+
+    if
+    (
+        !MeshedSurface<face>::canRead(importName, true)
+     || !MeshedSurface<face>::canWriteType(exportName.ext(), true)
+    )
+    {
+        return 1;
+    }
+
+    if (args.optionFound("triSurface"))
+    {
+        triSurface surf(importName);
+
+        Info<< "Read surface:" << endl;
+        surf.writeStats(Info);
+        Info<< endl;
+
+        if (args.optionFound("orient"))
+        {
+            Info<< "Checking surface orientation" << endl;
+            PatchTools::checkOrientation(surf, true);
+            Info<< endl;
+        }
+
+        if (args.optionFound("clean"))
+        {
+            Info<< "Cleaning up surface" << endl;
+            surf.cleanup(true);
+            surf.writeStats(Info);
+            Info<< endl;
+        }
+
+        Info<< "writing " << exportName;
+        if (scaleFactor <= 0)
+        {
+            Info<< " without scaling" << endl;
+        }
+        else
+        {
+            Info<< " with scaling " << scaleFactor << endl;
+            surf.scalePoints(scaleFactor);
+            surf.writeStats(Info);
+            Info<< endl;
+        }
+
+        // write sorted by region
+        surf.write(exportName, true);
+    }
+    else if (args.optionFound("unsorted"))
+    {
+        UnsortedMeshedSurface<face> surf(importName);
+
+        Info<< "Read surface:" << endl;
+        surf.writeStats(Info);
+        Info<< endl;
+
+        if (args.optionFound("orient"))
+        {
+            Info<< "Checking surface orientation" << endl;
+            PatchTools::checkOrientation(surf, true);
+            Info<< endl;
+        }
+
+        if (args.optionFound("clean"))
+        {
+            Info<< "Cleaning up surface" << endl;
+            surf.cleanup(true);
+            surf.writeStats(Info);
+            Info<< endl;
+        }
+
+        Info<< "writing " << exportName;
+        if (scaleFactor <= 0)
+        {
+            Info<< " without scaling" << endl;
+        }
+        else
+        {
+            Info<< " with scaling " << scaleFactor << endl;
+            surf.scalePoints(scaleFactor);
+            surf.writeStats(Info);
+            Info<< endl;
+        }
+        surf.write(exportName);
+    }
+#if 1
+    else if (args.optionFound("triFace"))
+    {
+        MeshedSurface<triFace> surf(importName);
+
+        Info<< "Read surface:" << endl;
+        surf.writeStats(Info);
+        Info<< endl;
+
+        if (args.optionFound("orient"))
+        {
+            Info<< "Checking surface orientation" << endl;
+            PatchTools::checkOrientation(surf, true);
+            Info<< endl;
+        }
+
+        if (args.optionFound("clean"))
+        {
+            Info<< "Cleaning up surface" << endl;
+            surf.cleanup(true);
+            surf.writeStats(Info);
+            Info<< endl;
+        }
+
+        Info<< "writing " << exportName;
+        if (scaleFactor <= 0)
+        {
+            Info<< " without scaling" << endl;
+        }
+        else
+        {
+            Info<< " with scaling " << scaleFactor << endl;
+            surf.scalePoints(scaleFactor);
+            surf.writeStats(Info);
+            Info<< endl;
+        }
+        surf.write(exportName);
+    }
+#endif
+    else
+    {
+        MeshedSurface<face> surf(importName);
+
+        Info<< "Read surface:" << endl;
+        surf.writeStats(Info);
+        Info<< endl;
+
+        if (args.optionFound("orient"))
+        {
+            Info<< "Checking surface orientation" << endl;
+            PatchTools::checkOrientation(surf, true);
+            Info<< endl;
+        }
+
+        if (args.optionFound("clean"))
+        {
+            Info<< "Cleaning up surface" << endl;
+            surf.cleanup(true);
+            surf.writeStats(Info);
+            Info<< endl;
+        }
+
+
+        Info<< "writing " << exportName;
+        if (scaleFactor <= 0)
+        {
+            Info<< " without scaling" << endl;
+        }
+        else
+        {
+            Info<< " with scaling " << scaleFactor << endl;
+            surf.scalePoints(scaleFactor);
+            surf.writeStats(Info);
+            Info<< endl;
+        }
+        surf.write(exportName);
+
+        if (args.optionFound("surfMesh"))
+        {
+            Foam::Time runTime
+            (
+                args.rootPath(),
+                args.caseName()
+            );
+
+            // start with "constant"
+            runTime.setTime(instant(0, runTime.constant()), 0);
+
+            Info<< "runTime.instance() = " << runTime.instance() << endl;
+            Info<< "runTime.timeName() = " << runTime.timeName() << endl;
+
+
+            Info<< "write MeshedSurface 'yetAnother' via proxy as surfMesh"
+                << endl;
+            surf.write
+            (
+                runTime,
+                "yetAnother"
+            );
+
+            surfMesh surfIn
+            (
+                IOobject
+                (
+                    "default",
+                    runTime.timeName(),
+                    runTime,
+                    IOobject::MUST_READ,
+                    IOobject::NO_WRITE
+                )
+            );
+
+
+            MeshedSurface<face> surfIn2(runTime, "foobar");
+
+            Info<<"surfIn2 = " << surfIn2.size() << endl;
+
+            Info<< "surfIn = " << surfIn.size() << endl;
+
+
+            Info<< "writing surfMesh as obj = oldSurfIn.obj" << endl;
+            surfIn.write("oldSurfIn.obj");
+
+
+            Info<< "runTime.instance() = " << runTime.instance() << endl;
+
+            surfMesh surfOut
+            (
+                IOobject
+                (
+                    "mySurf",
+                    runTime.instance(),
+                    runTime,
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                surf.xfer()
+            );
+
+            Info<< "writing surfMesh as well: " << surfOut.objectPath() << endl;
+            surfOut.write();
+
+            surfLabelField zoneIds
+            (
+                IOobject
+                (
+                    "zoneIds",
+                    surfOut.instance(),
+                    surfOut,
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                surfOut,
+                dimless
+            );
+
+            Info<<" surf name= " << surfOut.name() <<nl;
+            Info<< "rename to anotherSurf" << endl;
+            surfOut.rename("anotherSurf");
+
+            Info<<" surf name= " << surfOut.name() <<nl;
+
+            // advance time to 1
+            runTime.setTime(instant(1), 1);
+            surfOut.setInstance(runTime.timeName());
+
+
+
+            Info<< "writing surfMesh again well: " << surfOut.objectPath() << endl;
+            surfOut.write();
+
+            // write directly
+            surfOut.write("someName.ofs");
+
+#if 1
+            const surfZoneList& zones = surfOut.surfZones();
+            forAll(zones, zoneI)
+            {
+                SubList<label>
+                (
+                    zoneIds,
+                    zones[zoneI].size(),
+                    zones[zoneI].start()
+                ) = zoneI;
+            }
+
+            Info<< "write zoneIds (for testing only): "
+                << zoneIds.objectPath() << endl;
+            zoneIds.write();
+
+            surfPointLabelField pointIds
+            (
+                IOobject
+                (
+                    "zoneIds.",
+//                    "pointIds",
+                    surfOut.instance(),
+//                    "pointFields",
+                    surfOut,
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                surfOut,
+                dimless
+            );
+
+            forAll(pointIds, i)
+            {
+                pointIds[i] = i;
+            }
+
+            Info<< "write pointIds (for testing only): "
+                << pointIds.objectPath() << endl;
+            pointIds.write();
+
+            Info<<"surfMesh with these names: " << surfOut.names() << endl;
+
+#endif
+        }
+    }
+
+    Info<< "\nEnd\n" << endl;
+
+    return 0;
+}
+
+// ************************ vim: set sw=4 sts=4 et: ************************ //

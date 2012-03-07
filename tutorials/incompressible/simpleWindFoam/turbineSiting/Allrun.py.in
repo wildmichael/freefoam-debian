@@ -1,0 +1,38 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class simpleWindTurbineSitingRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'simpleWind_turbineSiting',
+            skip_test=True)
+      self._comp = FreeFOAM.tutorial.CompileApp(
+            os.path.join(self.case_dir, '..', 'simpleWindFoam'),
+            name='simpleWind')
+      self.add_step('compileSimpleWind', self._comp)
+      self.add_app_step('blockMesh')
+      self.add_app_step('snappyHexMesh', args=['-overwrite'])
+      self.add_app_step('setSet', args='-batch makeZones'.split())
+      self.add_app_step('setsToZones', args=['-noFlipMap'])
+      self.add_app_step('simpleWind', app=self._comp.app)
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      FreeFOAM.util.rmtree(os.path.join(self.case_dir, 'VTK'))
+      FreeFOAM.util.rmtree(
+            os.path.join(self.case_dir, 'constant', 'polyMesh', 'sets'))
+      FreeFOAM.tutorial.clean_application(self._comp.bindir)
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   runner.add_case(simpleWindTurbineSitingRunner())
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

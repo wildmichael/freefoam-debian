@@ -1,0 +1,145 @@
+#!@PYTHON_EXECUTABLE@
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#    checkApi.py
+#
+# Description
+#    Verifies that all required headers (and only those) are installed.
+#
+#    This utility script first searches through all application sources in the
+#    distribution and indexes all included files. It discards local/relative
+#    includes, and then searches for the remaining headers in the installation
+#    directory. It will report unused and missing headers in the installation.
+#
+# Bugs
+#    At the moment results in a *lot* of unused headers in the installation,
+#    simply because they are not ultimately included by an application. Not
+#    sure what a good policy would be...
+#
+#------------------------------------------------------------------------------
+
+import sys
+import os
+import os.path
+import re
+
+appdir = '@CMAKE_SOURCE_DIR@/applications'
+srcdir = '@CMAKE_SOURCE_DIR@/src'
+incdir = os.path.normpath('@FOAM_INSTALL_HEADER_PATH@')
+prefixes = (incdir, '/usr/include/c++/4.5', '/usr/include')
+srcRe = re.compile(r'\.(?:[CH]|[ch](?:[px]{2})?)$')
+commentRe = re.compile(r'//.*?$|/\*.*?\*/', re.S|re.M)
+includeRe = re.compile(
+      r'^\s*#\s*include\s+(?:(?P<local>")|(?P<system><))(?P<include>[^">]+)'+
+      r'(?(local)")(?(system)>)',
+      re.M)
+blacklist = (
+      'standards.h',
+      'sys/endian.h',
+      'stream.h',
+      'libccmio/ccmio.h',
+      'windows.h',
+)
+
+def locateHdr(f, h, local=True, system=True):
+   if local:
+      fullh = os.path.join(os.path.dirname(f), h)
+      if os.path.isfile(fullh):
+         return fullh
+   if system:
+      for p in prefixes:
+         fullh = os.path.join(p, h)
+         if os.path.isfile(fullh):
+            return fullh
+   return None
+
+# find all headers included by applications, check for their existence and
+# record FreeFOAM headers in reqHdrs
+reqHdrs = set()
+missingHdrs = set()
+for parent, dirs, files in os.walk(appdir):
+   files = filter(srcRe.search, files)
+   for f in files:
+      text = commentRe.sub('',
+            ''.join(open(os.path.join(parent, f), 'rt').readlines()))
+      for m in includeRe.finditer(text):
+         if m.group('system') is not None:
+            h = m.group('include')
+            if h not in blacklist:
+               hh = locateHdr('', h, local=False, system=True)
+               if hh is not None:
+                  if incdir == os.path.normpath(hh.replace(h, '')):
+                     reqHdrs.add(hh)
+               else:
+                  missingHdrs.add(h)
+
+# find recursively included headers, and add to allReqHdrs
+allReqHdrs = set(reqHdrs)
+fstack = list(reqHdrs)
+while len(fstack):
+   f = fstack.pop()
+   text = commentRe.sub('', ''.join(open(f, 'rt').readlines()))
+   for m in includeRe.finditer(text):
+      h = m.group('include')
+      if h not in blacklist:
+         hh = locateHdr(f, h, m.group('local')!=None, m.group('system')!=None)
+         if hh is not None:
+            p = os.path.normpath(hh.replace(h, ''))
+            nh = os.path.normpath(hh)
+            if incdir == p and nh not in allReqHdrs:
+               allReqHdrs.add(nh)
+               fstack.append(nh)
+         else:
+            missingHdrs.add(h)
+
+# now find all installed headers and record unused headers in unusedHdrs
+unusedHdrs = set()
+unknownFiles = []
+for parent, dirs, files in os.walk(incdir):
+   for f in files:
+      ff = os.path.join(parent, f)
+      if srcRe.search(ff) is not None:
+         if ff not in allReqHdrs:
+            unusedHdrs.add(ff)
+      else:
+         unknownFiles.append(ff)
+
+# print results
+for t, s in (
+      ('Unused headers', unusedHdrs),
+      ('Missing headers', missingHdrs),
+      ('Unknown files', unknownFiles),
+      ):
+   l = list(s)
+   l.sort()
+   sys.stderr.write(t+':\n\t'+'\n\t'.join(l)+'\n\n')
+
+# ------------------------- vim: set sw=3 sts=3 et: --------------- end-of-file

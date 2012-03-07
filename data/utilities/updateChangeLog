@@ -1,0 +1,124 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     updateChangeLog [-h|--help] [-s|--since <version>] <version>
+#
+# Description
+#     Updates the ChangeLog file with data from the GIT log.
+#
+#     -h
+#     --help             Print a help message
+#     -s <version>
+#     --since <version>  Instead of searching the latest annotated tag
+#                        beginning with a `v', use the history since tag
+#                        v<version>.
+#     <version>          The version to mention in the heading.
+#
+#------------------------------------------------------------------------------
+
+SUBDIRECTORY_OK=Yes
+
+OPTIONS_SPEC="\
+updateChangeLog [options] <version>
+
+Generates entries in the ChangeLog file for version <version> with data from
+the GIT version control.
+
+The --since <version> option requires that a git tree-ish object with the name
+v<version> exists (i.e. a tag named e.g. v0.1.0).
+--
+s,since=     Consider history since v<version> tag instead of latest v* tag."
+
+. "$(git --exec-path)/git-sh-setup"
+
+cd_to_toplevel
+
+FILE=ChangeLog
+SINCE=
+VERSION=
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+     -s|--since)
+        SINCE="v$2"
+        shift 2
+        ;;
+     --)
+        VERSION="$2"
+        shift 2
+        break
+        ;;
+  esac
+done
+
+if [ -z "$VERSION" ]; then
+   die "Version argument is required"
+fi
+
+if ! [ -w "$FILE" ]; then
+   die "The file '$FILE' does not exist or is not writeable"
+fi
+
+if [ -z "$SINCE" ]; then
+   SINCE="$(git describe --match 'v[0-9].[0-9].[0-9]*' --abbrev=0 2>/dev/null)"
+   stat=$?
+   if [ $stat -ne 0 ]; then
+      die "Failed to find latest annotated tag matching 'v[0-9].[0-9].[0-9]*'"
+   fi
+fi
+
+# determine whether SINCE is an ancestor of HEAD
+git merge-base "$SINCE" HEAD >/dev/null 2>&1 || \
+   die "Tag v$SINCE does not exist or is not an ancestor of HEAD"
+
+echo "Updating $FILE with changes from $SINCE to $VERSION"
+
+# write log entries to a temporary file
+tmp1=$(mktemp)
+tmp2=$(mktemp)
+trap 'rm -f $tmp1 $tmp2 2>/dev/null; exit 0' EXIT TERM INT
+git shortlog -w --format='* %s' "$SINCE"..HEAD | \
+   grep -v 'Merge branch' | sed 's|[0-9]):$|&:|' > "$tmp1"
+
+awk '
+BEGIN {dosub=1}
+/^Changes in {project}/ && dosub {
+  header = "Changes in {project} '$VERSION'";
+  print header;
+  print gensub(/./, "-", "g", header);
+  system("cat '$tmp1'");
+  dosub=0;
+}
+{print $0}' $FILE > $tmp2
+
+mv $tmp2 $FILE
+
+# ------------------------- vim: set sw=3 sts=3 et: --------------- end-of-file

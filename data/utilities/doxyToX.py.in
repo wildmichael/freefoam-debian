@@ -1,0 +1,379 @@
+#!@PYTHON2_EXECUTABLE@
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#    doxyToX
+#
+# Description
+#    Converts the documentation comments in the file headers into
+#    various formats (currently manpage and xhtml).
+#
+#------------------------------------------------------------------------------
+
+"""Usage: doxyToX@PY_SCRIPT_SUFFIX@ [options] <name> <file>
+
+Converts the documentation comments in the file headers into various formats
+(such as asciidoc, man, pdf, html or xml). If <file> ends on [0-9]+.txt, it
+is assumed that it is an AsciiDoc source file.
+
+Options
+-------
+-h
+-help               Display this help message
+-f <format>         Output format (default to 'manpage'). Possible values
+                    are: manpage, xhtml and asciidoc (invalid for AsciiDoc
+                    input files)
+-o <outDir>         Put the output in <outDir> instead of the same directory as
+                    the source is in.
+-a <confFile>       Specify additional AsciiDoc configuration file to use. The
+                    files @FOAM_DATA_DIR@/asciidoc/manpage.conf and
+                    @FOAM_DATA_DIR@/asciidoc/html.conf for manpage and xhtml
+                    formats, respectively are always used. Can be specified
+                    multiple times.
+-v <version>        Use <version> as the version number. Defaults
+                    to '@FOAM_VERSION_FULL@'.
+<name>              Name of the man-page to create.
+<file>              The source file to to process.
+
+"""
+
+import imp
+import sys
+import os
+import os.path
+import re
+import shutil
+import tempfile
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+
+# cleanup utility function
+def _cleanup_generated(files, dirs):
+   for f in files:
+      if os.path.isfile(f):
+         os.remove(f)
+   for d in dirs:
+      if os.path.isdir(d):
+         os.rmdir(d)
+
+def _prepare_asciidoc(format, source):
+   if format == 'asciidoc':
+      echo("Error: Input and output cannot be both in AsciiDoc format", file=sys.stderr)
+      sys.exit(1)
+   section = None
+   outName = None
+   # parse the section and the name from the source
+   lines = open(source, 'rt').readlines()
+   for l in lines:
+      m = re.match(r'^=.*\((?P<section>\d+)\)\s*=$', l)
+      if m:
+         section = m.group('section')
+         break
+   i = 0
+   while i < len(lines):
+      l = lines[i]
+      if re.match(r'^NAME$', l):
+         outName = lines[i+2].split()[0]
+         break
+      i += 1
+   if not section:
+      echo("ERROR: '%s' is malformed (no man section number in title)"%source,
+            file=sys.stderr)
+      sys.exit(1)
+   elif not outName:
+      echo("ERROR: '%s' is malformed (does not contain NAME section)"%source,
+            file=sys.stderr)
+      sys.exit(1)
+   if format == 'manpage':
+      # only manpage format creates name from file contents,
+      # all others just strip .txt from the end
+      outName = os.path.join(outDir, outName+'.'+section+outExt)
+   else:
+      outName = os.path.join(outDir, os.path.basename(os.path.splitext(source)[0]))+outExt
+   return section, outName
+
+def _prepare_header_comments(format, source):
+   import FreeFOAM.doxyToAsciidoc
+   # parse the header comments
+   doc = FreeFOAM.doxyToAsciidoc.Parser(source).parse()
+   # set up substitutions
+   substitutions = {
+         'arguments': ' '.join(map(lambda x: "'%s'"%x, doc['arguments'])),
+         'author': '\n'.join(doc['author']),
+         'bar': 57*'/',
+         'brief': '\n'.join(doc['brief']),
+         'detailed': '\n'.join(doc['detailed']),
+         'name': name,
+         'name_upper': name.upper(),
+         'optional_text': '',
+         'project': '@PROJECT_NAME@',
+         'project_lower': '@PROJECT_NAME@'.lower(),
+         'project_upper': '@PROJECT_NAME@'.upper(),
+         'section': section,
+         'seealso': '\n'.join(doc['seealso']),
+         'source': source,
+         'usage': '\n'.join(doc['usage']),
+         'version': version,
+         }
+   options = []
+   for o, a in doc['options'].items():
+      if a:
+         options.append("[%s '%s']"%(o,a))
+      else:
+         options.append("[%s]"%o)
+   substitutions['options'] = ' '.join(options)
+   if len('@FOAM_EXE_PREFIX@'):
+      substitutions['base_name'] = name.replace('@FOAM_EXE_PREFIX@', '', 1)
+   for s, t in doc['sections'].items():
+      substitutions['optional_text'] += (
+            '\n'.join((s.upper(), len(s)*'-', '')) +
+            '\n'.join(t))
+   # construct output name
+   outName = os.path.join(outDir,
+         '%(name)s.%(section)s'%substitutions)+outExt
+
+   # set up temporary asciidoc source
+   tmpdir = ''
+   asciidocSource = '%(name)s.%(section)s.txt'%substitutions
+   if format == 'asciidoc':
+      asciidocSource = os.path.join(outDir, asciidocSource)
+   else:
+      tmpdir = tempfile.mkdtemp()
+      asciidocSource = os.path.join(tmpdir, asciidocSource)
+   # write it
+   try:
+      outFile = open(asciidocSource, 'wt')
+      outFile.write("""%(bar)s
+THIS FILE WAS AUTOMATICALLY GENERATED FROM:
+  %(source)s
+CHANGES TO THIS FILE WILL BE LOST! EDIT THE
+ABOVE MENTIONED SOURCE FILE INSTEAD.
+%(bar)s
+= %(name_upper)s(%(section)s) =
+:mansource: %(project)s
+:manversion: %(version)s
+:manmanual: %(project)s Manual
+
+NAME
+----
+%(name)s - %(brief)s
+
+SYNOPSIS
+--------
+*%(project_lower)s %(base_name)s* %(arguments)s %(options)s
+
+DESCRIPTION
+-----------
+%(detailed)s
+
+OPTIONS
+-------
+%(usage)s
+
+%(optional_text)s
+
+SEE ALSO
+--------
+%(seealso)sAn overview of %(project)s is given in linkff:%(project_lower)s[1].
+
+AUTHOR
+------
+%(author)s
+== %(project_upper)s ==
+Part of the linkff:%(project_lower)s[1] suite.
+
+COPYRIGHT
+---------
+* Copyright (C) 2008-2012 Michael Wild.
+* Copyright (C) 1991-2010 OpenCFD Ltd.
+"""%substitutions)
+   except:
+      _cleanup_generated([asciidocSource], [tmpdir])
+      raise
+   return asciidocSource, outName
+
+def _fake_copy_resources(self, html_files, src_dir, dst_dir, resources=[]):
+   pass
+
+# option parsing
+outDir = '.'
+version = '@FOAM_VERSION_FULL@'
+format = 'manpage'
+outExt = ''
+customConfigs = []
+attributes = []
+
+args = sys.argv[1:]
+while len(args) > 0:
+   a = args[0]
+   if a == '-h' or a == '-help':
+      echo(__doc__)
+      sys.exit(0)
+   elif a == '-f':
+      if len(args) < 2:
+         echo('Error: The -f option requires an argument', file=sys.stderr)
+         sys.exit(1)
+      format = args[1]
+      del args[0:2]
+      validformats = ('manpage', 'xhtml', 'asciidoc')
+      if format not in validformats:
+         echo('Error: Invalid format "%s". Must be one of\n  %s'%
+               (format, ' '.join(validformats)), file=sys.stderr)
+         sys.exit(1)
+      if format == 'xhtml':
+         outExt = '.html'
+      elif format == 'asciidoc':
+         outExt = '.txt'
+   elif a == '-o':
+      if len(args) < 2:
+         echo('Error: The -o option requires an argument', file=sys.stderr)
+         sys.exit(1)
+      outDir = args[1]
+      del args[0:2]
+   elif a == '-a':
+      if len(args) < 2:
+         echo('Error: The -a option requires an argument', file=sys.stderr)
+         sys.exit(1)
+      customConfigs.append('"%"'%args[1])
+      del args[0:2]
+   elif a == '-v':
+      if len(args) < 2:
+         echo('Error: The -v option requires an argument', file=sys.stderr)
+         sys.exit(1)
+      version = args[1]
+      del args[0:2]
+   else:
+      break
+
+if len(args) != 2:
+   echo('Error: the name and input file required arguments', file=sys.stderr)
+   sys.exit(1)
+
+name = args[0]
+source = args[1]
+
+if not os.path.isfile(source):
+   echo('Error: "%s" does not exist or is not a file'%source, file=sys.stderr)
+   sys.exit(1)
+
+if not os.path.isdir(outDir):
+   echo('Error: "%s" does not exist or is not a directory'%outDir, file=sys.stderr)
+   sys.exit(1)
+
+# assemble list of configuration files
+asciidocConfigs = [
+      '', # empty for formatting
+      ]
+xsl_file = None
+xsltproc_opts = [
+  '--param man.th.title.max.length 100',
+  '--stringparam foam.version.full %s'%version
+  ]
+if format == 'manpage':
+   asciidocConfigs.append('"@FOAM_DATA_DIR@/asciidoc/manpage.conf"')
+elif format == 'xhtml':
+   asciidocConfigs.append('"@FOAM_DATA_DIR@/asciidoc/docbook.conf"')
+   xsl_file = '@FOAM_DATA_DIR@/asciidoc/docbook-xsl/xhtml.xsl'
+   xsltproc_opts.append('--param foam.man.current 1')
+   xsltproc_opts.append('--param foam.doc.have_man 1')
+   if '@FOAM_DOCS_FOR_SF@' == 'ON':
+      xsltproc_opts.append('--param foam.doc.for_sf 1')
+   if '@FOAM_ENABLE_XHTML_GUIDES@' == 'ON':
+      xsltproc_opts.append('--param foam.doc.have_ug 1')
+   if '@FOAM_ENABLE_DOXYGEN_DOCS@' == 'ON':
+      xsltproc_opts.append('--param foam.doc.have_doxy 1')
+asciidocConfigs.extend(customConfigs)
+
+# check whether it is already asciidoc source
+m = re.search(r'\.txt$', source)
+if m:
+   is_generated = False
+   asciidocSource = source
+   section, outName = _prepare_asciidoc(format, source)
+else:
+   is_generated = True
+   section = 1
+   asciidocSource, outName = _prepare_header_comments(format, source)
+
+# process the AsciiDoc source
+if format != 'asciidoc':
+   # load the a2x executble as a module
+   a2xfile = open('@A2X_EXECUTABLE@', 'rt')
+   try:
+      a2xmodule = imp.load_module('a2xmodule', a2xfile, a2xfile.name,
+            (os.path.splitext(a2xfile.name)[1], 'r', imp.PY_SOURCE))
+   finally:
+      a2xfile.close()
+   # set up options for a2x
+   opts = {
+         'doctype': 'manpage',
+         'destination_dir': os.path.abspath(outDir),
+         'format': format,
+         'asciidoc_opts': ' -f '.join(asciidocConfigs),
+         'xsltproc_opts': ' '.join(xsltproc_opts),
+         'asciidoc_file': asciidocSource,
+         'conf_file': None,
+         'verbose': False,
+         'resource_dirs': [],
+         'resources': [],
+         'resource_manifest': None,
+         'attributes': attributes,
+         'epubcheck': False,
+         'icons': False,
+         'icons_dir': None,
+         'keep_artifacts': False,
+         'lynx': False,
+         'no_xmllint': False,
+         'dry_run': False,
+         'stylesheet': '../../css/docbook-xsl.css',
+         'dblatex_opts': '',
+         'fop': False,
+         'fop_opts': '',
+         'xsl_file': xsl_file,
+         }
+   # override A2X.copy_resources
+   a2xmodule.A2X.copy_resources = _fake_copy_resources
+   # instantiate A2X class and execute the thing
+   a2x = a2xmodule.A2X(opts)
+   a2xmodule.OPTIONS = a2x
+   a2x.load_conf()
+   a2x.execute()
+
+   # tidy up
+   if is_generated:
+      _cleanup_generated([asciidocSource], [os.path.dirname(asciidocSource)])
+   # compute the final destination name the output SHOULD have
+   destName = os.path.join(outDir,
+         '%s.%s%s'%(name, section, outExt))
+   # if that doesn't match the output file name, rename it
+   if outName != destName:
+      shutil.move(outName, destName)
+
+# ------------------------- vim: set sw=3 sts=3 et: --------------- end-of-file

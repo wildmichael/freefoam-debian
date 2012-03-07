@@ -1,0 +1,39 @@
+[[sec_runningApplications]]
+=== Running applications
+
+Each application is designed to be executed from a terminal command line,
+typically reading and writing a set of data files associated with a particular
+case. The data files for a case are stored in a directory named after the case
+as described in <<sec_fileStructureFoamCases>>; the directory name with
+full path is here given the generic name dirname:<caseDir>[].
+
+For any application, the form of the command line entry for any can be found by
+simply entering the application name at the command line with the
+option:-help[] option, 'e.g.' typing
+
+-------------------------------------------------------------------------------
+$ freefoam blockMesh -help
+-------------------------------------------------------------------------------
+
+returns the usage
+
+-------------------------------------------------------------------------------
+Usage: blockMesh [-dict dictionary] [-case dir] [-blockTopology] [-region name]  [-help] [-doc] [-srcDoc]
+-------------------------------------------------------------------------------
+
+The arguments in square brackets, `[]`, are optional flags. If the application
+is executed from within a case directory, it will operate on that case.
+Alternatively, the `-case <caseDir>` option allows the case to be specified
+directly so that the application can be executed from anywhere in the filing
+system.
+
+Like any 'UNIX'/'Linux' executable, applications can be run as as a background
+process,(((background,process)))(((process,background))) 'i.e.' one which does
+not have to be completed before the user can give the shell additional
+commands. If the user wished to run the `blockMesh` example as a background
+process and output the case progress to a filename:log[] file, they could
+enter:
+
+-------------------------------------------------------------------------------
+$ freefoam blockMesh > log &
+-------------------------------------------------------------------------------

@@ -1,0 +1,14 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.com               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+flowVelocity         (0 0 0);
+pressure             0;
+turbulentKE          1.3;
+turbulentEpsilon     0.01;
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

@@ -1,0 +1,83 @@
+=== Mapping fields between different geometries
+(((fields,mapping))) (((mapping,fields)))
+
+The `mapFields`(((`mapFields` utility)))(((utility,`mapFields`))) utility maps
+one or more fields relating to a given geometry onto the corresponding fields
+for another geometry.  It is completely generalised in so much as there does
+not need to be any similarity between the geometries to which the fields
+relate. However, for cases where the geometries are consistent, `mapFields` can
+be executed with a special option that simplifies the mapping process.
+
+
+For our discussion of `mapFields` we need to define a few terms. First, we say
+that the data is mapped from the 'source' to the 'target'. The fields are
+deemed 'consistent' if the geometry 'and' boundary types, or conditions, of
+both source and target fields are identical. The field data that `mapFields`
+maps are those fields within the time directory specified by
+`startFrom`/`startTime` in the filename:controlDict[]
+(((filename:controlDict[],dictionary)))(((dictionary,filename:controlDict[])))
+of the target case. The data is read from the equivalent time directory of the
+source case and mapped onto the equivalent time directory of the target case.
+
+==== Mapping consistent fields
+
+A mapping of consistent fields is simply performed by executing `mapFields` on
+the (target) case using the option:-consistent[] command line option as
+follows:
+
+-------------------------------------------------------------------------------
+$ freefoam mapFields '<source dir>' -consistent
+-------------------------------------------------------------------------------
+
+==== Mapping inconsistent fields
+
+When the fields are not consistent, as shown in
+<<fig_mappingInconsistentFields>>, `mapFields` requires a
+filename:mapFieldsDict[] dictionary in the dirname:system[] directory of the
+target case. The following rules apply to the mapping:
+
+- the field data is mapped from source to target wherever possible, 'i.e.' in
+  our example all the field data within the target geometry is mapped from the
+  source, except those in the shaded region which remain unaltered;
+- the patch field data is left unaltered unless specified otherwise in the
+  filename:mapFieldsDict[] dictionary.
+
+The filename:mapFieldsDict[] dictionary contain two lists that specify mapping
+of patch data.  The first list is `patchMap`(((`patchMap` keyword)))
+(((keyword,`patchMap`))) that specifies mapping of data between pairs of source
+and target patches that are geometrically coincident, as shown in
+<<fig_mappingInconsistentFields>>. The list contains each pair of names of
+source and target patch. The second list is `cuttingPatches` that contains
+names of target patches whose values are to be mapped from the source internal
+field through which the target patch cuts. In the situation where the target
+patch only cuts through part of the source internal field, 'e.g.' bottom left
+target patch in our example, those values within the internal field are mapped
+and those outside remain unchanged.
+
+[[fig_mappingInconsistentFields]]
+.Mapping inconsistent fields
+image::images/mesh_mappingInconsistentFields.{gfx-fmt}[]
+
+An example filename:mapFieldsDict[] dictionary is shown below:
+
+-------------------------------------------------------------------------------
+patchMap        ( lid movingWall );
+
+cuttingPatches  ( fixedWalls );
+-------------------------------------------------------------------------------
+
+The user can invoke `mapFields` as follows:
+
+-------------------------------------------------------------------------------
+$ freefoam mapFields '<source dir>'
+-------------------------------------------------------------------------------
+
+==== Mapping parallel cases
+
+If either or both of the source and target cases are decomposed for running in
+parallel, additional options must be supplied when executing `mapFields`:
+
+`-parallelSource`::
+  if the source case is decomposed for parallel running;
+`-parallelTarget`::
+  if the target case is decomposed for parallel running.

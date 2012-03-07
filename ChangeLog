@@ -1,0 +1,207 @@
+Change Log for {project}
+========================
+Michael Wild <themiwi@users.sourceforge.net>
+v{fullver}, {localdate}
+:Author Initials: MW
+:linkcss!:
+:numbered:
+{homepage}
+
+:openfoam: http://openfoam.org[OpenFOAM(R)]
+:repo: http://repo.or.cz/w/freefoam.git[GIT repository]
+:opencfd: http://opencfd.co.uk[OpenCFD(R) Ltd.]
+
+This file describes the most important changes made between {project} versions.
+It does not include changes made by the upstream developers (i.e. {openfoam}).
+For the detailed changes refer to the log provided by the {repo}.
+
+
+Changes in {project} 0.1.0
+--------------------------
+Michael Wild (24)::
+      * FIX: installation of css/js files in doc/CMakeLists.txt
+      * ENH: Update the dashboard templates
+      * FIX: Set CTEST_NIGTHLY_START_TIME in CTestConfig.cmake
+      * ENH: Don't use unitsdef in mesh_wedgeGeometry.asy
+      * FIX: Directly use asciidoc+xsltproc for UserGuide-xhtml
+      * DOC: Minor formatting problems in the UserGuide
+      * DOC: Mention parMetis in the UserGuide
+      * ENH: New dashboard scripts, documented in HACKING
+      * FIX: Python exception handling across different versions
+      * STYLE: Invalid encoding and typos in comments in dragModel.H
+      * FIX: Don't use dict.iter{items,values}, they don't exist in python 3
+      * FIX: md5 module does not exist in python 3
+      * FIX: text encoding issues with python 3
+      * STYLE: More encoding issues (non-ascii characters)
+      * FIX: md5 module does not exist in python 2.7
+      * FIX: Logic for not setting {SO,}VERSION for BUNDLEs
+      * ENH: Make FOAM_INSTALL_PYTHON_PATH depend on PYTHON_VERSION
+      * FIX: Require and use Python-2 to run AsciiDoc
+      * DOC: Spelling of "AsciiDoc" in README
+      * FIX: Make stock icons available to FOP-builds of UserGuide.pdf
+      * DOC: Mention zlib as being auto-buildable in INSTALL
+      * DOC: Fixed FOAM_INSTALL_*_PATH listing in INSTALL
+      * DOC: Typos, formulation fixes in INSTALL
+      * DOC: Updated ReleaseNotes to Ubuntu 11.10 and remove RC status
+      * DOC: AsciiDoc 8.6.{5,6} depend on Python 2.5
+
+Changes in {project} 0.1.0rc7
+-----------------------------
+Henry Weller (1)::
+      * symmTensor: Corrected symmTensor & symmTensor dot-product
+
+Laurence McGlashan (1)::
+      * BUG: mantis #157: swapUp/swapDown changed when considering
+         first/last element
+
+Michael Wild (15)::
+      * FIX: Do not set FOAM_{,SO}VERSION for MODULE libraries on APPLE
+      * FIX: Search for ParaView versions up to 3.12.0
+      * FIX: ParaView changed the format of the version string
+      * FIX: Use --location with curl when downloading CCMIO
+      * FIX: Mistake commiting bin/freefoam-log.py.in
+      * FIX: Use pvbatch to determine ParaView version
+      * FIX: subprocess.check_output was added to python 2.7, not 2.5
+      * FIX: cavity case instructions in INSTALL
+      * ENH: Added utility to update ChangeLog from GIT
+      * STYLE: Updated FreeFOAM copyright dates
+      * FIX: FindExecInfo.cmake continued although EXECINFO_INCLUDE_DIR was
+         -NOTFOUND
+      * FIX: Hardcoded paths in data/utilities/compareDeps.py.in
+      * DOC: Document FOAM_BUILD_PRIVATE_ZLIB and correctly sort
+         FOAM_ENABLE_MATHJAX
+      * FIX: Set sys.path in bin/*.py.in
+      * ENH: Update FreeFOAM contributions to GPL v3
+
+Changes in {project} 0.1.0rc6
+-----------------------------
+* Use HTTP redirects for non-free downloads to have permanent URLs in the code
+* No need to patch METIS anymore
+* Minor fixes in Python code
+* Convince AsciiDoc a2x not copy the resource files as this is handled manually
+* AsciiDoc renamed some files, adjust to that
+* Fix the nanoNozzle tutorial
+* Require CMake-2.8.2 and simplify ThirdParty downloading
+* Fix the documentation of the parRunTemplate variables in etc/controlDict
+* Unhide the terminal cursor after running the tutorials
+* Fix freefoam-log, add a -case option
+* Pass -parallel only once when running the tutorials
+* Resolve linking issues
+* Force linking against certain libraries when --as-needed is effective
+* Remove unnecessary calls to find_package for privately built dependencies
+* Fix invalid HTML in docs
+* Improve API documentation
+
+Changes in {project} 0.1.0rc5
+-----------------------------
+* Merged with upstream (OpenFOAM-1.6.x and OpenFOAM-1.7.x),
+  up to revision linkrepo:openfoam17[d08d3c].
+* Changed API-doc URL to be versioned.
+* Updated the design of the API-doc to match the homepage.
+* Generate a doc-index mapping application names to HTML file names.
+* Removed obsolete shell scripts.
+* Create manpages from the header comments.
+* Updated/fixed/extended header comments.
+* Added manpages for the scripts.
+* Translated all scripts to Python.
+* foamCalc accepts options properly.
+* Added work-arounds for old GCC compilers (pre-4.4).
+* Removed the ParaView plugins.
+* Reworked build system.
+* metisDecomp and scotchDecomp were extracted into separate libraries.
+* zlib can now be auto-downloaded and built if not available.
+* Print a spiffy feature summary after the configuration finished.
+* Added a rudimentary wmake compatibility layer and a simplistic wmake-to-CMake
+  conversion script.
+* Drive the tutorial-cases using CTest.
+* Added template script for setting up a CDash client.
+* Removed gammaPstream as Gamma appears to be dead.
+* Ported the online OpenFOAM-UserGuide to AsciiDoc source and create XHTML and
+  PDF documents from it.
+* Fixed various static initialization issues.
+* Fixed many minor bugs and added numerous small improvements.
+
+Changes in {project} 0.1.0rc4
+-----------------------------
+* Improved building of METIS and ParMetis (no non-standard headers and
+  feature detection of mallinfo).
+* Improved detection of backtrace() and backtrace_symbols() availability.
+* Improved detection of SIGFPE handling capabilities.
+* More flexible -doc and -srcDoc options using an index file. It is now
+  possible to use the online documentation and have {project} output
+  the location of the documentation file instead of trying to open it
+  using a browser.
+* Fixed some bugs in the build system and some utility scripts.
+* Merged with upstream (OpenFOAM-1.5.x), up to revision
+  linkrepo:openfoam[5f9a16].
+
+Changes in {project} 0.1.0rc3
+-----------------------------
+* Fixed typo in new dummyPrintStack.C.
+
+Changes in {project} 0.1.0rc2
+-----------------------------
+* Only print stack trace if the system supports it and then only don't
+  try to shell-escape and use addr2line for file/line information.
+* Use full version number for default installation directory names and
+  use the hyphen to separate it from the directory name instead of creating a
+  subdirectory.
+* Configure global.C instead of using preporcessor defines. This
+  solves unnecessary recompiles of the complete OpenFOAM library.
+
+Changes in {project} 0.1.0rc1
+-----------------------------
+* CMake based build system
+* New, automatically created include-structure in the build tree,
+  corresponding to the install tree:
++
+--
+  <binary_dir>/
+    include/
+      OpenFOAM/
+        Scalar.H -> includes <source_dir>/src/OpenFOAM/primitives/Scalar/Scalar.H
+        Scalar.C -> includes <source_dir>/src/OpenFOAM/primitives/Scalar/Scalar.C
+        ..
+      finiteVolume/
+        ..
+      compressibleRASModels/
+        ..
+      incompressibleRASModels/
+        ..
+      compressibleLESModels/
+        ..
+      incompressibleLESModels/
+        ..
+      ..
+--
+* All source files (with a few exceptions) use the new
+  ++#include <libname/filename>++ scheme
+* Renamed files/directories with ambiguous names (distinguish only through
+  capitalization)
+* Applied B. Gschaider's Mac OS X Patches versions 1 and 3
+* Made the interfaces of sig{Fpe,Int,Quit,Segv} OS-agnostic
+* Moved 'Pstream' implementations into loadable modules
+* Configurable search path for plugins
+* Removed all dependencies on environment variables
+* Removed wmake build system and shell init scripts
+* Removed obsolete, useless and black-magick scripts from +bin/+
+* Adapted Doxygen creation to {project}
+* Use a user-configurable template string for running parallel jobs with 'foamJob'
+* Moved non-essential utility scripts to +data/utilities+
+* Moved +bin/tools+ into +data/shellFunctions+
+* Turned +bin/{newSource,newSourceTemplate}+ into shell-functions
+* Added +\~{project}/+ to be expanded like +~OpenFOAM/+
+* Improved 'dotFoam()' search for config files
+* Rebranded source templates, Doxygen doc, 'IOobject::writeBanner()' and the
+  scripts in +bin/+
+* Do not run +XiFoam/moriyoshiHomogeneousPart2+ when testing
+
+''''''''''''''''''''''''''''
+{openfoam} is a registered trademark of {opencfd}
+
+//////////////////////////////////////////////////////////////////
+Process with: asciidoc -a toc -f data/asciidoc/html.conf ChangeLog
+
+Vim users, this is for you:
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+//////////////////////////////////////////////////////////////////

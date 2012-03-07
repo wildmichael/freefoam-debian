@@ -1,0 +1,462 @@
+# - Use module for @PROJECT_NAME@
+# Sets up a CMake project to use @PROJECT_NAME@. It is assumend that
+# @PROJECT_NAME@Config.cmake has already been loaded.
+#
+# Typical usage might look like this:
+#
+#  cmake_minimum_required(VERSION 2.8)
+#  project(some_project CXX)
+#  find_package(@PROJECT_NAME@ REQUIRED)
+#  include(${FOAM_USE_FILE})
+#  foam_add_library(some_library lib_src.C)
+#  foam_add_executable(some_solver sol_src.C)
+#  target_link_libraries(some_solver some_library FOAM_finiteVolume)
+#
+# Note that all functions are prefixed by foam_ and that linking against
+# @PROJECT_NAME@ libraries requires prefixing FOAM_ to their name in order to
+# avoid name-clashes.
+#
+# FORCED LINKING
+#
+# Some of the libraries in @PROJECT_NAME@ are only used through abstract base
+# classes, e.g. a lot of solvers use the Foam::incompressible::turbulenceModel
+# abstract base class, and never explicitly reference a symbol from the
+# FOAM_incompressibleRASModels library. This has the consequence, that if the
+# --as-needed linker flag is used (on recent Linux systems it even is the
+# default), the linker drops the FOAM_incompressibleRASModels, although it has
+# been specified since no symbol from the library is being used. To prevent
+# this from happening, for some of the libraries special source files are
+# provided which can be used to force the linker to not drop the library. The
+# following table gives an overview over the provided variables and the library
+# they correspond to:
+#
+#  FOAM_FORCE_LINK_COMPRESSIBLE_RAS_MODELS    - FOAM_compressibleRASModels
+#  FOAM_FORCE_LINK_COMPRESSIBLE_LES_MODELS    - FOAM_compressibleLESModels
+#  FOAM_FORCE_LINK_INCOMPRESSIBLE_RAS_MODELS  - FOAM_incompressibleRASModels
+#  FOAM_FORCE_LINK_INCOMPRESSIBLE_LES_MODELS  - FOAM_incompressibleLESModels
+#  FOAM_FORCE_LINK_GENERIC_PATCH_FIELDS       - FOAM_genericPatchFields
+#  FOAM_FORCE_LINK_RADIATION                  - FOAM_radiation
+#  FOAM_FORCE_LINK_COAL_COMBUSTION            - FOAM_coalCombustion
+#  FOAM_FORCE_LINK_INTERFACE_PROPERTIES       - FOAM_interfaceProperties
+#
+# As an example, to force linking against FOAM_incompressibleRASModels, one
+# would use something like this:
+#
+#  foam_add_executable(some_solver
+#    some_solver.C
+#    ${FOAM_FORCE_LINK_INCOMPRESSIBLE_RAS_MODELS})
+#
+#  target_link_libraries(some_solver
+#    FOAM_incompressibleRASModels)
+#
+# BRIEF FUNCTION DESCRIPTIONS
+#
+# This module defines the following functions to help building and installing
+# @PROJECT_NAME@ libraries and executables. The Descriptions given are only
+# very brief, refer to the full documentations below for detailed instructions.
+#
+#  - foam_add_library:
+#        Create a @PROJECT_NAME@ library
+#  - foam_add_executable
+#        Create a @PROJECT_NAME@ executable
+#  - foam_add_target_to_build_tree_export
+#        Add target to the build-tree export-set. This is only used if other
+#        CMake-based projects want to import this target directly from the
+#        build-tree.
+#  - foam_export_to_build_tree
+#        Create the export-set in the build-tree.
+#  - foam_install_targets
+#        Install @PROJECT_NAME@ targets.
+#  - foam_create_include_wrappers
+#        Creates include-wrapper files in ${CMAKE_BINARY_DIR}/include, making
+#        it possible to have include-statements of the form:
+#          #include <libName/fileName.H>
+#  - foam_check_and_compile_flex
+#        Checks a list of source files whether they contain any .L (flex++)
+#        sources. If they are found, it creates targets to compile these
+#        and replaces their occurences in the source file list by the C++
+#        output file.
+#  - foam_link_loadable_library
+#        Creates a symbolic link to the (framework) library into the plugins
+#        directory, allowing it to be loaded using dlopen.
+#  - foam_add_executable_to_doc_index
+#        Adds an executable to the Doxygen documentation index. This index
+#        is consulted by @PROJECT_NAME@ executables when they are being called
+#        with the -help option.
+#  - foam_write_doc_index
+#        Writes above described documentation index to a file.
+#  - foam_queue_manpage
+#        Enqueues a manpage for generation either from Doxygen source or from
+#        the header comments in a source file.
+#  - foam_create_manpages
+#        Generates the manpages enqueued with foam_queue_manpage().
+#  - foam_dependent_variables
+#        Makes a list of variables depend on another variable. When the
+#        cache-value of this variable changes, the dependent variables are
+#        removed from the cache and are undefined.
+#  - foam_configure_files
+#        Configure a list of files using transformation rules which can be
+#        different for the build- and install-tree. Also allows renaming of the
+#        file.
+#  - foam_install_configured_files
+#        Install files created using foam_configure_files().
+#  - foam_parse_arguments
+#        Common function useful for argument parsing when writing custom macros
+#        and functions.
+#  - foam_compile_asy
+#        Create images from Asymptote sources.
+#  - foam_fix_apple_gcc_bug
+#        Work around buggy Apple g++-4.2 where -O3 generates bad code. This is
+#        an internal function.
+#
+# DETAILED FUNCTION DOCUMENTATION
+#
+#  FOAM_ADD_LIBRARY(<target> [STATIC | SHARED | MODULE]
+#                   [<src> ...] [PUBLIC_HEADERS <hdr> ...]
+#                   [[EXPORT <export_set>] | SKIP_EXPORT])
+#
+# Adds a @PROJECT_NAME@ library with the target name <target>. Optionally, you
+# can specify STATIC, SHARED or MODULE to determine the library-type that is
+# build. Refer to the documenation of add_library() for the details. <src> ...
+# are all source files. Files following PUBLIC_HEADERS are header files which
+# are to be installed. If no sources are given, the function requires that the
+# file ${CMAKE_CURRENT_SOURCE_DIR}/files.cmake exists which defines the list
+# SRCS, containing the names of the source files, and optionally HDRS, listing
+# the names of the public headers.
+#
+# If the variable FOAM_HAS_FLEX_SOURCES evaluates to TRUE and the list of files
+# contains files having a .L suffix, this macro automatically generates rules to
+# compile them using flex.
+#
+# The option EXPORT <export-set> specifies an export-set name which is different
+# from ${PROJECT_NAME}LibraryDepends. The default can be changed by setting the
+# variable FOAM_EXPORT_SET_NAME. If SKIP_EXPORT_SET is specified, this library
+# is not included in any export-set. The default can be changed by setting
+# FOAM_ENABLE_EXPORT_SET.
+#
+# If you require include-wrappers, set FOAM_CREATE_INCLUDE_WRAPPERS to TRUE.
+# To build all libraries as Frameworks on Mac OS X, set FOAM_BUILD_FRAMEWORKS
+# to TRUE. The Framework version is initialized with FOAM_VERSION_FULL and
+# the install-name directory with FOAM_FRAMEWORK_INSTALL_NAME_DIR. The first
+# defaults to FALSE, the others are not set if not defined.
+#
+#  FOAM_ADD_EXECUTABLE(<target> [OUTPUT_NAME <name>] [APP_SECTION <id>]
+#                      [DOC_SRC <src>] [SKIP_DOC_INDEX] [SKIP_MANPAGE]
+#                      [<src> ...])
+#
+# Adds a @PROJECT_NAME@ executable with the target name <target> and the output
+# name ${FOAM_EXE_PREFIX}<target>, which can be customized using the
+# OUTPUT_NAME <name> argument. It is important to note that setting the
+# OUTPUT_NAME target property directly results in a wrong man-page name.
+# <src> ... are all source files. If none are given, the function requires that
+# the file ${CMAKE_CURRENT_SOURCE_DIR}/files.cmake exists which defines the
+# list SRCS, containing the names of the source files.
+#
+# If the variable FOAM_HAS_FLEX_SOURCES evaluates to TRUE and the list of files
+# contains files having a .L suffix, this macro automatically generates rules to
+# compile them using flex.
+#
+# APP_SECTION <id> specifies the section ID under which the brief description of
+# the application is to be listed. If not specified, defaults to the setting of
+# the FOAM_APP_SECTION variable, and if that is not defined, the application is
+# not registered at all.
+#
+# DOC_SRC <src> names the file used to auto-generate the manpage. If not
+# specified, this defaults to the first file in the sources list.
+#
+# The options SKIP_DOC_INDEX and SKIP_MANPAGE suppress the inclusion in the
+# Doxygen documentation index and the creation of the manpage, respectively.
+# The first option can also be set by setting the variable
+# FOAM_ENABLE_DOC_INDEX to FALSE, the creation of manual pages can be disabled
+# by setting FOAM_MANPAGE_FORMATS to the empty list of FALSE.
+#
+#  FOAM_ADD_TARGET_TO_BUILD_TREE_EXPORT(<export_set> <target> ...)
+#
+# Adds <target> to the build-tree export set <export_set>.
+#
+#  FOAM_EXPORT_TO_BUILD_TREE(<export_set> [<namespace>])
+#
+# Exports all targets in set <export_set> to the build tree. Optionally the a
+# <namespace> can be specified which is prefixed to the exported library names.
+# This defaults to _FOAM and can be overriden by FOAM_EXPORT_NAMESPACE.
+#
+#  FOAM_INSTALL_TARGETS(<target> ...
+#    [EXPORT <export_set> | SKIP_EXPORT] [EXPORT_EXECUTABLES]
+#    [[ARCHIVE|LIBRARY|RUNTIME|FRAMEWORK|PRIVATE_HEADER|PUBLIC_HEADER]
+#    [DESTINATION <dir>] [COMPONENT <component>]...])
+#
+# Installs @PROJECT_NAME@ targets. To override the export-set (default is
+# ${PROJECT_NAME}LibraryDepends) use EXPORT_SET <export_set> or define the
+# variable FOAM_EXPORT_SET_NAME. If you do not want to include this target
+# in the export-set, specify SKIP_EXPORT or define FOAM_ENABLE_EXPORT_SET.
+# Executables are by default not exported, specify EXPORT_EXECUTABLES or set
+# FOAM_EXPORT_EXECUTABLES to TRUE to change this.
+#
+# To override the default installation locations, use XXX DESTINATION <dir>
+# and for a different install-component, use XXX COMPONENT <component>. If you
+# specify both, use XXX DESTINATION <dir> COMPONENT <component>. The defaults
+# are as follows:
+#
+#  TYPE             DEFAULT DESTINATION       OVERRIDE VARIABLE
+#  ----------------------------------------------------------------------
+#  ARCHIVE          lib/${PROJECT_NAME}       FOAM_INSTALL_ARCHIVE_PATH
+#  LIBRARY          lib/${PROJECT_NAME}       FOAM_INSTALL_LIBRARY_PATH
+#  RUNTIME          libexec/${PROJECT_NAME}   FOAM_INSTALL_RUNTIME_PATH
+#  FRAMEWORK        /Library/Frameworks       FOAM_INSTALL_FRAMEWORK_PATH
+#  PRIVATE_HEADER   include/${PROJECT_NAME}   FOAM_INSTALL_HEADER_PATH
+#  PUBLIC_HEADER    include/${PROJECT_NAME}   FOAM_INSTALL_HEADER_PATH
+#
+#  TYPE             DEFAULT COMPONENT         OVERRIDE VARIABLE
+#  --------------------------------------------------------------------------
+#  ARCHIVE          dev                       FOAM_INSTALL_ARCHIVE_COMPONENT
+#  LIBRARY          shlibs                    FOAM_INSTALL_LIBRARY_COMPONENT
+#  RUNTIME          bin                       FOAM_INSTALL_RUNTIME_COMPONENT
+#  FRAMEWORK        shlibs                    FOAM_INSTALL_FRAMEWORK_COMPONENT
+#  PRIVATE_HEADER   dev                       FOAM_INSTALL_HEADER_COMPONENT
+#  PUBLIC_HEADER    dev                       FOAM_INSTALL_HEADER_COMPONENT
+#
+# The default installation destinations for PRIVATE_HEADER and PUBLIC_HEADER are
+# automatically appended by /<OUTPUT_NAME> (also if the override-variable is
+# defined).
+#
+#  FOAM_CREATE_INCLUDE_WRAPPERS(<libraryName> <header1> ...)
+#
+# Creates in ${CMAKE_BINARY_DIR}/include an include-tree which contains
+# "include-wrappers", i.e. files only containing an #include statement
+# referring to the actual file in the source tree. All header files belonging
+# to the library ${libraryName} are thus mapped into the include-scheme
+# ${libraryName}/${headerName}. This structure makes FreeFOAM installable and
+# is also useful for Mac OS X frameworks which use the same naming scheme.
+# Further it makes the build much more robust as the strong dependence on the
+# include-path is removed. User-code should normally not have to call this
+# function.
+#
+#  FOAM_CHECK_AND_COMPILE_FLEX(<src_list>)
+#
+# Checks a list of source files for flex++ sources and compiles them. The
+# function replaces the .L file in the sources list by the generated .C file.
+# This file gets created in the ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES}
+# directory. The output name is generated by replacing .L with .C and stripping
+# all directory components from the .L file. The flex target is named using the
+# NAME_WE component, suffixed with _Lexer. The function will add FLEX_CXX_FLAGS
+# to the COMPILE_FLAGS of the FLEX_TARGET call.
+#
+# It is an error if *.L sources are discovered and FOAM_HAS_FLEX_SOURCES
+# does not evaluate to TRUE. User-code should not have to call this function
+# explicitly.
+#
+#  FOAM_LINK_LOADABLE_LIBRARY(<target>)
+#
+# This function creates a symbolic link to a (framework) library into the
+# plugins directory such that it can be loaded using dlopen (or similar) for
+# <target>.
+#
+#  FOAM_ADD_EXECUTABLE_TO_DOC_INDEX(<target> <doc_file>)
+#
+# Add an application <target> to the documentation-index file, where the
+# documentation header comments are in the file <doc_file>.
+#
+# DO NOT call this function after you called FOAM_WRITE_DOC_INDEX(), it won't
+# have any effect!
+#
+#  FOAM_WRITE_DOC_INDEX()
+#
+# Create the documentation index file. Call this function after all calls to
+# FOAM_ADD_EXECUTABLE_TO_DOC_INDEX(). This will create:
+#
+#  ${CMAKE_BINARY_DIR}/data/DoxyDocIndex.in
+#  ${CMAKE_BINARY_DIR}/data/DoxyDocIndex
+#  ${CMAKE_BINARY_DIR}/InstallFiles/data/DoxyDocIndex
+#
+#  FOAM_QUEUE_MANPAGE(<name> <src> [<dep> ...])
+#
+# Enqueue a manpage <name> for creation, either from AsciiDoc source or from
+# the documentation comments. This function checks whether the list
+# FOAM_MANPAGE_FORMATS evaluates to TRUE, otherwise it is a no-op. If the file
+# <src> is an AsciiDoc source, it's name must be of the format
+# <base_name>.<sect>.in.txt, where <base_name> is an arbitrary string that must
+# not match <name> and <sect> is the man-section number. If the file is not an
+# AsciiDoc source file, the manual page number is always 1. The files listed in
+# <dep> are additional dependencies on which <src> depends (e.g. through
+# include macros).
+#
+# It is an error to call this function after foam_create_manpages().
+#
+#  FOAM_CREATE_MANPAGES()
+#
+# The macro will for each of the formats listed in FOAM_MANPAGE_FORMATS create
+# a manual page that has been enqueued with foam_queue_manpage().  Currently
+# only "manpage" and "xhtml" are supported, where the former is generated in
+# ${CMAKE_BINARY_DIR}/doc/man/man<sect> and installed in
+# ${FOAM_INSTALL_MAN_PATH}/man<sect>, the latter is generated in
+# ${CMAKE_BINARY_DIR}/doc/html/man/man<sect> and installed to
+# ${FOAM_INSTALL_DOC_PATH}/doc/html/man/man<sect>.
+#
+# This function must be called after all calls to foam_queue_manpage(). It is
+# an error to call this function more than once.
+#
+#  FOAM_DEPENDENT_VARIABLES(<var> [<depvar> ...])
+#
+# Purge dependend cache-variables <depvar> when the independent variable <var>
+# changes. This macro caches the value of a variable and detects changes upon
+# the next run (e.g. when the user changed an option). If the value changed, the
+# dependent variables are unset and removed from the cache.
+#
+#  FOAM_CONFIGURE_FILES(<installFilesVar>
+#                       [[COPYONLY]
+#                         [DESTDIR <dir>] [BASENAME] <file> ...] ...)
+#
+# Configure utility files for build and install tree. Configures all files into
+#
+#   ${CMAKE_BINARY_DIR}/<file> with build tree settings
+#   ${CMAKE_BINARY_DIR}/InstallFiles/<file> with install tree settings
+#
+# using CONFIGURE_FILE() with @ONLY. If a .in suffix is present, it will be
+# removed. The variable FOAM_STRIP_SUFFIXES may be set to a list of regular
+# expresions matching suffixes (e.g. "\\.in$") to override this choice. Only
+# the first suffix that is found to be present will be removed, so if you want
+# to remove e.g. ".py.in" it is not enough to have "\\.in$;\\.py$", you need
+# "\\.py\\.in$" BEFORE the "\\.in$" element (if you have any).
+#
+# The DESTDIR option can be used to define a sub-directory, such that the
+# configured paths become
+#
+#   ${CMAKE_BINARY_DIR}/<dir>/<file>
+#   ${CMAKE_BINARY_DIR}/InstallFiles/<dir>/<file>
+#
+# If after a DESTDIR <dir> option the BASENAME option is used, all directory
+# components will be stripped from the following files (up to the next DESTDIR
+# or COPYONLY) before constructing the path. Files after the COPYONLY are not
+# configured and will only be copied into ${CMAKE_BINARY_DIR}/${destDir}/ (to
+# save space and speed things up).
+#
+# The variable <installFilesVar> will contain the names of the files for the
+# install-tree. This variable can be used for the INSTALL(FILES ...) command or,
+# perhaps better suited, FOAM_INSTALL_CONFIGURED_FILES().
+#
+# In order to determine which variables to define for the configure-step, this
+# function uses the variable FOAM_CONFIGURE_FILES_VARIABLES which is a list
+# containing 3-tuples. The first element is the variable name, followed by the
+# value for the build-tree and the last element is the value for the install-tree.
+# The next element in the list starts a new triplet. The character ; must be
+# escaped as \; in order to not be treated as a list-element separator. The name
+# of the variable must be a valid idenitifier will be substituted in the files
+# if it references as @VAR_NAME@ (@ONLY option of CONFIGURE_FILE).
+#
+# If you need a file to have a different output name than the source file has
+# (i.e. the part of the name before the suffix), you can do so by providing a
+# string of the format "<sourceName>==<destinationName>" instead of just the
+# source-name. This can also be used to modify the sub-directory part. Beware,
+# that suffix-stripping is still performed on the output name.
+#
+#  FOAM_INSTALL_CONFIGURED_FILES([FILES|PROGRAMS]
+#                                <file> ...
+#                                DESTINATION <dir> [COMPONENT <component>])
+#
+# Install files configured with FOAM_CONFIGURE_FILES(). This is similar to
+# INSTALL(FILES ...) and INSTALL(PROGRAMS ...), except for the handling
+# of the installation directory. For each file its relative path to
+# ${CMAKE_BINARY_DIR}/InstallFiles or ${CMAKE_BINARY_DIR} is computed (it MUST
+# be a child of one of these directories) and this name is then appended to the
+# destination <dir>. This simplifies installing files that should end up in
+# different sub-directories of the destination directory <dir>.
+#
+#  FOAM_PARSE_ARGUMENTS(<prefix> <arg_names> <option_names> [<arg1> ...])
+#
+# This is a helper function to parse optional arguments in macros/functions It
+# has been adapted from the public CMake wiki
+# (http://www.cmake.org/Wiki/CMakeMacroParseArguments). For each argument
+# <opt_name> in <arg1> ... the function checks whether an entry with the same
+# name in <option_names> exists. If so, it sets the variable
+# <prefix>_<opt_name> to TRUE, otherwise to FALSE. For all items <arg_name> in
+# the argument list that corresponds to a <arg_spec> entry in <arg_specs>, the
+# variable <prefix>_<arg_name> will be filled by the list of all following
+# arguments up to the next <arg_name> or the end of all arguments. All options
+# will be removed from these lists. The special variable <prefix>_DEFAULT_ARGS
+# will contain all arguments occuring before the first argument in <arg_names>.
+# <arg_spec> takes to form <arg_name>[:<n_args>], where <n_args> specifies the
+# exact number of arguments that must follow <arg_name> in the argument list.
+# If :<n_args> is left ommited, an arbitrary number of arguments are accepted
+# (i.e. greedy mode). Arguments not consumed (i.e. after the last accepted
+# argument and before the next <arg_name> or the end of the argument list) are
+# added to <prefix>_DEFAULT_ARGS.
+#
+#  FOAM_COMPILE_ASY(<outvar> <formats> <file> ...)
+#
+# Compiles the Aymptote sources into images. <outvar> will hold the names of
+# the produced files. <formats> is a list of graphics formats supported by asy
+# (such as pdf, eps, png, etc.). <file> is one or more Asymptote source files.
+# Files listed in the OBJECT_DEPENDS source file property are copied to the
+# temporary work directory and added as a dependeny of the command.
+#
+#  FOAM_FIX_APPLE_GCC_BUG()
+#
+# This is an internal function used to work around in the g++-4.2 compiler that
+# comes with Xcode. Do not call it directly.
+#
+
+#-------------------------------------------------------------------------------
+#               ______                _     ____          __  __
+#              |  ____|             _| |_  / __ \   /\   |  \/  |
+#              | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+#              |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+#              | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+#              |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+#
+#                   FreeFOAM: The Cross-Platform CFD Toolkit
+#
+# Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+#                         Gerber van der Graaf <gerber_graaf@users.sf.net>
+#-------------------------------------------------------------------------------
+# License
+#   This file is part of FreeFOAM.
+#
+#   FreeFOAM is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
+
+# helper function to set a variable to a default value if it is not defined
+function(_use_foam_set_default var defval)
+  if(NOT DEFINED ${var})
+    set(${var} "${defval}" PARENT_SCOPE)
+  endif()
+endfunction()
+
+# include macros
+_use_foam_set_default(FOAM_ENABLE_EXPORT FALSE)
+_use_foam_set_default(FOAM_EXPORT_EXECUTABLES FALSE)
+_use_foam_set_default(FOAM_BUILD_FRAMEWORKS FALSE)
+_use_foam_set_default(FOAM_ENABLE_DOC_INDEX FALSE)
+_use_foam_set_default(FOAM_ENABLE_MANPAGES FALSE)
+_use_foam_set_default(FOAM_EXE_PREFIX "@FOAM_EXE_PREFIX@")
+include(${FOAM_UTILITIES_FILE})
+
+foam_fix_apple_gcc_bug()
+
+# set up header search path
+if(APPLE AND FOAM_WITH_FRAMEWORKS)
+  add_definitions("-F${FOAM_FRAMEWORK_DIR}")
+else()
+  include_directories(${FOAM_INCLUDE_DIRS})
+endif()
+
+# set up library search path
+link_directories(${FOAM_LIBRARY_DIRS})
+
+# defines
+add_definitions(${FOAM_DEFINITIONS})
+
+# build shared libraries
+set(BUILD_SHARED_LIBS SHARED)
+
+# ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file

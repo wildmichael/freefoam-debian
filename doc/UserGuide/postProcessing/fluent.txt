@@ -1,0 +1,91 @@
+=== Post-processing with 'Fluent'
+
+It is possible to use 'Fluent' as a post-processor for the cases run in
+{project}. Two converters are supplied for the purpose:
+`foamMeshToFluent`(((`foamMeshToFluent` utility)))
+(((utility,`foamMeshToFluent`))) which converts the {project} mesh into
+'Fluent' format and writes it out as a filename:.msh[] file; and,
+`foamDataToFluent`(((`foamDataToFluent` utility)))
+(((utility,`foamDataToFluent`))) converts the {project} results data into a
+filename:.dat[] file readable by 'Fluent'. `foamMeshToFluent` is executed in
+the usual manner.  The resulting mesh is written out in a
+filename:fluentInterface[](((filename:fluentInterface[] directory)))
+(((directory,filename:fluentInterface[]))) subdirectory of the case directory,
+'i.e.' filename:<caseName>/fluentInterface/<caseName>.msh[].
+
+`foamDataToFluent` converts the {project} data results into the 'Fluent'
+format. The conversion is controlled by two files. First, the
+filename:controlDict[] dictionary specifies `startTime`, giving the set of
+results to be converted. If you want to convert the latest result, `startFrom`
+can be set to `latestTime`. The second file which specifies the translation is
+the filename:foamDataToFluentDict[] dictionary, located in the
+filename:constant[] directory. An example filename:foamDataToFluentDict[]
+dictionary is given below:
+
+-------------------------------------------------------------------------------
+p 1;
+
+U 2;
+
+T 3;
+
+h 4;
+
+k 5;
+
+epsilon 6;
+
+gamma 150;
+-------------------------------------------------------------------------------
+
+The dictionary contains entries of the form
+
+-------------------------------------------------------------------------------
+'<fieldName>' '<fluentUnitNumber>'
+-------------------------------------------------------------------------------
+
+The '<fluentUnitNumber>' is a label used by the 'Fluent' post-processor that
+only recognises a fixed set of fields. The basic set of '<fluentUnitNumber>'
+numbers are quoted in <<tab_fluentUnitNumbers>>.
+
+[[tab_fluentUnitNumbers]]
+.'Fluent' unit numbers for post-processing
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| 'Fluent' name | Unit number | Common {project} name
+| `PRESSURE` | 1 | `p`
+| `MOMENTUM` | 2 | `U`
+| `TEMPERATURE` | 3 | `T`
+| `ENTHALPY` | 4 | `h`
+| `TKE` | 5 | `k`
+| `TED` | 6 | `epsilon`
+| `SPECIES` | 7 | &mdash;
+| `G` | 8 | &mdash;
+| `XF_RF` | 150 | `gamma`
+| `TOTAL_PRESSURE` | 192 | &mdash;
+| `TOTAL_TEMPERATURE` | 193 | &mdash;
+|==============================================================================
+
+The dictionary must contain all the entries the user requires to post-process,
+'e.g.' in our example we have entries for pressure `p` and velocity `U`. The
+list of default entries described in <<tab_fluentUnitNumbers>>. The user can
+run `foamDataToFluent` like any utility.
+
+To view the results using 'Fluent', go to the dirname:fluentInterface[]
+subdirectory of the case directory and start a 3 dimensional version of
+'Fluent' with
+
+-------------------------------------------------------------------------------
+$ fluent 3d
+-------------------------------------------------------------------------------
+
+The mesh and data files can be loaded in and the results visualised. The mesh
+is read by selecting `Read Case` from the `File` menu. Support items should be
+selected to read certain data types, 'e.g.' to read turbulence data for `k` and
+`epsilon`, the user would select
+menuselection:[Define --> Models --> Viscous --> k-epsilon]. The data can then
+be read by selecting menuselection:[File --> Read Data].  A note of caution:
+users *MUST NOT* try to use an original 'Fluent' mesh file that has been
+converted to {project} format in conjunction with the {project} solution that
+has been converted to 'Fluent' format since the alignment of zone numbering
+cannot be guaranteed.

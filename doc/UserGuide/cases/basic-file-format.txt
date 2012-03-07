@@ -1,0 +1,412 @@
+=== Basic input/output file format
+((({project},file format))) (((file format)))
+
+{project} needs to read a range of data structures such as strings, scalars,
+vectors, tensors, lists and fields. The input/output (I/O) format of files is
+designed to be extremely flexible to enable the user to modify the I/O in
+{project} applications as easily as possible. The I/O follows a simple set of
+rules that make the files extremely easy to understand, in contrast to many
+software packages whose file format may not only be difficult to understand
+intuitively but also not be published anywhere. The description of the
+{project} file format is described in the following sections.
+
+==== General syntax rules
+
+The format follows the following some general principles of {cpp} source code.
+
+- Files have free form, with no particular meaning assigned to any column and
+  no need to indicate continuation across lines.
+- Lines have no particular meaning except to a `//`
+  (((`//`,{project} file syntax)))((({project} file syntax,`//`))) comment
+  delimiter which makes {project} ignore any text that follows it until the end
+  of line.
+- A comment over multiple lines is done by enclosing the text between `/*` and
+  `*/`(((`/* ... */`,{project} file syntax)))
+  ((({project} file syntax,`/* ... */`))) delimiters.
+
+==== Dictionaries
+
+{project} uses 'dictionaries' as the most common means of specifying data. A
+dictionary is an entity that contains a set data entries that can be retrieved
+by the I/O by means of 'keywords'. The keyword entries follow the general
+format
+
+-------------------------------------------------------------------------------
+<keyword> <dataEntry1> ... <dataEntryN>;
+-------------------------------------------------------------------------------
+
+Most entries are single data entries of the form:
+
+-------------------------------------------------------------------------------
+<keyword> <dataEntry>;
+-------------------------------------------------------------------------------
+
+Most {project} data files are themselves dictionaries containing a set of
+keyword entries. Dictionaries provide the means for organising entries into
+logical categories and can be specified hierarchically so that any dictionary
+can itself contain one or more dictionary entries. The format for a dictionary
+is to specify the dictionary name followed the the entries enclosed in curly
+braces \{\} as follows
+
+-------------------------------------------------------------------------------
+<dictionaryName>
+{
+    ... keyword entries ...
+}
+-------------------------------------------------------------------------------
+
+==== The data file header
+
+All data files that are read and written by {project} begin with a dictionary
+named `FoamFile`(((`FoamFile` keyword)))(((keyword,`FoamFile`))) containing a
+standard set of keyword entries, listed in <<tab_dataFileHeaderKeywords>>.
+
+[[tab_dataFileHeaderKeywords]]
+.Header keywords entries for data files
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Keyword | Description | Entry
+| `version`(((`version` keyword)))(((keyword,`version`))) | I/O format version
+| `2.0`
+| `format`(((`format` keyword)))(((keyword,`format`))) | Data format |
+++ascii++/++binary++
+| `location`(((`location` keyword)))(((keyword,`location`))) | Path to the
+file, in `"..."` | (optional)
+| `class`(((`class` keyword)))(((keyword,`class`))) | {project} class
+constructed from the data file concerned | typically `dictionary` or a field,
+'e.g.' `volVectorField`
+| `object`(((`object` keyword)))(((keyword,`object`))) | Filename | 'e.g.'
+`controlDict`
+|==============================================================================
+
+The table provides brief descriptions of each entry, which is probably
+sufficient for most entries with the notable exception of `class`. The `class`
+entry is the name of the {cpp} class in the {project} library that will be
+constructed from the data in the file. Without knowledge of the underlying code
+which calls the file to be read, and knowledge of the {project} classes, the
+user will probably be unable to surmise the `class` entry correctly. However,
+most data files with simple keyword entries are read into an internal
+`dictionary` class and therefore the `class` entry is `dictionary` in those
+cases.
+
+The following example shows the use of keywords to provide data for a case
+using the types of entry described so far. The extract, from an
+filename:fvSolution[] dictionary file, contains 2 dictionaries, `solvers` and
+`PISO`. The `solvers` dictionary contains multiple data entries for solver and
+tolerances for each of the pressure and velocity equations, represented by the
+`p` and `U` keywords respectively; the `PISO` dictionary contains algorithm
+controls.
+
+-------------------------------------------------------------------------------
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-06;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-05;
+        relTol          0;
+    }
+}
+
+PISO
+{
+    nCorrectors              2;
+    nNonOrthogonalCorrectors 0;
+    pRefCell                 0;
+    pRefValue                0;
+}
+-------------------------------------------------------------------------------
+
+==== Lists
+
+{project} applications contain lists, 'e.g.' a list of vertex coordinates for a
+mesh description. Lists are commonly found in I/O and have a format of their
+own in which the entries are contained within round braces `()`. There is
+also a choice of format preceeding the round braces:
+
+simple::
+    the keyword is followed immediately by round braces
++
+-------------------------------------------------------------------------------
+<listName>
+(
+    ... entries ...
+);
+-------------------------------------------------------------------------------
++
+numbered::
+    the keyword is followed by the number of elements `<n>` in the list
++
+-------------------------------------------------------------------------------
+<listName>
+<n>
+(
+    ... entries ...
+);
+-------------------------------------------------------------------------------
++
+token identifier::
+    the keyword is followed by a class name identifier `Label<Type>` where
+    `<Type>` states what the list contains, 'e.g.' for a list of `scalar`
+    elements is
++
+-------------------------------------------------------------------------------
+<listName>
+List<scalar>
+<n>        // optional
+(
+    ... entries ...
+);
+-------------------------------------------------------------------------------
++
+Note that `<scalar>` in `List<scalar>` is not a generic name but the actual
+text that should be entered.
+
+The simple format is a convenient way of writing a list. The other formats
+allow the code to read the data faster since the size of the list can be
+allocated to memory in advance of reading the data. The simple format is
+therefore preferred for short lists, where read time is minimal, and the other
+formats are preferred for long lists.
+
+[[sec_formatScalarsVectorsTensors]]
+==== Scalars, vectors and tensors
+
+A scalar is a single number represented as such in a data file. A
+`vector`(((`vector` class)))(((class,`vector`))) is a `VectorSpace` of rank 1
+and dimension 3, and since the number of elements is always fixed to 3, the
+simple List format is used. Therefore a vector math:[(1.0,1.1,1.2)] is
+written:
+
+-------------------------------------------------------------------------------
+(1.0 1.1 1.2)
+-------------------------------------------------------------------------------
+
+In {project}, a tensor is a `VectorSpace` of rank 2 and dimension 3 and
+therefore the data entries are always fixed to 9 real numbers. Therefore the
+identity tensor can be written:
+
+-------------------------------------------------------------------------------
+(
+    1 0 0
+    0 1 0
+    0 0 1
+)
+-------------------------------------------------------------------------------
+
+This example demonstrates the way in which {project} ignores the line return is
+so that the entry can be written over multiple lines. It is treated no
+differently to listing the numbers on a single line:
+
+-------------------------------------------------------------------------------
+(1 0 0 0 1 0 0 0 1)
+-------------------------------------------------------------------------------
+
+[[sec_dimensionalUnits]]
+==== Dimensional units
+(((units,of measurement))) (((dimensional units)))
+
+In continuum mechanics, properties are represented in some chosen units, 'e.g.'
+mass in kilograms (math:[\unit{kg}]), volume in cubic metres
+(math:[\unit{m^3}]), pressure in Pascals (math:[\unitfrac{kg}{m s^2}]).
+Algebraic operations must be performed on these properties using consistent
+units of measurement; in particular, addition, subtraction and equality are
+only physically meaningful for properties of the same dimensional units. As a
+safeguard against implementing a meaningless operation, {project} attaches
+dimensions to field data and physical properties and performs dimension
+checking(((dimension,checking in {project}))) on any tensor operation.
+
+The I/O format for a `dimensionSet` is 7 scalars delimited by square brackets,
+'e.g.'
+
+-------------------------------------------------------------------------------
+[0 2 -1 0 0 0 0]
+-------------------------------------------------------------------------------
+
+[[tab_unitsOfMeasurment]]
+.Base units for SI and USCS
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| No. | Property | SI unit | USCS unit
+| 1 | Mass | kilogram (math:[\unit{kg}]) | pound-mass (math:[\unit{lbm}])
+| 2 | Length | metre (math:[\unit{m}]) | foot (math:[\unit{ft}])
+| 3 | Time 2+^|  second (math:[\unit{s}])
+| 4 | Temperature | Kelvin (math:[\unit{K}]) | degree Rankine
+(math:[\unit{^\circ R}])
+| 5 | Quantity | kilogram-mole (math:[\unit{kgmol}]) | pound-mole
+(math:[\unit{lbmol}])
+| 6 | Current 2+^| ampere (math:[\unit{A}])
+| 7 | Luminous intensity 2+^| candela (math:[\unit{cd}])
+|==============================================================================
+
+where each of the values corresponds to the power of each of the base
+units(((units,base))) of measurement listed in <<tab_unitsOfMeasurment>>.
+The table gives the base units for the Syst&egrave;me International
+(SI)(((units,SI)))(((SI units)))(((units,Syst&egrave;me International))) and
+the United States Customary System (USCS) (((units,USCS)))(((USCS
+units)))(((units,United States Customary System))) but {project} can be used
+with any system of units. All that is required is that the 'input data is
+correct for the chosen set of units'. It is particularly important to
+recognise that {project} requires some dimensioned physical constants, 'e.g.'
+the Universal Gas Constant math:[R], for certain calculations, 'e.g.'
+thermophysical modelling. These dimensioned constants are specified in a
+filename:DimensionedConstant[] sub-dictionary of main
+filename:<prefix>etc/{project}/controlDict[] file of the {project}
+installation. By default these constants are set in SI units. Those wishing to
+use the USCS or any other system of units should modify these constants to
+their chosen set of units accordingly.
+
+==== Dimensioned types
+
+Physical properties are typically specified with their associated dimensions.
+These entries have the format that the following example of a
+`dimensionedScalar` demonstrates:
+
+-------------------------------------------------------------------------------
+nu nu [0 2 -1 0 0 0 0] 1;
+-------------------------------------------------------------------------------
+
+The first `nu` is the keyword; the second `nu` is the word name stored in class
+`word`, usually chosen to be the same as the keyword; the next entry is the
+`dimensionSet` and the final entry is the `scalar` value.
+
+[[sec_fieldData]]
+==== Fields
+
+Much of the I/O data in {project} are tensor fields, 'e.g.' velocity, pressure
+data, that are read from and written into the time directories. {project}
+writes field data using keyword entries as described in
+<<tab_fieldDictKeywords>>.
+
+[[tab_fieldDictKeywords]]
+.Main keywords used in field dictionaries
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Keyword | Description | Example
+| `dimensions`(((`dimensions` keyword)))(((keyword,`dimensions`))) | Dimensions
+of field | `[1 1 -2 0 0 0 0]`
+| `internalField`(((`internalField` keyword)))(((keyword,`internalField`))) |
+Value of internal field | `uniform (1 0 0)`
+| `boundaryField`(((`boundaryField` keyword)))(((keyword,`boundaryField`))) |
+Boundary field | see file listing in <<sec_fieldData>>
+|==============================================================================
+
+The data begins with an entry for its `dimensions`. Following that, is the
+`internalField`, described in one of the following ways.
+
+*Uniform field*::
+  a single value is assigned to all elements within the field, taking the
+  form:
++
+-------------------------------------------------------------------------------
+internalField uniform <entry>;
+-------------------------------------------------------------------------------
++
+*Nonuniform field*::
+  each field element is assigned a unique value from a list, taking the
+  following form where the token identifier form of list is recommended:
++
+-------------------------------------------------------------------------------
+internalField nonuniform <List>;
+-------------------------------------------------------------------------------
+
+The `boundaryField` is a dictionary containing a set of entries whose names
+correspond to each of the names of the boundary patches listed in the
+filename:boundary[] file in the dirname:polyMesh[] directory. Each patch entry
+is itself a dictionary containing a list of keyword entries. The compulsory
+entry, `type`, describes the patch field condition specified for the field. The
+remaining entries correspond to the type of patch field condition selected and
+can typically include field data specifying initial conditions on patch faces.
+A selection of patch field conditions available in {project} are listed in
+<<tab_primitivePatchTypes>> and <<tab_derivedPatchTypes>> with a description
+and the data that must be specified with it. Example field dictionary entries
+for velocity `U` are shown below:
+
+-------------------------------------------------------------------------------
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    movingWall
+    {
+        type          fixedValue;
+        value         uniform (1 0 0);
+    }
+
+    fixedWalls
+    {
+        type          fixedValue;
+        value         uniform (0 0 0);
+    }
+
+    frontAndBack
+    {
+        type          empty;
+    }
+}
+-------------------------------------------------------------------------------
+
+==== Directives and macro substitutions
+
+There is additional file syntax that offers great flexibility for the setting
+up of {project} case files, namely directives and macro substitutions.
+Directives are commands that can be contained within case files that begin with
+the hash (`#`) symbol. Macro substitutions begin with the dollar (`$`) symbol.
+
+At present there are 2 directive commands available in {project}:
+
+`#include "<fileName>"`::
+  reads the file of name filename:<fileName>[];
+`#inputMode`::
+  has two options: `merge`, which merges keyword entries in successive
+  dictionaries, so that a keyword entry specified in one place will be
+  overridden by a later specification of the same keyword entry; `overwrite`,
+  which overwrites the contents of an entire dictionary; generally, use
+  `merge`.
+
+For example, let us say a user wishes to set an initial value of pressure once
+to be used as the internal field and initial value at a boundary. We could
+create a file, 'e.g.' named filename:initialConditions[], which contains the
+following entries:
+
+-------------------------------------------------------------------------------
+pressure 1e+05;
+#inputMode merge
+-------------------------------------------------------------------------------
+
+In order to use this pressure for both the internal and initial boundary
+fields, the user would simply include the following macro substitutions in the
+pressure field file filename:0/p[]:
+
+-------------------------------------------------------------------------------
+#include "initialConditions"
+internalField uniform $pressure;
+boundaryField
+{
+    patch1
+    {
+        type fixedValue;
+        value $internalField;
+    }
+}
+-------------------------------------------------------------------------------
+
+This is a fairly trivial example that simply demonstrates how this
+functionality works. However, the functionality can be used in many, more
+powerful ways particularly as a means of generalising case data to suit the
+user's needs. For example, if a user has a set of cases that require the same
+RAS turbulence model settings, a single file can be created with those settings
+which is simply included in the filename:constantRASProperties[] file of each
+case. Macro substitutions can extend well beyond a singe value so that, for
+example, sets of boundary conditions can be predefined and called by a single
+macro. The extent to which such functionality can be used is almost endless.

@@ -1,0 +1,209 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+import imp
+import inspect
+import re
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class LogParserError(Exception):
+   """Thrown when parsing of the log file failed."""
+   def __init__(self, msg):
+      Exception.__init__(self, msg)
+   def __str__(self):
+      return self.args[0]
+
+
+class AllTutorialsRunner(FreeFOAM.tutorial.TutorialRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.TutorialRunner.__init__(self)
+      self.tutorials_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+
+   def main(self):
+      # prevent python from creating byte-compiled files (python >= 2.6)
+      try:
+         sys.dont_write_bytecode = True
+      except:
+         pass
+      # Recursively run all tutorials
+      pwd = os.getcwd()
+      i = 0
+      for parent, dirs, files in os.walk(self.tutorials_dir):
+         if parent == self.tutorials_dir:
+            continue
+         if 'Allrun' in files:
+            # don't recurse
+            del dirs[:]
+            i += 1
+            os.chdir(parent)
+            f = open('Allrun', 'rt')
+            try:
+               m = imp.load_module('Allrun'+str(i), f, f.name,
+                     (os.path.splitext(f.name)[1], 'r', imp.PY_SOURCE))
+               if hasattr(m, 'register_cases') and inspect.isfunction(
+                     m.register_cases):
+                  m.register_cases(self)
+               else:
+                  for d in dir(m):
+                     a = getattr(m, d)
+                     if inspect.isclass(a) and (
+                           FreeFOAM.tutorial.CaseRunner in inspect.getmro(a)):
+                        self.add_case(a())
+            except Exception:
+               e = sys.exc_info()[1]
+               FreeFOAM.util.cecho(
+                 '${RED}*** Error ***${NORMAL} In '+os.path.abspath(f.name))
+               raise
+            os.chdir(pwd)
+
+      ret = FreeFOAM.tutorial.TutorialRunner.main(self)
+
+      if not self.did_run:
+        return ret
+
+      # Analyse all log files
+      testReport = open(
+            os.path.join(self.tutorials_dir, 'testLoopReport'), 'wt')
+      logs = open(os.path.join(self.tutorials_dir, 'logs'), 'wt')
+      for parent, dirs, files in os.walk(self.tutorials_dir):
+         for f in files:
+            if f[0:4] == 'log.':
+               # skip test directories if not in test_mode and vice versa
+               if bool(parent[-5:] == '-test') ^ bool(self.test_mode):
+                  continue
+               l = os.path.join(parent, f)
+               logs.writelines(open(l, 'rt').readlines())
+               logs.write('\n\n')
+               self._logReport(l, testReport)
+      logs.close()
+      testReport.close()
+
+      if self.test_mode:
+         self._testReport()
+
+   def _logReport(self, logName, reportFile):
+      """Extracts useful info from log file `logName` and writes it to file
+      object `reportFile`."""
+      case = None
+      app = None
+      fatalError = False
+      singularity = False
+      completed = False
+      success = False
+      time = ''
+      for l in open(logName, 'rt'):
+         m = re.match(
+               r'(?:APPLICATION:\s+(?P<app>\S+)|CASE:\s+(?P<case>\S+))', l)
+         if m:
+            d = m.groupdict()
+            if d['app']:
+               app = d['app']
+            elif d['case']:
+               case = d['case']
+         if re.search('FOAM FATAL', l):
+            fatalError = True
+         elif re.search(r'U[xyz](:|\s)*solution singularity', l):
+            singularity = True
+         elif re.match(r'^\s*[Ee]nd\s*\.?\s*$', l):
+            completed = True
+         elif re.match(r'^REPORT:\s+SUCCESS', l):
+            success = True
+         else:
+            m = re.search(r'Execution\S+\s+=\s+(?P<time>\S+\s+\S+)', l)
+            if m:
+               time = m.group('time')
+
+      if bool(case) != bool(app):
+         raise LogParserError('Failed to parse "%s"'%logName)
+      elif not case and not app:
+         # skip this
+         return
+
+      appAndCase = "Application %s - case %s"%(app,
+            os.path.relpath(case, self.tutorials_dir))
+
+      if fatalError:
+         reportFile.write('%s: ** FOAM FATAL ERROR **\n'%appAndCase)
+      elif singularity:
+         reportFile.write('%s: ** Solution singularity **\n'%appAndCase)
+      elif completed and success:
+          reportFile.write('%s: completed'%appAndCase)
+          if len(time) > 0:
+             reportFile.write(' in %s\n'%time)
+          else:
+             reportFile.write('\n')
+      else:
+         reportFile.write('%s: unconfirmed completion\n'%appAndCase)
+
+   def _testReport(self):
+      fv_schemes = (
+          'gradScheme',
+          'divScheme',
+          'laplacianScheme',
+          'interpolationScheme',
+          'snGradScheme',
+          'fluxRequired',
+          )
+      solvers_tmp = {}
+      schemes_tmp = {}
+      # traverse tree
+      for parent, dirs, files in os.walk(self.tutorials_dir):
+         # skip test directories if not in test_mode and vice versa
+         if bool(parent[-5:] == '-test') ^ bool(self.test_mode):
+            continue
+         # loop over files
+         for f in files:
+            if f[0:4] == 'log.':
+               # scan log for APPLICATION and then for schemes and solver
+               # information
+               log = open(os.path.join(parent, f), 'rt')
+               app = None
+               for l in log:
+                  if app == None:
+                     m = re.match(r'APPLICATION:\s*(?P<app>\S+)', l)
+                     if m:
+                        app = os.path.basename(m.group('app'))
+                        if app not in solvers_tmp:
+                           solvers_tmp[app] = set()
+                           schemes_tmp[app] = {}
+                  else:
+                     for st in fv_schemes:
+                        if re.search(st, l):
+                           if st not in schemes_tmp[app]:
+                              schemes_tmp[app][st] = set()
+                           schemes_tmp[app][st].add(l.split()[-1])
+                     m = re.match(r'(\S+):\s+Solving for', l)
+                     if m:
+                        solvers_tmp[app].add(m.group(1))
+      # write schemes and solvers information per application
+      SC = open(os.path.join(self.tutorials_dir, 'FvSchemes'), 'wt')
+      SO = open(os.path.join(self.tutorials_dir, 'FvSolution'), 'wt')
+      applications = solvers_tmp.keys()
+      applications.sort()
+      for app in applications:
+         SC.write('%s\n'%app)
+         SO.write('%s\n'%app)
+         for st in fv_schemes:
+            SC.write('  %s\n'%st)
+            if st in schemes_tmp[app] and len(schemes_tmp[app][st]) > 0:
+               tmp = list(schemes_tmp[app][st])
+               tmp.sort()
+               SC.write('    '+'\n    '.join(tmp)+'\n')
+         if len(solvers_tmp[app]) > 0:
+            tmp = list(solvers_tmp[app])
+            tmp.sort()
+            SO.write('  '+'\n  '.join(tmp)+'\n')
+      SO.close()
+      SC.close()
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   sys.argv[0] = os.path.basename(sys.argv[0])
+   sys.exit(AllTutorialsRunner().main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

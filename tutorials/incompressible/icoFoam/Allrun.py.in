@@ -1,0 +1,220 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+import re
+import glob
+
+class icoCavityRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'ico_cavity', 'cavity')
+      self.add_app_step('blockMesh')
+      self.add_app_step('ico')
+
+class icoCavityFineRunner(FreeFOAM.tutorial.ClonedCaseRunner):
+   def __init__(self, cavity_runner):
+      FreeFOAM.tutorial.ClonedCaseRunner.__init__(self, 'ico_cavityFine',
+            cavity_runner, 'cavityFine')
+      self.add_step('prepare', self._prepare)
+      self.add_app_step('blockMesh')
+      self.add_step('mapFields', self._mapFields)
+      self.add_app_step('ico')
+
+   def clean(self):
+      FreeFOAM.util.remove_case(self.case_dir)
+      FreeFOAM.util.remove_case(self.test_dir)
+
+   def _prepare(self, case_dir, stamp_file, test_mode):
+      try:
+         blockMeshDict=os.path.join(case_dir, 'constant', 'polyMesh',
+               'blockMeshDict')
+         controlDict=os.path.join(case_dir, 'system', 'controlDict')
+         # modify blockMeshDict
+         stamp_file.write('Modifying blockMeshDict\n')
+         regex=[(r'20 20 1', r'41 41 1')]
+         FreeFOAM.tutorial.modify_file(blockMeshDict, regex)
+         # modify controlDict
+         stamp_file.write('Modifying controlDict\n')
+         regex = [
+               (r'(startTime\s+)0;', r'\g<1>0.5;'),
+               (r'(endTime\s+)0\.5;', r'\g<1>0.7;'),
+               (r'(deltaT\s+)0\.005;', r'\g<1>0.0025;'),
+               (r'(writeControl\s+)timeStep;', r'\g<1>runTime;'),
+               (r'(writeInterval\s+)20;', r'\g<1>0.1;'),
+               ]
+         FreeFOAM.tutorial.modify_file(controlDict, regex)
+         if test_mode:
+            self.modify_case_for_test(self.test_dir)
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+   def _mapFields(self, case_dir, stamp_file, test_mode):
+      if test_mode:
+         src = self._parent_runner.test_dir
+      else:
+         src = self._parent_runner.case_dir
+      runner = FreeFOAM.tutorial.RunApp('mapFields', args=[src, '-sourceTime',
+         'latestTime', '-consistent'])
+      return runner(case_dir, stamp_file, test_mode)
+
+class icoCavityGradeRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self, cavity_runner):
+      FreeFOAM.tutorial.CaseRunner.__init__(
+            self, 'ico_cavityGrade',
+            'cavityGrade')
+      self._cavity_runner = cavity_runner
+      self.add_app_step('blockMesh')
+      self.add_step('mapFields', self._mapFields)
+      self.add_app_step('ico')
+
+   def _mapFields(self, case_dir, stamp_file, test_mode):
+      if test_mode:
+         src = self._cavity_runner.test_dir
+      else:
+         src = self._cavity_runner.case_dir
+      runner = FreeFOAM.tutorial.RunApp('mapFields', args=[src, '-sourceTime',
+         'latestTime', '-consistent'])
+      return runner(case_dir, stamp_file, test_mode)
+
+class icoCavityHighReRunner(FreeFOAM.tutorial.ClonedCaseRunner):
+   def __init__(self, cavity_runner):
+      FreeFOAM.tutorial.ClonedCaseRunner.__init__(self, 'ico_cavityHighRe',
+            cavity_runner, 'cavityHighRe')
+      self.add_step('prepare', self._prepare)
+      self.add_app_step('blockMesh')
+      self.add_app_step('ico')
+
+   def clean(self):
+      FreeFOAM.util.remove_case(self.case_dir)
+      FreeFOAM.util.remove_case(self.test_dir)
+
+   def _prepare(self, case_dir, stamp_file, test_mode):
+      try:
+         if test_mode:
+            cavity_dir = self._parent_runner.test_dir
+         else:
+            cavity_dir = self._parent_runner.case_dir
+         stamp_file.write('Setting cavityHighRe to generate a secondary vortex\n')
+         controlDict=os.path.join(case_dir, 'system', 'controlDict')
+         transportProperties=os.path.join(case_dir, 'constant',
+               'transportProperties')
+         # modify controlDict
+         stamp_file.write('Modifying controlDict\n')
+         regex = [
+               (r'(startFrom\s+)startTime;', r'\g<1>latestTime;'),
+               (r'(endTime\s+)0\.5;', r'\g<1>2.0;'),
+               ]
+         FreeFOAM.tutorial.modify_file(controlDict, regex)
+         # modify transportProperties
+         stamp_file.write('Modifying transportProperties\n')
+         regex = [(r'0\.01', r'0.001')]
+         FreeFOAM.tutorial.modify_file(transportProperties, regex)
+
+         src_glob=os.path.join(cavity_dir, '0.*')
+         stamp_file.write('Copying %s directories to %s\n'%(src_glob, case_dir))
+         for d in glob.glob(src_glob):
+            n=os.path.basename(d)
+            FreeFOAM.util.copytree(d, os.path.join(case_dir,n), True)
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+class icoCavityClippedRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self, cavity_runner):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'ico_cavityClipped',
+            'cavityClipped')
+      self._cavity_runner = cavity_runner
+      self.add_app_step('blockMesh')
+      self.add_step('prepare.1', self._prepare1)
+      self.add_step('mapFields', self._mapFields)
+      self.add_step('prepare.2', self._prepare2)
+      self.add_app_step('ico')
+
+   def _prepare1(self, case_dir, stamp_file, test_mode):
+      try:
+         if not os.path.isdir(os.path.join(case_dir, '0.5')):
+            stamp_file.write('Copying 0 to 0.5\n')
+            FreeFOAM.util.copytree(
+               os.path.join(case_dir, '0'),
+               os.path.join(case_dir, '0.5'))
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+   def _prepare2(self, case_dir, stamp_file, test_mode):
+      try:
+         stamp_file.write('Fixing up boundary conditions in 0.5/U\n')
+         Ufile = os.path.join(case_dir, '0.5', 'U')
+         lines = open(Ufile, 'rt').readlines()
+         deadLines = []
+         regex = re.compile(r'value\s+nonuniform\s+List<vector>\s+')
+         sub = 'value           uniform (0 0 0);\n'
+         inBlock = False
+         for i, l in enumerate(lines):
+            if inBlock:
+               if l.find('}') > -1:
+                  break
+               deadLines.append(i)
+               continue
+            if regex.search(l):
+               lines[i] = regex.sub(sub, l)
+               inBlock = True
+         for i in reversed(deadLines):
+            del lines[i]
+         open(Ufile, 'wt').writelines(lines)
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+   def _mapFields(self, case_dir, stamp_file, test_mode):
+      if test_mode:
+         src = self._cavity_runner.test_dir
+      else:
+         src = self._cavity_runner.case_dir
+      runner = FreeFOAM.tutorial.RunApp('mapFields', args=[src, '-sourceTime',
+         'latestTime'])
+      return runner(case_dir, stamp_file, test_mode)
+
+class icoElbowRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'ico_elbow', 'elbow')
+      self.add_app_step('fluentMeshToFoam',
+            args=[os.path.join(self.case_dir, 'elbow.msh')])
+      self.add_app_step('ico')
+      self.add_app_step('foamMeshToFluent')
+      self.add_app_step('foamDataToFluent')
+
+def register_cases(manager):
+   cavity_runner = icoCavityRunner()
+   manager.add_case(cavity_runner)
+   manager.add_case(icoCavityFineRunner(cavity_runner))
+   manager.add_case(icoCavityGradeRunner(cavity_runner))
+   manager.add_case(icoCavityHighReRunner(cavity_runner))
+   manager.add_case(icoCavityClippedRunner(cavity_runner))
+   manager.add_case(icoElbowRunner())
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   register_cases(runner)
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

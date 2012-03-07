@@ -1,0 +1,99 @@
+=== Post-processing with 'EnSight'
+
+{project} offers the capability for post-processing {project} cases with
+'EnSight', with a choice of 2 options:
+
+- converting the {project} data to 'EnSight' format with the `foamToEnsight`
+  utility;
+- reading the {project} data directly into 'EnSight' using the
+  `ensight74FoamExec` module.
+
+==== Converting data to 'EnSight' format
+
+The `foamToEnsight` utility converts data from {project} to 'EnSight' file
+format. For a given case, `foamToEnsight` is executed like any normal
+application. `foamToEnsight` creates a directory named filename:Ensight[] in
+the case directory, 'deleting any existing dirname:Ensight[] directory in the
+process'. The converter reads the data in all time directories and writes into
+a case file and a set of data files. The case file is named
+filename:EnSight_Case[] and contains details of the data file names. Each data
+file has a name of the form filename:EnSight_<nn>.<ext>[], where `<nn>` is an
+incremental counter starting from 1 for the first time directory, 2 for the
+second and so on and `<ext>` is a file extension of the name of the field that
+the data refers to, as described in the case file, 'e.g.' `T` for temperature,
+`mesh` for the mesh. Once converted, the data can be read into 'EnSight' by the
+normal means:
+
+. from the 'EnSight' GUI, the user should select
+  menuselection:[File --> Data (Reader)];
+. the appropriate filename:EnSight_Case[] file should be highlighted in the
+  guilabel:[Files] box;
+. the guilabel:[Format] selector should be set to guilabel:[Case], the
+  'EnSight' default setting;
+. the user should click guibutton:[(Set) Case] and guibutton:[Okay].
+
+==== The `ensight74FoamExec` reader module
+
+'EnSight' provides the capability of using a user-defined module to read data
+from a format other than the standard 'EnSight' format. {project} includes its
+own reader module `ensight74FoamExec`(((`ensight74FoamExec` utility)))
+(((utility,`ensight74FoamExec`))) that is compiled into a library named
+filename:userd[]. It is this library that 'EnSight' needs to use which means
+that it must be able to locate it on the filing system as described in the
+following section.
+
+===== Configuration of 'EnSight' for the reader module
+
+In order to run the 'EnSight' reader, it is necessary to set some environment
+variables correctly. The environment variables associated with 'EnSight' are
+prefixed by `$CEI_` or `$ENSIGHT7_` and listed in <<tab_ensightEnvVariables>>.
+With a standard user setup, only `$CEI_HOME` may need to be set manually, to
+the path of the 'EnSight' installation.
+
+[[tab_ensightEnvVariables]]
+.Environment variable settings for 'EnSight'
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Environment variable | Description and options
+| `$CEI_HOME`(((`CEI_HOME`,environment variable)))
+(((environment variable,`CEI_HOME`))) | Path where 'EnSight' is installed,
+'e.g.' filename:/usr/local/ensight[], added to the system path by default
+| `$CEI_ARCH`(((`CEI_ARCH`,environment variable)))
+(((environment variable,`CEI_ARCH`))) | Machine architecture, from a choice of
+names corresponding to the machine directory names in
+filename:$CEI_HOME/ensight74/machines[]; default settings include `linux_2.4`
+and `sgi_6.5`
+| `$ENSIGHT7_READER`(((`ENSIGHT7_READER`,environment variable)))
+(((environment variable,`ENSIGHT7_READER`))) | Path that 'EnSight' searches for
+the user defined filename:userd[] reader library
+| `$ENSIGHT7_INPUT`(((`ENSIGHT7_INPUT`,environment variable)))
+(((environment variable,`ENSIGHT7_INPUT`))) | Set by default to `dummy`
+|==============================================================================
+
+===== Using the reader module
+
+The principal difficulty in using the 'EnSight' reader lies in the fact that
+'EnSight' expects that a case to be defined by the contents of a particular
+file, rather than a directory as it is in {project}. Therefore in following the
+instructions for the using the reader below, the user should pay particular
+attention to the details of case selection, since 'EnSight' does not permit
+selection of a directory name.
+
+. from the 'EnSight' GUI, the user should select
+  menuselection:[File --> Data (Reader)];
+. The user should now be able to select the ++{project}++ from the
+  guilabel:[Format] menu; if not, there is a problem with the configuration
+  described above.
+. The user should find their case directory from the guilabel:[File Selection]
+  window, highlight one of top 2 entries in the guilabel:[Directories] box
+  ending in dirname:/.[] or dirname:/..[] and click guibutton:[(Set) Geometry].
+. The path field should now contain an entry for the case.
+  The guilabel:[(Set) Geometry] text box should contain a `+/+'.
+. The user may now click guibutton:[Okay] and 'EnSight' will begin reading the
+  data.
+. When the data is read, a new guilabel:[Data Part Loader] window will appear,
+  asking which part(s) are to be read. The user should select
+  guilabel:[Load all].
+. When the mesh is displayed in the 'EnSight' window the user should close the
+  guilabel:[Data Part Loader] window, since some features of 'EnSight' will not
+  work with this window open.

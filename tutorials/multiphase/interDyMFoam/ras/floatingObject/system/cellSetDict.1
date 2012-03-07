@@ -1,0 +1,30 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      cellSetDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+name c0;
+
+action new;
+
+topoSetSources
+(
+    boxToCell
+    {
+       box   (0.35 0.35 0.44) (0.65 0.65 0.56);
+    }
+);
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

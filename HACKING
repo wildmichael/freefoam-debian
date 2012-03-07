@@ -1,0 +1,231 @@
+FreeFOAM hackers informations
+=============================
+Michael Wild <themiwi@users.sourceforge.net>
+:Author Initials: MW
+v{fullver}, {localdate}
+{homepage}
+
+:cmake: http://www.cmake.org[CMake]
+:gitdocs: http://www.kernel.org/pub/software/scm/git/docs
+:gitworkflows: {gitdocs}/gitworkflows.html[gitworkflows(7)]
+:pythondoc: http://www.python.org/doc
+
+Copyright
+---------
+FreeFOAM is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later
+version.  See the file COPYING in this directory, for a description of the GNU
+General Public License terms under which you can copy the files.
+
+Recommended Reading
+-------------------
+
+Before you participate in the FreeFOAM project and start away hacking, you
+should make yourself familiar with the tools. The following sections name the
+most important of them and give you a few references I used to learn them.
+
+Git
+~~~
+To work on the FreeFOAM source base, you need to know your 'Git-foo'. Git is
+the distributed source control system used by the FreeFOAM project, and feeling
+comfortable using Git is germane to participating in the project. The official
+documentation (either available through extensive man-pages or from
+{gitdocs}) is of course the
+authoritative source. Especially the manual page {gitworkflows} is of interest
+with respect to the work flow used by the FreeFOAM project. If you prefer to
+learn Git reading a book, there are the freely available online books
+<<ProGit>> and <<GitCommBook>>. Learners desiring to hold a book in their hands
+can either print the PDF version of <<GitCommBook>> or buy a hard-copy of
+<<ProGit>> or <<VCGit>>.
+
+CMake
+~~~~~
+The build system used by FreeFOAM is {cmake}. Being able to
+use it on a user-level is a hard requirement for working on FreeFOAM. Pretty
+quickly, though, contributors will need more understanding of the topic and
+should get their hands on a copy of <<MasteringCMake>>.
+
+Python
+~~~~~~
+All the 'user-land' scripts and many of the scripts used during the build of
+FreeFOAM are written in Python. So, you definitely should know how to read it.
+There is a good tutorial (and of course the ever-so-important reference) at
+{pythondoc}. There is no book I can recommend, since I haven't read any myself.
+
+{cpp}
+~~~~~
+FreeFOAM is a large {cpp} project which makes use of almost any language
+feature there is. Thus it is *strongly* recommended you have a good
+understanding of {cpp} in general (e.g. you should be familiar with function
+overloading and polymorphism) and you absolutely *must* understand function and
+class templates. So far I did not come across a single book which covers all of
+these topics satisfactorily. For the more traditional {cpp} topics (i.e.
+non-templated code), <<EffCXX>> and <<ExceptCXX>> are very good resources and
+should also cover template programming in sufficient detail to work on the
+FreeFOAM code base. If you want to know the ins and outs of {cpp} templates,
+refer to <<CXXTemplates>> and to get an inkling of all the fancy stuff you can
+do with them, read <<CXXMeta>>.
+
+Coding Practices and Style
+--------------------------
+Follow the instructions outlined in the file 'doc/codingStyleGuide.pdf'
+contained in the source distribution. Additionally, pay special attention to
+the following points:
+
+* In general, lines shouldn't be longer than 80 characters and they *must* be
+  terminated by a LF. Windows-style line endings (CR+LF) are not acceptable.
+* Indentation for {cpp} is 4 spaces, for Python code 3 or 2 spaces and
+  CMake-code uses 2 spaces only. Never use tab characters (except where
+  required by syntax).
+* Avoid trailing whitespace at all costs. It is considered to be a programming
+  error. However, only remove it from existing code if you change that line
+  anyways. Otherwise the version control log will be very noisy and the 'blame'
+  operation useless.
+* Make sure that file and directory names differ not just in their
+  capitalization. Also, for libraries a header name must be unique within the
+  whole library, but preferably all file names are unique throughout the whole
+  code base.
+* New applications must provide header documentation describing *all* available
+  options and arguments. Also, there must be a brief description (1-2 lines
+  maximum) and an extended, informative description. Somebody reading it should
+  know what to expect from this application without having to read its whole
+  code.
+* New applications must provide a tutorial case that can be run as a basic
+  test to ensure that it runs (although, without checking the validity of the
+  results).
+* New CMake-Modules and functions must be documented using a header comment.
+
+Setting Up a Testing Dashboard
+------------------------------
+To continually ensure that FreeFOAM builds cleanly and that all tutorial cases
+are runnable, FreeFOAM uses CTest which is part of CMake. The build and test
+results are submitted to a CDash server, which collects the data and displays
+it on a web-page. The following instructions will briefly line out how to set
+up your own dashboard client which submits the results to the FreeFOAM CDash
+server.
+
+* Create the dashboard root directory, e.g. '$HOME/dashboards' and checkout the
+  'dashboard' branch from the GIT repository:
++
+...........
+$ git clone -b dashboard git://repo.or.cz/freefoam.git $HOME/dashboards/scripts
+...........
+
+*  Create a file in the '$HOME/dashboards/scripts' directory, say
+   'my_dashboard.cmake', with code of the following form:
++
+...........
+# Client maintainer: me@mydomain.net
+set(CTEST_SITE "machine.site")
+set(CTEST_BUILD_NAME "Branch-Platform-Compiler-Python")
+set(CTEST_BUILD_CONFIGURATION Debug)
+set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+
+set(CMAKE_C_COMPILER /usr/bin/gcc)
+set(CMAKE_CXX_COMPILER /usr/bin/g++)
+set(PYTHON_EXECUTABLE /usr/bin/python)
+set(PYTHON2_EXECUTABLE /usr/bin/python)
+
+include(${CTEST_SCRIPT_DIRECTORY}/foamDashboardCommon.cmake)
+...........
+
+* Then create a scheduled job to run that script. On Unix-like systems you can
+  do so using the command `crontab -e` which should pop up a text editor where
+  you can enter something like the following:
++
+...........
+#min hour dom mon dow command
+05   00   *   *   *   /usr/bin/ctest \
+  -S ~/dashboards/scripts/my_dashboard.cmake -VV \
+  > ~/dashboards/tests/my_dashboard.log 2>&1
+...........
++
+which will run the 'my_dashboard.cmake' script every day at 00:05. If not
+otherwise configured, the source and build trees will be placed in the
+directory '../tests', relative to the directory containing the script running
+the tests (i.e. '$HOME/dashboards/tests' using above example paths)
+
+* For more configuration options, refer to the documentation comments in the
+  'foamDashboardCommon.cmake' file. An online copy can be found
+  http://repo.or.cz/w/freefoam.git/blob/refs/heads/dashboard:/foamDashboardCommon.cmake[here].
+
+Merging Guide
+-------------
+These are notes mainly concerning the FreeFOAM maintainers performing the
+merges with the upstream repository (currently, that is me). Other may find
+this informative, though, and I realized that I need a checklist...
+
+* Create a clone on a case-sensitive file system and check out the upstream
+  tracking branch 'upstream/OpenFOAM-1.7.x' and +git pull+.
+* Check out the branch with the unified history, 'upstream/OpenFOAM' and merge
+  in the versioned upstream branch.
+* Get an overview of what has been added and removed using
+  +git show -m --name-status --no-renames --diff-filter=AD+. Of special
+  interest are 'wmake' related files, new or removed sources, new scripts in
+  'bin', added or removed libraries, applications and tutorials.
+* Check out the branch you want to merge into (usually that is 'pu') and merge
+  with 'upstream/OpenFOAM'. There will be many merge conflicts.
+* Use the following checklist while merging:
+  - Changes to 'Make/files' usually only map to the corresponding 'files.cmake'
+    file. New source files are added to the 'SRCS' list.
+  - New source and header files ('.C' and '.H') belonging to a library that
+    are not mentioned in the 'Make/files' file must be added to the 'HDRS'
+    list. This usually is not reflected by a conflict!
+  - New link libraries added in 'Make/options' should be ported to the
+    'CMakeLists.txt' file. New include directories should only be ported if
+    they are 'relative includes'.
+  - Check the 'diff' of all modified/added source files for '#include'
+    directives. Find whether the included file belongs to a library and if so,
+    change the '#include "header.H"' to '#include <libname/header.H>'.
+  - Add modelines to added files.
+  - Complete/fix the header comment of new applications.
+  - Usually, changes inside the 'wmake' directory can be discarded.
+  - More often than not, added scripts in 'bin' are useless to the FreeFOAM
+    project. If not, port the script to Python if it is to be distributed in a
+    binary package.
+  - Newly added tutorials must be furnished with their own 'CMakeLists.txt'
+    file and a new +add_subdirectory+ call needs to be added. Port new 'Allrun'
+    and 'Allclean' scripts to a 'Allrun.py.in' script.
+
+Release Guide
+-------------
+The following lists things to remember when creating a new release.
+
+* Update 'ChangeLog', 'ReleaseNotes', 'README' and 'INSTALL'.
+* Update version information in 'CMakeLists.txt' and
+  'data/asciidoc/common.conf'.
+* Update the copyright date in all files.
+* Use the 'data/utilities/foamPackSource' script to create a new, signed tag,
+  create a tar-ball with an external signature and check-sum files.
+
+Bibliography
+------------
+[bibliography]
+* [[[ProGit]]] Scott Chacon. http://progit.org/['Pro Git']. Apress 2009.
+  ISBN http://isbndb.com/search-all.html?kw=1-430-21833-9[1-430-21833-9].
+* [[[GitCommBook]]] Scott Chacon and many others.
+  http://book.git-scm.com['The Git Community Book'].
+* [[[VCGit]]] Jon Loeliger. 'Version Control with Git'. O'Reilly 2009.
+  ISBN http://isbndb.com/search-all.html?kw=0-596-52012-3[0-596-52012-3].
+* [[[MasteringCMake]]] Ken Martin, Bill Hoffman. 'Mastering CMake'.
+  Kitware Inc. 2010.
+  ISBN http://isbndb.com/search-all.html?kw=1-930-93422-X[1-930-93422-X]
+* [[[EffCXX]]] Scott Meyers. 'Effective {cpp}'. Addison-Wesley 2005.
+  ISBN http://isbndb.com/search-all.html?kw=0-321-33487-6[0-321-33487-6].
+* [[[ExceptCXX]]] Herb Sutter. 'Exceptional {cpp}'. Addison-Wesley 2000.
+  ISBN http://isbndb.com/search-all.html?kw=0-201-61562-2[0-201-61562-2].
+* [[[CXXTemplates]]] David Vandevoorde, Nicolai M. Josutis.
+  '{cpp} Templates - The Complete Guide'. Addison-Wesley 2003.
+  ISBN http://isbndb.com/search-all.html?kw=0-201-73484-2[0-201-73484-2].
+* [[[CXXMeta]]] David Abrahams
+  David Abrahams, Aleksey Gurtovoy. '{cpp} Template Metaprogramming: Concepts,
+  Tools, and Techniques from Boost and Beyond'. Addison-Wesley 2005.
+  ISBN http://isbndb.com/search-all.html?kw=0-321-22725-5[0-321-22725-5]
+
+////////////////////////////////////////////////////////////////////
+Process with: asciidoc -a toc -f data/asciidoc/html.conf HACKING
+
+Vim users, this is for you:
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+////////////////////////////////////////////////////////////////////

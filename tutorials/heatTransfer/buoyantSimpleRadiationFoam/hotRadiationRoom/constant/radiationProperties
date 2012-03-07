@@ -1,0 +1,50 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      radiationProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+radiation       on;
+
+radiationModel  P1;
+
+noRadiation
+{
+}
+
+P1Coeffs
+{
+}
+
+// Number of flow iterations per radiation iteration
+solverFreq 1;
+
+absorptionEmissionModel constantAbsorptionEmission;
+
+constantAbsorptionEmissionCoeffs
+{
+    a               a [ 0 -1 0 0 0 0 0 ] 0.5;
+    e               e [ 0 -1 0 0 0 0 0 ] 0.5;
+    E               E [ 1 -1 -3 0 0 0 0 ] 0;
+}
+
+scatterModel    constantScatter;
+
+constantScatterCoeffs
+{
+    sigma           sigma [ 0 -1 0 0 0 0 0 ] 0;
+    C               C [ 0 0 0 0 0 0 0 ] 0;
+}
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

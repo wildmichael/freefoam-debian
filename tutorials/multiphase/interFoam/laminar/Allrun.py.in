@@ -1,0 +1,92 @@
+#!@PYTHON_EXECUTABLE@
+
+import sys
+import os
+import os.path
+sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+from FreeFOAM.compat import *
+import FreeFOAM.tutorial
+import FreeFOAM.util
+
+class interDamBreakRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'inter_laminar_damBreak',
+            'damBreak')
+      self.add_app_step('blockMesh')
+      self.add_app_step('setFields')
+      self.add_app_step('inter')
+
+   def clean(self):
+      FreeFOAM.tutorial.CaseRunner.clean(self)
+      alpha1 = os.path.join(self.case_dir, '0', 'alpha1')
+      FreeFOAM.util.copytree(alpha1+'.org', alpha1)
+
+class interDamBreakFineRunner(FreeFOAM.tutorial.ClonedCaseRunner):
+   def __init__(self, damBreak_runner):
+      FreeFOAM.tutorial.ClonedCaseRunner.__init__(self,
+            'inter_laminar_damBreakFine', damBreak_runner, 'damBreakFine')
+      self._damBreak_runner = damBreak_runner
+      self.add_step('prepare', self._prepare)
+      self.add_app_step('blockMesh')
+      self.add_app_step('setFields')
+      self.add_app_step('decomposePar')
+      self.add_app_step('inter', parallel=True)
+      self.add_app_step('reconstructPar')
+
+   def clean(self):
+      FreeFOAM.util.remove_case(self.case_dir)
+      FreeFOAM.util.remove_case(self.test_dir)
+
+   def _prepare(self, case_dir, stamp_file, test_mode):
+      try:
+         blockMeshDict=os.path.join(case_dir, 'constant', 'polyMesh',
+               'blockMeshDict')
+         controlDict=os.path.join(case_dir, 'system', 'controlDict')
+         stamp_file.write('Modifying blockMeshDict\n')
+         regex = [
+               (r'23 8', r'46 10'),
+               (r'19 8', r'40 10'),
+               (r'23 42(.*) 1 1\)', r'46 76\g<1> 2 1)'),
+               (r'4 42(.*) 1 1\)', r'4 76\g<1> 2 1)'),
+               (r'19 42(.*) 1 1\)', r'40 76\g<1> 2 1)'),
+               ]
+         FreeFOAM.tutorial.modify_file(blockMeshDict, regex)
+         stamp_file.write('Modifying controlDict\n')
+         regex = [
+               (r'(deltaT\s+)0.001;', r'\g<1>5e-04;'),
+               (r'(endTime\s+)1;', r'\g<1>0.4;'),
+               ]
+         FreeFOAM.tutorial.modify_file(controlDict, regex)
+         stamp_file.write('Copying 0/alpha1.org to 0/alpha1\n')
+         alpha1 = os.path.join(case_dir, '0', 'alpha1')
+         FreeFOAM.util.copytree(alpha1+'.org', alpha1)
+         if test_mode:
+            self.modify_case_for_test(self.test_dir)
+         stamp_file.write('RESULT: SUCCESS\n')
+         return True
+      except Exception:
+         e = sys.exc_info()[1]
+         stamp_file.write('*** Error *** '+str(e)+'\nRESULT: FAILURE\n')
+         return False
+
+class interCapilaryRiseRunner(FreeFOAM.tutorial.CaseRunner):
+   def __init__(self):
+      FreeFOAM.tutorial.CaseRunner.__init__(self, 'inter_laminar_capillaryRise',
+            'capillaryRise')
+      self.add_app_step('blockMesh')
+      self.add_app_step('setFields')
+      self.add_app_step('inter')
+
+def register_cases(manager):
+   damBreakRunner = interDamBreakRunner()
+   manager.add_case(damBreakRunner)
+   manager.add_case(interDamBreakFineRunner(damBreakRunner))
+   manager.add_case(interCapilaryRiseRunner())
+
+if __name__ == '__main__':
+   os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+   runner = FreeFOAM.tutorial.TutorialRunner()
+   register_cases(runner)
+   sys.exit(runner.main())
+
+# ------------------- vim: set sw=3 sts=3 ft=python et: ------------ end-of-file

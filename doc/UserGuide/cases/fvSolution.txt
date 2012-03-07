@@ -1,0 +1,384 @@
+[[sec_fvSolution]]
+=== Solution and algorithm control
+
+The equation solvers, tolerances and algorithms are controlled from the
+filename:fvSolution[](((filename:fvSolution[],dictionary)))
+(((dictionary,filename:fvSolution[]))) dictionary in the filename:system[]
+directory. Below is an example set of entries from the
+filename:fvSolution[](((filename:fvSolution[],dictionary)))
+(((dictionary,filename:fvSolution[]))) dictionary required for the `ico`
+solver.
+
+[[pge_fvSolutionExample]]
+.filename:fvSolution[] dictionary for `ico`
+==============================================================================
+-------------------------------------------------------------------------------
+solvers
+{
+    p
+    {
+        solver         PCG;
+        preconditioner DIC;
+        tolerance      1e-06;
+        relTol         0;
+    }
+
+    U
+    {
+        solver         PBiCG;
+        preconditioner DILU;
+        tolerance      1e-05;
+        relTol         0;
+    }
+}
+
+PISO
+{
+    nCorrectors              2;
+    nNonOrthogonalCorrectors 0;
+    pRefCell                 0;
+    pRefValue                0;
+}
+-------------------------------------------------------------------------------
+==============================================================================
+
+filename:fvSolution[] contains a set of subdictionaries that are specific to
+the solver being run. However, there is a small set of standard subdictionaries
+that cover most of those used by the standard solvers. These subdictionaries
+include `solvers`, `relaxationFactors`, `PISO` and `SIMPLE` which are described
+in the remainder of this section.
+
+==== Linear solver control
+
+The first sub-dictionary in our example, and one that appears in all solver
+applications, is ++solvers++.(((`solvers` keyword)))(((keyword,`solvers`))) It
+specifies each linear-solver that is used for each discretised equation; it is
+emphasised that the term __linear-__solver refers to the method of
+number-crunching to solve the set of linear equations, as opposed to
+'application' solver which describes the set of equations and algorithms to
+solve a particular problem.  The term `linear-solver' is abbreviated to
+`solver' in much of the following discussion; we hope the context of the term
+avoids any ambiguity.
+
+The syntax for each entry within `solvers` uses a keyword that is the `word`
+relating to the variable being solved in the particular equation. For example,
+`ico` solves equations for velocity math:[U] and pressure math:[p], hence the
+entries for `U` and `p`. The keyword is followed by a dictionary containing the
+type of solver and the parameters that the solver uses. The solver is selected
+through the `solver`(((`solver` keyword)))(((keyword,`solver`))) keyword from
+the choice in {project}, listed in <<tab_solvers>>. The parameters, including
+`tolerance`,(((`tolerance` keyword)))(((keyword,`tolerance`)))
+`relTol`,(((`relTol` keyword)))(((keyword,`relTol`)))
+`preconditioner`,(((`preconditioner` keyword)))(((keyword,`preconditioner`)))
+'etc.' are described in following sections.
+
+[[tab_solvers]]
+.Linear solvers
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Solver | Keyword
+| Preconditioned (bi-)conjugate gradient | `PCG`(((`PCG`,keyword entry)))
+(((keyword entry,`PCG`)))/`PBiCG`(((`PBiCG`,keyword entry)))
+(((keyword entry,`PBiCG`)))footnote:[`PCG`(((`PCG`,keyword entry)))
+(((keyword entry,`PCG`))) for symmetric matrices, `PBiCG`
+(((`PBiCG`,keyword entry)))(((keyword entry,`PBiCG`))) for asymmetric]
+| Solver using a smoother | `smoothSolver`(((`smoothSolver`,keyword entry)))
+(((keyword entry,`smoothSolver`)))
+| Generalised geometric-algebraic multi-grid | `GAMG`(((`GAMG`,keyword entry)))
+(((keyword entry,`GAMG`)))
+|==============================================================================
+
+The solvers distinguish between symmetric matrices and asymmetric matrices. The
+symmetry of the matrix depends on the structure of the equation being solved
+and, while the user may be able to determine this, it is not essential since
+{project} will produce an error message to advise the user if an inappropriate
+solver has been selected, 'e.g.'
+
+-------------------------------------------------------------------------------
+--> FOAM FATAL IO ERROR : Unknown asymmetric matrix solver PCG
+Valid asymmetric matrix solvers are :
+3
+(
+PBiCG
+smoothSolver
+GAMG
+)
+-------------------------------------------------------------------------------
+
+===== Solution tolerances
+
+The sparse matrix solvers are iterative, 'i.e.' they are based on reducing the
+equation residual over a succession of solutions. The residual is ostensibly a
+measure of the error in the solution so that the smaller it is, the more
+accurate the solution. More precisely, the residual is evaluated by
+substituting the current solution into the equation and taking the magnitude of
+the difference between the left and right hand sides; it is also normalised in
+to make it independent of the scale of problem being analysed.
+
+
+Before solving an equation for a particular field, the initial residual is
+evaluated based on the current values of the field. After each solver iteration
+the residual is re-evaluated. The solver stops if 'either' of the following
+conditions are reached:
+
+
+- the residual falls below the 'solver tolerance',(((tolerance,solver)))
+  (((solver tolerance))) `tolerance`;(((`tolerance` keyword)))
+  (((keyword,`tolerance`)))
+- the ratio of current to initial residuals falls below the 'solver relative
+  tolerance',(((tolerance,solver relative)))(((relative tolerance)))
+  (((solver relative tolerance))) `relTol`;(((`relTol` keyword)))
+  (((keyword,`relTol`)))
+
+The solver tolerance should represent the level at which the residual is small
+enough that the solution can be deemed sufficiently accurate. The solver
+relative tolerance limits the relative improvement from initial to final
+solution. It is quite common to set the solver relative tolerance to 0 to force
+the solution to converge to the solver tolerance. The tolerances, `tolerance`
+and `relTol` must be specified in the dictionaries for all solvers.
+
+===== Preconditioned conjugate gradient solvers
+
+There are a range of options for preconditioning of matrices in the conjugate
+gradient solvers, represented by the `preconditioner`
+(((`preconditioner` keyword)))(((keyword,`preconditioner`))) keyword in the
+solver dictionary. The preconditioners are listed in <<tab_preconditioners>>.
+
+[[tab_preconditioners]]
+.Preconditioner options
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Preconditioner | Keyword
+| Diagonal incomplete-Cholesky (symmetric) | `DIC`(((`DIC`,keyword entry)))
+(((keyword entry,`DIC`)))
+| Faster diagonal incomplete-Cholesky (`DIC` with caching) | `FDIC`
+(((`FDIC`,keyword entry)))(((keyword entry,`FDIC`)))
+| Diagonal incomplete-LU (asymmetric) | `DILU`(((`DILU`,keyword entry)))
+(((keyword entry,`DILU`)))
+| Diagonal | `diagonal`(((`diagonal`,keyword entry)))
+(((keyword entry,`diagonal`)))
+| Geometric-algebraic multi-grid | `GAMG`(((`GAMG`,keyword entry)))
+(((keyword entry,`GAMG`)))
+| No preconditioning | `none`(((`none`,keyword entry)))
+(((keyword entry,`none`)))
+|==============================================================================
+
+[[sec_smoothSolvers]]
+===== Smooth solvers
+
+The solvers that use a smoother require the smoother to be specified. The
+smoother options are listed in <<tab_smoothers>>. Generally
+`GaussSeidel`(((`GaussSeidel`,keyword entry)))(((keyword entry,`GaussSeidel`)))
+is the most reliable option, but for bad matrices `DIC`
+(((`DIC`,keyword entry)))(((keyword entry,`DIC`))) can offer better
+convergence. In some cases, additional post-smoothing using `GaussSeidel` is
+further beneficial, 'i.e.' the method denoted as
+`DICGaussSeidel`.(((`DICGaussSeidel`,keyword entry)))
+(((keyword entry,`DICGaussSeidel`)))
+
+[[tab_smoothers]]
+.Smoother options
+[grid="none",frame="topbot",options="header"]
+|==============================================================================
+| Smoother | Keyword
+| Gauss-Seidel | `GaussSeidel`(((`GaussSeidel`,keyword entry)))
+(((keyword entry,`GaussSeidel`)))
+| Diagonal incomplete-Cholesky (symmetric) | `DIC`(((`DIC`,keyword entry)))
+(((keyword entry,`DIC`)))
+| Diagonal incomplete-Cholesky with Gauss-Seidel (symmetric) | `DICGaussSeidel`
+(((`DICGaussSeidel`,keyword entry)))(((keyword entry,`DICGaussSeidel`)))
+|==============================================================================
+
+The user must also pecify the number of sweeps, by the `nSweeps` keyword,
+before the residual is recalculated, following the tolerance parameters.
+
+===== Geometric-algebraic multi-grid solvers
+
+The generalised method of geometric-algebraic multi-grid (GAMG)
+(((geometric-algebraic multi-grid)))(((multigrid,geometric-algebraic))) uses
+the principle of: generating a quick solution on a mesh with a small number of
+cells; mapping this solution onto a finer mesh; using it as an initial guess to
+obtain an accurate solution on the fine mesh. GAMG is faster than standard
+methods when the increase in speed by solving first on coarser meshes outweighs
+the additional costs of mesh refinement and mapping of field data. In practice,
+GAMG starts with the mesh specified by the user and coarsens/refines the mesh
+in stages. The user is only required to specify an approximate mesh size at the
+most coarse level in terms of the number of cells `nCoarsestCells`.
+
+The agglomeration of cells is performed by the algorithm specified by the
+`agglomerator`(((`agglomerator` keyword)))(((keyword,`agglomerator`))) keyword.
+Presently we recommend the `faceAreaPair`(((`faceAreaPair`,keyword entry)))
+(((keyword entry,`faceAreaPair`))) method. It is worth noting there is an
+`MGridGen`(((`MGridGen`,keyword entry)))(((keyword entry,`MGridGen`))) option
+that requires an additional entry specifying the shared object library for
+`MGridGen`:
+
+-------------------------------------------------------------------------------
+geometricGamgAgglomerationLibs ("libMGridGenGamgAgglomeration.so");
+-------------------------------------------------------------------------------
+
+In the experience of OpenCFD, the
+http://www-users.cs.umn.edu/~moulitsa/software.html[MGridGen] method offers no
+obvious benefit over the `faceAreaPair` method. For all methods, agglomeration
+can be optionally cached by the `cacheAgglomeration`
+(((`cacheAgglomeration` keyword)))(((keyword,`cacheAgglomeration`))) switch.
+Smoothing is specified by the `smoother`(((`smoother` keyword)))
+(((keyword,`smoother`))) as described in <<sec_smoothSolvers>>. The number of
+sweeps used by the smoother at different levels of mesh density are specified
+by the `nPreSweeps`,(((`nPreSweeps` keyword)))(((keyword,`nPreSweeps`)))
+`nPostSweeps`(((`nPostSweeps` keyword)))(((keyword,`nPostSweeps`))) and
+`nFinestSweeps`(((`nFinestSweeps` keyword)))(((keyword,`nFinestSweeps`)))
+keywords. The `nPreSweeps`(((`nPreSweeps` keyword)))(((keyword,`nPreSweeps`)))
+entry is used as the algorithm is coarsening the mesh,
+`nPostSweeps`(((`nPostSweeps` keyword)))(((keyword,`nPostSweeps`))) is used as
+the algorithm is refining, and `nFinestSweeps`(((`nFinestSweeps` keyword)))
+(((keyword,`nFinestSweeps`))) is used when the solution is at its finest level.
+
+The `mergeLevels`(((`mergeLevels` keyword)))(((keyword,`mergeLevels`))) keyword
+controls the speed at which coarsening or refinement levels is performed. It is
+often best to do so only at one level at a time, 'i.e.' set `mergeLevels 1`. In
+some cases, particularly for simple meshes, the solution can be safely speeded
+up by coarsening/refining two levels at a time, 'i.e.' setting `mergeLevels 2`.
+
+==== Solution under-relaxation
+
+A second sub-dictionary of filename:fvSolution[] that is often used in
+{project} is `relaxationFactors` which controls under-relaxation, a technique
+used for improving stability of a computation, particularly in solving
+steady-state problems. Under-relaxation works by limiting the amount which a
+variable changes from one iteration to the next, either by modifying the
+solution matrix and source prior to solving for a field or by modifying the
+field directly. An under-relaxation factor math:[\alpha], math:[0<\alpha\le1]
+specifies the amount of under-relaxation, ranging from none at all for
+math:[\alpha=1] and increasing in strength as math:[\alpha\rightarrow 0].
+The limiting case where math:[\alpha=0] represents a solution which does not
+change at all with successive iterations. An optimum choice of math:[\alpha]
+is one that is small enough to ensure stable computation but large enough to
+move the iterative process forward quickly; values of math:[\alpha] as high as
+0.9 can ensure stability in some cases and anything much below, say, 0.2 are
+prohibitively restrictive in slowing the iterative process.
+
+The user can specify the relaxation factor for a particular field by specifying
+first the `word` associated with the field, then the factor. The user can view
+the relaxation factors used in a tutorial example of `simple` for
+incompressible, laminar, steady-state flows.
+
+-------------------------------------------------------------------------------
+solvers
+{
+    p
+    {
+        solver         PCG;
+        preconditioner DIC;
+        tolerance      1e-06;
+        relTol         0.01;
+    }
+
+    U
+    {
+        solver         PBiCG;
+        preconditioner DILU;
+        tolerance      1e-05;
+        relTol         0.1;
+    }
+
+    k
+    {
+        solver         PBiCG;
+        preconditioner DILU;
+        tolerance      1e-05;
+        relTol         0.1;
+    }
+
+    epsilon
+    {
+        solver         PBiCG;
+        preconditioner DILU;
+        tolerance      1e-05;
+        relTol         0.1;
+    }
+
+    R
+    {
+        solver         PBiCG;
+        preconditioner DILU;
+        tolerance      1e-05;
+        relTol         0.1;
+    }
+
+    nuTilda
+    {
+        solver         PBiCG;
+        preconditioner DILU;
+        tolerance      1e-05;
+        relTol         0.1;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+}
+
+relaxationFactors
+{
+    p       0.3;
+    U       0.7;
+    k       0.7;
+    epsilon 0.7;
+    R       0.7;
+    nuTilda 0.7;
+}
+-------------------------------------------------------------------------------
+
+==== PISO and SIMPLE algorithms
+
+Most fluid dynamics solver applications in {project} use the pressure-implicit
+split-operator (PISO) or semi-implicit method for pressure-linked equations
+(SIMPLE) algorithms. These algorithms are iterative procedures for solving
+equations for velocity and pressure, PISO being used for transient problems and
+SIMPLE for steady-state.
+
+Both algorithms are based on evaluating some initial solutions and then
+correcting them. SIMPLE only makes 1 correction whereas PISO requires more than
+1, but typically not more than 4. The user must therefore specify the number of
+correctors in the PISO dictionary by the `nCorrectors` keyword as shown in
+<<pge_fvSolutionExample>>.
+
+An additional correction to account for mesh non-orthogonality is available in
+both SIMPLE and PISO in the standard {project} solver applications. A mesh is
+orthogonal if, for each face within it, the face normal is parallel to the
+vector between the centres of the cells that the face connects, 'e.g.' a mesh
+of hexahedral cells whose faces are aligned with a Cartesian coordinate system.
+The number of non-orthogonal correctors is specified by the
+`nNonOrthogonalCorrectors` keyword as shown in the examples above and in
+<<pge_fvSolutionExample>>. The number of non-orthogonal correctors should
+correspond to the mesh for the case being solved, 'i.e.' 0 for an orthogonal
+mesh and increasing with the degree of non-orthogonality up to, say, 20 for the
+most non-orthogonal meshes.
+
+===== Pressure referencing
+
+In a closed incompressible system, pressure is relative: it is the pressure
+range that matters not the absolute values. In these cases, the solver sets a
+reference level of `pRefValue`(((`pRefValue` keyword)))
+(((keyword,`pRefValue`))) in cell `pRefCell`(((`pRefCell` keyword)))
+(((keyword,`pRefCell`))) where `p` is the name of the pressure solution
+variable. Where the pressure is `p_rgh`, the names are
+`p_rhgRefValue`(((`p_rhgRefValue` keyword)))(((keyword,`p_rhgRefValue`))) and
+`p_rhgRefCell`(((`p_rhgRefCell` keyword)))(((keyword,`p_rhgRefCell`)))
+respectively. These entries are generally stored in the `PISO`/`SIMPLE`
+sub-dictionary and are used by those solvers that require them when the case
+demands it. If ommitted, the solver will not run, but give a message to alert
+the user to the problem.
+
+==== Other parameters
+
+The filename:fvSolution[] dictionaries in the majority of standard {project}
+solver applications contain no other entries than those described so far in
+this section. However, in general the filename:fvSolution[] dictionary may
+contain any parameters to control the solvers, algorithms, or in fact anything.
+For a given solver, the user can look at the source code to find the parameters
+required. Ultimately, if any parameter or sub-dictionary is missing when an
+solver is run, it will terminate, printing a detailed error message. The user
+can then add missing parameters accordingly.

@@ -1,0 +1,65 @@
+= @FOAM_UPPER_EXE_PREFIX@GRAPHEXECTIME(1) =
+:mansource: @PROJECT_NAME@
+:manversion: @FOAM_VERSION_FULL@
+:manmanual: @PROJECT_NAME@ Manual
+
+NAME
+----
+@FOAM_EXE_PREFIX@graphExecTime - Computes the time used per iteration
+
+SYNOPSIS
+--------
+*freefoa graphExecTime* '<logFile>'
+
+DESCRIPTION
+-----------
+This utility computes the time used per iteration in seconds and writes it to
+the file 'executionTime.dat'. The file has the following format:
+=====================
+---------------------
+Solver Performance
+iterations
+time/iteration
+0 0
+0 0
+1
+time
+0
+<nIterations>
+1.000000 <time/iter1>
+2.000000 <time/iter2>
+3.000000 <time/iter3>
+4.000000 <time/iter4>
+5.000000 <time/iter5>
+...
+---------------------
+=====================
+where '<nIterations>' is the number of iterations and corresponds to the number
+of lines which are following this entry. '<time/iterX>' is the time this
+iteration requried.
+
+OPTIONS
+-------
+'<logFile>'::
+  A @PROJECT_NAME@ log file (i.e. the screen-output created by a @PROJECT_NAME@ solver)
+
+SEE ALSO
+--------
+An overview of @PROJECT_NAME@ is given in linkff:@LOWER_PROJECT_NAME@[1].
+
+AUTHOR
+------
+OpenCFD Ltd.
+
+FREEFOAM
+--------
+Part of the linkff:@LOWER_PROJECT_NAME@[1] suite.
+
+COPYRIGHT
+---------
+* Copyright (C) 1991-2010 OpenCFD Ltd.
+* Copyright (C) 2008-2012 Michael Wild.
+
+/////////////////////////////////////////////////////////
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+/////////////////////////////////////////////////////////

@@ -1,0 +1,26 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      binary;
+    class       dictionary;
+    location    "constant";
+    object      filterProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+filter          off;
+
+filterNormal    ( 0 0 1 );
+
+filterPosition  filterPosition [ 0 1 0 0 0 ] ( 0 0 0.02 );
+
+filterThickness filterThickness [ 0 1 0 0 0 ] 1e-06;
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

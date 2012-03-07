@@ -1,0 +1,376 @@
+[[sec_paraFoam]]
+=== `para`
+(((`para`))) (((post-processing,post-processing,`para`)))
+
+The main post-processing tool provided with {project} is 'ParaView', an
+open-source, visualization application which provides native support for
+{project} cases since version 3.8. It is recommended that this version or newer
+of 'ParaView' is used. Further details about 'ParaView' can be found at
+http://paraview.org and further documentation is available at
+http://www.kitware.com/products/paraviewguide.html.
+
+'ParaView' uses the Visualisation Toolkit ('VTK') as its data processing and
+rendering engine and can therefore read any data in 'VTK' format. {project}
+includes the `foamToVTK` utility to convert data from its native format to
+'VTK' format, which means that any VTK-based graphics tools can be used to
+post-process {project} cases. This provides an alternative means for using
+'ParaView' with {project}. For users who wish to experiment with advanced,
+parallel visualisation, there is also the free 'VisIt' software, available at
+http://www.llnl.gov/visit.
+
+In summary, we recommend 'ParaView' and its direct support for {project} cases
+as the primary post-processing tool for {project}. Alternatively {project} data
+can be converted into 'VTK' format to be read by 'ParaView' or any other
+__VTK__-based graphics tools.
+
+==== Overview of `para`
+
+`para` is a simple wrapper-script that launches 'ParaView', ironing out some
+inconveniences. It is executed like any of the {project} utilities either by
+the single command from within the case directory or with the `-case` option
+with the case path as an argument, 'e.g.':
+
+-------------------------------------------------------------------------------
+$ freefoam para -case <caseDir>
+-------------------------------------------------------------------------------
+
+[[fig_paraFoamOpen]]
+.The `para` window
+image::images/post_paraFoamOpen.png[]
+
+'ParaView' is launched and opens the window shown in <<fig_paraFoamOpen>>. The
+case is controlled from the left panel, which contains the following:
+
+guilabel:[Pipeline Browser]::
+(((guilabel:[Pipeline Browser] window)))(((window,guilabel[Pipeline Browser])))
+  lists the 'modules' opened in 'ParaView', where the selected modules are
+  highlighted in blue and the graphics for the given module can be
+  enabled/disabled by clicking the guibutton:[eye] button alongside;
+guilabel:[Properties] panel::
+  (((guilabel:[Properties] window panel)))
+  (((window panel,guilabel[Properties]))) contains the input selections for the
+  case, such as times, regions and fields;
+guilabel:[Display] panel::
+  (((guilabel:[Display] window panel)))(((window panel,guilabel:[Display])))
+  controls the visual representation of the selected module, 'e.g.' colours;
+guilabel:[Information] panel::
+  (((guilabel:[Information] window panel)))
+  (((window panel,guilabel:[Information])))
+  gives case statistics such as mesh geometry and size.
+
+'ParaView' operates a tree-based structure in which data can be filtered from
+the top-level case module to create sets of sub-modules. For example, a contour
+plot of, say, pressure could be a sub-module of the case module which contains
+all the pressure data. The strength of 'ParaView' is that the user can create a
+number of sub-modules and display whichever ones they feel to create the
+desired image or animation. For example, they may add some solid geometry, mesh
+and velocity vectors, to a contour plot of pressure, switching any of the items
+on and off as necessary.
+
+The general operation of the system is based on the user making a selection and
+then clicking the green guibutton:[Apply](((guibutton:[Apply] button)))
+(((button,guibutton:[Apply]))) button in the guilabel:[Properties] panel. The
+additional buttons are: the guibutton:[Reset](((guibutton:[Reset] button)))
+(((button,guibutton:[Reset]))) button which used to reset the GUI if necessary;
+and, the guibutton:[Delete](((guibutton:[Delete] button)))
+(((button,guibutton[[Delete]))) button that will delete the active module.
+
+==== The guilabel:[Properties] panel
+
+The guilabel:[Properties](((guilabel:[Properties] window panel)))
+(((window panel,guilabel:[Properties]))) panel for the case module contains the
+settings for time step, regions and fields.
+
+[[fig_parametersPanel]]
+.The guilabel:[Properties] panel for the case module
+image::images/post_parametersPanel.{gfx-fmt}[]
+
+The controls are described in <<fig_parametersPanel>>. It is particularly worth
+noting that in the current reader module, data in all time directories are
+loaded into 'ParaView'. The buttons in the guilabel:[Current Time Controls]
+(((guilabel:[Current Time Controlse menu)))
+(((menu,guilabel:[Current Time Controls]))) and guilabel:[VCR Controls]
+(((guilabel:[VCR Controls] menu)))(((menu,guilabel:[VCR Controls]))) toolbars
+select the time data to be displayed, as shown is <<sec_buttonToolbars>>.
+
+As with any operation in `para`, the user must click guibutton:[Apply] after
+making any changes to any selections. The guibutton:[Apply] button is
+highlighted in green to alert the user if changes have been made but not
+accepted. This method of operation has the advantage of allowing the user to
+make a number of selections before accepting them, which is particularly useful
+in large cases where data processing is best kept to a minimum.
+
+Currently there is no way to refresh the data without loading it fresh from the
+guilabel:[File] menu.
+
+==== The guilabel:[Display] panel
+
+The guilabel:[Display](((guilabel:[Display] window panel)))
+(((window panel,guilabel:[Display]))) panel contains the settings for
+visualising the data for a given case module.
+
+.The guilabel:[Display] panel
+image::images/post_displayPanel.{gfx-fmt}[]
+
+The following points are particularly important:
+
+- the data range may not be automatically updated to the max/min limits of a
+  field, so the user should take care to select
+   guilabel:[Rescale to Data Range] at appropriate intervals, in particular
+   after loading the initial case module;
+- clicking the guibutton:[Edit Color Map]
+  (((guibutton:[Edit Color Map] button)))
+  (((button,guibutton:[Edit Color Map]))) button, brings up a window in which
+  there are two panels:
++
+--
+. The guilabel:[Color Scale](((guilabel:[Color Scale] window panel)))
+  (((window panel,guilabel:[Color Scale]))) panel in which the colours within
+  the scale can be chosen. The standard blue to red colour scale for CFD can
+  be selected by clicking guibutton:[Choose Preset]
+  (((guibutton:[Choose Preset] button)))
+  (((button,guibutton:[Choose Preset]))) and selecting
+  guilabel:[Blue to Red HSV].
+. The guilabel:[Color Legend](((guilabel:[Color Legend] window panel)))
+  (((window panel,guilabel:[Color Legend]))) panel has a toggle switch for a
+  colour bar legend and contains settings for the layout of the legend,
+  'e.g.' font.
+--
+- the underlying mesh can be represented by selecting
+  guilabel:[Wireframe](((guilabel:[Wireframe],menu entry)))
+  (((menu entry,guilabel:[Wireframe]))) in the guilabel:[Representation] menu
+  of the guilabel:[Style](((guilabel:[Style] window panel)))
+  (((window panel,guilabel:[Style]))) panel;
+- the geometry, 'e.g.' a mesh (if guilabel:[Wireframe]
+  (((guilabel:[Wireframe],menu entry))) (((menu entry,guilabel:[Wireframe])))
+  is selected), can be visualised as a single colour by selecting
+  guilabel:[Solid Color](((guilabel:[Solid Color],menu entry)))
+  (((menu entry,guilabel:[Solid Color]))) from the
+  guilabel:[Color By](((guilabel:[Color By] menu)))
+  (((menu,guilabel:[Color By]))) menu and specifying the
+  colour in the guibutton:[Set Solid Color]
+  (((guibutton:[Set Solid Color] button)))
+  (((button,guibutton:[Set Solid Color]))) window;
+- the image can be made translucent by editing the value in the
+  guilabel:[Opacity](((guilabel:[Opacity] text box)))
+  (((text box,guilabel:[Opacity]))) text box (`1` = solid, `0` = invisible) in
+  the guilabel:[Style] panel.
+
+[[sec_buttonToolbars]]
+==== The button toolbars
+
+'ParaView' duplicates functionality from pull-down menus at the top of the main
+window and the major panels, within the toolbars below the main pull-down
+menus. The displayed toolbars can be selected from
+menuselection:[View-->Toolbars].
+(((menuselection:[View-->Toolbars],menu entry)))
+(((menu entry,menuselection:[View-->Toolbars]))) The default layout with all
+toolbars is shown in <<fig_paraviewToolbars>> with each toolbar labelled. The
+function of many of the buttons is clear from their icon and, with tooltips
+enabled in the menuselection:[Help] (((menuselection:[Help] menu)))
+(((menu,menuselection:[Help]))) menu, the user is given a concise description
+of the function of any button.
+
+[[fig_paraviewToolbars]]
+.Toolbars in 'ParaView'
+image::images/post_paraviewToolbars.{gfx-fmt}[]
+
+[[sec_manipulatingView]]
+==== Manipulating the view
+
+This section describes operations for setting and manipulating the view of
+objects in `para`.
+
+[[sec_paraviewViewSettings]]
+===== View settings
+
+The view settings are available through
+menuselection:[Edit-->View Settings],
+(((menuselection:[Edit-->View Settings],menu entry)))
+(((menu entry,menuselection:[Edit-->View Settings]))) which opens a
+guilabel:[Render View Options](((guilabel:[Render View Options] window)))
+(((window,guilabel:[Render View Options]))) window with a table of 3 items:
+guilabel:[General], guilabel:[Lights] and guilabel:[Annotation]. The
+guilabel:[General](((guilabel:[General] window panel)))
+(((window panel,guilabel:[General]))) panel includes the following items which
+are *often worth setting at startup*:
+
+- the background colour, where white is often a preferred choice for printed
+  material;
+- guibutton:[Use parallel projection]
+  (((guibutton:[Use parallel projection] button)))
+  (((button,guibutton:[Use parallel projection]))) which is the usual choice
+  for CFD, especially for 2D cases;
+
+The guilabel:[Lights](((guilabel:[Lights] window panel)))
+(((window panel,guilabel:[Lights]))) panel contains detailed lighting controls
+within the guilabel:[Light Kit] panel. A separate guilabel:[Headlight] panel
+controls the direct lighting of the image. Checking the guilabel:[Headlight]
+button with white light colour of strength 1 seems to help produce images with
+strong bright colours, e.g. with an isosurface.
+
+The guilabel:[Annotation](((guilabel:[Annotation] window panel)))
+(((window panel,guilabel:[Annotation]))) panel includes options for including
+annotations in the image. The guibutton:[Orientation Axes]
+(((guibutton:[Orientation Axes] button)))
+(((button,guibutton:[Orientation Axes]))) feature controls an axes icon in the
+image window, e.g. to set the colour of the axes labels math:[x], math:[y] and
+math:[z].
+
+===== General settings
+
+The general settings are selected from the
+menuselection:[Edit-->Settings]
+(((menuselection:[Edit-->Settings],menu entry)))
+(((menu entry,menuselection:[Edit-->Settings])))  menu, which opens a general
+guilabel:[Options](((guilabel:[Options] window)))
+(((window,guilabel:[Options]))) window with guilabel:[General]
+(((guilabel:[General] window panel)))(((window panel,guilabel:[General]))) and
+guilabel:[Render View](((guilabel:[Render View] window panel)))
+(((window panel,guilabel:[Render View]))) menu items.
+
+The guilabel:[General] panel controls some default behaviour of 'ParaView'. In
+particular, there is an guibutton:[Auto Accept]
+(((guibutton:[Auto Accept] button)))(((button,guibutton:[Auto Accept])))
+button that enables 'ParaView' to accept changes automatically without clicking
+the green guibutton:[Apply](((guibutton:[Apply] button)))
+(((button,guibutton:[Apply]))) button in the guilabel:[Properties] window. For
+larger cases, this option is generally not recommended: the user does not
+generally want the image to be re-rendered between each of a number of changes
+he/she selects, but be able to apply a number of changes to be re-rendered in
+their entirety once.
+
+The guilabel:[Render View](((guilabel:[Render View] window)))
+(((window,guilabel:[Render View]))) panel contains 3 sub-items:
+guilabel:[General], guilabel:[Camera] and guilabel:[Server]. The
+guilabel:[General] panel includes the level of detail (LOD) which controls the
+rendering of the image while it is being manipulated, 'e.g.' translated,
+resized, rotated; lowering the levels set by the sliders, allows cases with
+large numbers of cells to be re-rendered quickly during manipulation.
+
+The guilabel:[Camera] panel includes control settings for 3D and 2D movements.
+This presents the user with a map of rotation, translate and zoom controls
+using the mouse in combination with Shift- and Control-keys. The map can be
+edited to suit by the user.
+
+[[sec_contourPlotParaview]]
+==== Contour plots
+
+A contour plot is created by selecting menuselection:[Filter-->Contour] from
+the top menu bar. The filter acts on a given module so that, if the module is
+the 3D case module itself, the contours will be a set of 2D surfaces that
+represent a constant value, 'i.e.' isosurfaces. The guilabel:[Properties] panel
+for contours contains an guilabel:[Isosurfaces] list that the user can edit,
+most conveniently by the guilabel:[New Range] window. The chosen scalar field
+is selected from a pull down menu.
+
+[[sec_cuttingPlane]]
+===== Introducing a cutting plane
+
+Very often a user will wish to create a contour plot across a plane rather than
+producing isosurfaces. To do so, the user must first use the guilabel:[Slice]
+filter to create the cutting plane, on which the contours can be plotted. The
+guilabel:[Slice] filter allows the user to specify a cutting `Plane`,
+guilabel:[Box] or guilabel:[Sphere] in the guilabel:[Slice Type] menu by a
+guilabel:[center] and `normal`/guilabel:[radius] respectively. The user can
+manipulate the cutting plane like any other using the mouse.
+
+The user can then run the guilabel:[Contour] filter on the cut plane to
+generate contour lines.
+
+
+==== Vector plots
+
+Vector plots are created using the guilabel:[Glyph] filter. The filter reads
+the field selected in guilabel:[Vectors] and offers a range of guilabel:[Glyph
+Types] for which the guilabel:[Arrow] provides a clear vector plot images. Each
+glyph has a selection of graphical controls in a panel which the user can
+manipulate to best effect.
+
+The remainder of the guilabel:[Properties] panel contains mainly the
+guilabel:[Scale Mode] menu for the glyphs. The most common options are
+guilabel:[Scale Mode] are: guilabel:[Vector], where the glyph length is
+proportional to the vector magnitude; and, guilabel:[Off] where each glyph is
+the same length. The guilabel:[Set Scale Factor] parameter controls the base
+length of the glyphs.
+
+[[sec_plottingCellCentres]]
+===== Plotting at cell centres
+
+Vectors are by default plotted on cell vertices but, very often, we wish to
+plot data at cell centres. This is done by first applying the
+guilabel:[Cell Centers] filter to the case module, and then applying the
+guilabel:[Glyph] filter to the resulting cell centre data.
+
+[[sec_streamlinesParaview]]
+==== Streamlines
+
+Streamlines are created by first creating tracer lines using the
+guilabel:[Stream Tracer] filter. The tracer guilabel:[Seed]
+(((guilabel:[Seed] window)))(((window,guilabel:[Seed]))) panel specifies a
+distribution of tracer points over a guilabel:[Line Source] or
+guilabel:[Point Cloud]. The user can view the tracer source, 'e.g.' the line,
+but it is displayed in white, so they may need to change the background colour
+in order to see it.
+
+The distance the tracer travels and the length of steps the tracer takes are
+specified in the text boxes in the main guilabel:[Stream Tracer] panel. The
+process of achieving desired tracer lines is largely one of trial and error in
+which the tracer lines obviously appear smoother as the step length is reduced
+but with the penalty of a longer calculation time.
+
+
+Once the tracer lines have been created, the guilabel:[Tubes] filter can be
+applied to the 'Tracer' module to produce high quality images. The tubes follow
+each tracer line and are not strictly cylindrical but have a fixed number of
+sides and given radius. When the number of sides is set above, say, 10, the
+tubes do however appear cylindrical, but again this adds a computational cost.
+
+==== Image output
+
+The simplest way to output an image to file from 'ParaView' is to select
+menuselection:[File-->Save Screenshot].
+(((menuselection:[File-->Save Screenshot],menu entry)))
+(((menu entry,menuselection:[File-->Save Screenshot]))) On selection, a window
+appears in which the user can select the resolution for the image to save.
+There is a button that, when clicked, locks the aspect ratio, so if the user
+changes the resolution in one direction, the resolution is adjusted in the
+other direction automatically. After selecting the pixel resolution, the image
+can be saved. To achieve high quality output, the user might try setting the
+pixel resolution to 1000 or more in the math:[x]-direction so that when the
+image is scaled to a typical size of a figure in an A4 or US letter document,
+perhaps in a PDF document, the resolution is sharp.
+
+==== Animation output
+
+To create an animation, the user should first select
+menuselection:[File-->Save Animation].
+(((menuselection:[File-->Save Animation],menu entry)))
+(((menu entry,menuselection:[File-->Save Animation]))) A dialogue window
+appears in which the user can specify a number of things including the image
+resolution. The user should specify the resolution as required. The other
+noteworthy setting is number of frames per timestep. While this would
+intuitively be set to 1, it can be set to a larger number in order to introduce
+more frames into the animation artificially. This technique can be particularly
+useful to produce a slower animation because some movie players have limited
+speed control, particularly over `mpeg` movies.
+
+On clicking the guibutton:[Save Animation] button, another window appears in
+which the user specifies a file name 'root' and file format for a set of
+images. On clicking guibutton:[OK], the set of files will be saved according to
+the naming convention filename:<fileRoot>_<imageNo>.<fileExt>[], 'e.g.'
+the third image of a series with the file root ``+animation+'', saved in `jpg`
+format would be named ``filename:animation_0002.jpg[]'' ('+<imageNo>+' starts
+at `0000`).
+
+Once the set of images are saved the user can convert them into a movie using
+their software of choice. The `convert` utility in the 'ImageMagick' package
+can do this from the command line, 'e.g.' by
+
+-------------------------------------------------------------------------------
+convert animation*jpg movie.mpg
+-------------------------------------------------------------------------------
+
+When creating an `mpg` movie it can be worth increasing the default quality
+setting, 'e.g.' with `-quality 90%`, to reduce the graininess that can occur
+with the default setting.

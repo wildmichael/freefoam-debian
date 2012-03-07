@@ -1,0 +1,49 @@
+Release Notes for FreeFOAM version {fullver}
+============================================
+Michael Wild <themiwi@users.sourceforge.net>
+v{fullver}, {localdate}
+:Author Initials: MW
+:linkcss!:
+http://freefoam.sourceforge.net
+
+FreeFOAM is a cross-platform toolkit for computational fluid dynamics (CFD)
+based on http://openfoam.org[OpenFOAM(R)]. It is geared towards "freeing"
+OpenFOAM from its system dependence, enabling it to run natively on a variety
+of operating systems. Currently it still requires a Unix-like environment.
+FreeFOAM has been tested to build (and partially to run) on
+
+* http://www.ubuntu.com[Ubuntu] 11.10
+
+FreeFOAM uses the excellent cross-platform build system
+http://cmake.org[CMake] thanks to which FreeFOAM can now be installed just like
+any other software and doesn't depend on a slew of shell init scripts and a
+huge number of environment variables to build and run, making live easier for
+system administrators and users alike.
+
+Refer to the enclosed link:INSTALL.html[INSTALL] file for installation and
+usage instructions.
+
+For an overview of the changes and new features added to FreeFOAM, consult the
+link:ChangeLog.html[ChangeLog] file. For the detailed list of changes, refer
+to the log provided by the http://repo.or.cz/w/freefoam.git[FreeFOAM GIT
+repository].
+
+If you have questions or think you found a bug, please subscribe and post to
+the http://freefoam.sourceforge.net/support.html[FreeFOAM-users mailing list].
+
+This release builds upon revision linkrepo:openfoam17[d08d3c] (2011-07-14) of
+the official OpenCFD(R) patch releases repository for OpenFOAM 1.7.x.
+
+''''''''''''''''''''''''''''
+http://openfoam.org[OpenFOAM(R)] is a registered trademark of
+http://opencfd.co.uk[OpenCFD(R) Ltd.]
+
+http://apple.com/macosx[Mac OS X Snow Leopard(R)] is a registered trademark of
+http://apple.com[Apple(R) Inc.]
+
+/////////////////////////////////////////////////////////////////////////
+Process with: asciidoc -a toc -f data/asciidoc/html.conf ReleaseNotes
+
+Vim users, this is for you:
+vim: ft=asciidoc sw=2 expandtab fenc=utf-8
+/////////////////////////////////////////////////////////////////////////

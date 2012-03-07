@@ -1,0 +1,57 @@
+/*----------------------------------------------------------------------------*\
+                ______                _     ____          __  __
+               |  ____|             _| |_  / __ \   /\   |  \/  |
+               | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
+               |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
+               | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
+               |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
+
+                    FreeFOAM: The Cross-Platform CFD Toolkit
+
+  Copyright (C) 2008-2012 Michael Wild <themiwi@users.sf.net>
+                          Gerber van der Graaf <gerber_graaf@users.sf.net>
+--------------------------------------------------------------------------------
+License
+    This file is part of FreeFOAM.
+
+    FreeFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation, either version 3 of the License, or (at your
+    option) any later version.
+
+    FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Description
+    This file is configured by CMake and contains system specific
+    configuration macros. Do NOT include this file in installed
+    header files.
+
+\*---------------------------------------------------------------------------*/
+
+#ifndef FOAMConfig_H
+#define FOAMConfig_H
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// define if your C-library provides __malloc_hook (commonly GNU C)
+#cmakedefine FOAM_HAVE_MALLOC_HOOK
+// define if you have fenv.h
+#cmakedefine FOAM_HAVE_FENV_H
+// define if you have feenableexcept (usually Linux only)
+#cmakedefine FOAM_HAVE_FEENABLEEXCEPT
+// define if you have sigfpe.h (commonly IRIX)
+#cmakedefine FOAM_HAVE_SIGFPE_H
+// define if you have FOAM_HAVE_HANDLE_SIGFPES (commonly IRIX)
+#cmakedefine FOAM_HAVE_HANDLE_SIGFPES
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+
+// ************************ vim: set sw=4 sts=4 et: ************************ //

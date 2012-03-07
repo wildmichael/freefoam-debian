@@ -1,0 +1,56 @@
+/* customizations for FreeFOAM */
+
+/* want links in the content area to be red */
+div.contents a,
+div.contents a:link:hover,
+div.contents a:visited,
+div.contents a:visited:hover,
+div.navpath a.el,
+a.xref,
+div.toc a,
+div.list-of-figures a,
+div.list-of-tables a,
+div.list-of-equations a,
+div.list-of-examples a,
+a.ulink
+{
+  color: #d40000;
+  text-decoration: none;
+}
+
+/* links in doxygen tablist should not have ugly color when :visited */
+.tablist a
+{
+  color: #283A5D;
+}
+
+/* hopefully get the correct size in the left-hand menu */
+#layout-menu {
+  font-size: 16px;
+}
+
+/* need to force the left-hand menu to be bold */
+#layout-menu > ul a {
+  font-weight: bold;
+}
+
+/* fix source code highlighting */
+span.comment {
+  background: none;
+}
+
+/* don't float h3 headings */
+h3 {
+  float: none;
+}
+
+/* lists shouldn't be faded */
+ul li
+{
+  color: black;
+}
+
+div#footer-text
+{
+  float: none;
+}

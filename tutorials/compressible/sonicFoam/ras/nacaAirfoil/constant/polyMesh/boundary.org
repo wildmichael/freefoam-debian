@@ -1,0 +1,51 @@
+/*------------------------------*- FOAMDict -*-------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       polyBoundaryMesh;
+    object      boundary;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+(
+    INLE1
+    {
+        type            patch;
+        physicalType    supersonicFreestream;
+        startFace       79570;
+        nFaces          400;
+    }
+
+    OUTL2
+    {
+        type            patch;
+        physicalType    pressureTransmissiveOutlet;
+        startFace       79970;
+        nFaces          200;
+    }
+
+    SYMP3
+    {
+        type            empty;
+        physicalType    empty;
+        startFace       80170;
+        nFaces          80000;
+    }
+
+    WALL10
+    {
+        type            wall;
+        physicalType    adiabaticWallFunctions;
+        startFace       160170;
+        nFaces          260;
+    }
+)
+
+// ****************** vim: set ft=foamdict sw=4 sts=4 et: ****************** //

@@ -1,0 +1,86 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 1991-2010 OpenCFD Ltd.
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "singlePhaseTransportModel.H"
+#include <incompressibleTransportModels/viscosityModel.H>
+#include <finiteVolume/volFields.H>
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+singlePhaseTransportModel::singlePhaseTransportModel
+(
+    const volVectorField& U,
+    const surfaceScalarField& phi
+)
+:
+    transportModel(U, phi),
+    viscosityModelPtr_(viscosityModel::New("nu", *this, U, phi))
+{}
+
+
+// * * * * * * * * * * * * * * * * Destructors * * * * * * * * * * * * * * * //
+
+singlePhaseTransportModel::~singlePhaseTransportModel()
+{}
+
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+tmp<volScalarField> singlePhaseTransportModel::nu() const
+{
+    return viscosityModelPtr_->nu();
+}
+
+
+void singlePhaseTransportModel::correct()
+{
+    viscosityModelPtr_->correct();
+}
+
+
+bool singlePhaseTransportModel::read()
+{
+    if (regIOobject::read())
+    {
+        return viscosityModelPtr_->read(*this);
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace Foam
+
+// ************************ vim: set sw=4 sts=4 et: ************************ //
