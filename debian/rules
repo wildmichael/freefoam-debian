@@ -9,7 +9,6 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/rules/patchsys-quilt.mk
 
  
-# To get work properly pvbatch --version
 export OMPI_MCA_plm_rsh_agent=/bin/false
 
 FF_SUBDIR=freefoam
@@ -19,8 +18,7 @@ FF_CONFIG_THIRD_PARTY=					\
 	-DFOAM_BUILD_PRIVATE_METIS=OFF			\
 	-DFOAM_BUILD_PRIVATE_PARMETIS=OFF		\
 	-DFOAM_BUILD_PRIVATE_SCOTCH=OFF			\
-	-DFOAM_BUILD_PRIVATE_ZLIB=OFF			\
-###	-DFOAM_BUILD_PARAVIEW_PLUGINS=OFF		
+	-DFOAM_BUILD_PRIVATE_ZLIB=OFF
 
 FF_CONFIG_PACK=						\
 	-DCPACK_BINARY_DEB=OFF				\
@@ -58,7 +56,6 @@ FF_INSTALL=								\
 	-DFOAM_INSTALL_TUTORIALS_PATH=/usr/share/doc/$(FF_SUBDIR)	\
 	-DFOAM_INSTALL_USERDFOAM_PATH=/usr/lib/$(FF_SUBDIR)/plugins/ensightReader
 
-### removed 28 feb 2012	-DFOAM_INSTALL_PYTHON_PATH=/usr/lib/python2.7/site-packages	\
 
 DEB_CMAKE_EXTRA_FLAGS= 					\
 	-DFOAM_EXE_PREFIX=freefoam-			\
@@ -75,22 +72,12 @@ DEB_CMAKE_EXTRA_FLAGS= 					\
 	$(FF_DOC)					\
 	$(FF_INSTALL)
 
-### dissabled 24 Feb 2012	-DFOAM_PARAVIEW3_APP=/usr/bin/paraview		\
-###	-DFOAM_PARAVIEW3_VERSION=3.8.1			\
-###	$(FF_CONFIG_PACK)				\
-###	-DCMAKE_SKIP_RPATH=OFF				\
-
-
-#DEB_MAKE_INSTALL_TARGET = install DESTDIR=$(CURDIR)/debian/tmp/
-#DEB_DH_INSTALL_ARGS := --sourcedir=$(CURDIR)/debian/freefoam/
-#DEB_DH_SHLIBDEPS_ARGS=-l$(CURDIR)/debian/freefoam/usr/lib/$(FF_SUBDIR)
 
 DEB_DH_MAKESHLIBDEPS_ARGS_libfreefoam=-X/usr/lib/$(FF_SUBDIR)
 
 
 install/libfreefoam::
 	install -d $(CURDIR)/debian/libfreefoam/usr/lib/$(FF_SUBDIR)
-#	install -d $(CURDIR)/debian/libfreefoam/etc/ld.so.conf.d
 
 install/libfreefoam-dev::
 	install -d $(CURDIR)/debian/libfreefoam-dev/usr/include/$(FF_SUBDIR)
@@ -114,18 +101,10 @@ install/freefoam-dev-doc::
 	rm $(CURDIR)/debian/tmp/usr/share/doc/freefoam/API/jquery.js
 
 binary-install/libfreefoam::
-# dh_python 2 gives lintian (v2.5.5) error: python-script-but-no-python-dep 
-#	dh_python2 -plibfreefoam
 	dh_pysupport -plibfreefoam
-#	dh_makeshlibs --exclude=/usr/lib/$(FF_SUBDIR)
 
 binary-install/libfreefoam-dev::
-# dh_python 2 gives lintian (v2.5.5) error: python-script-but-no-python-dep 
-#	dh_python2 -plibfreefoam-dev
 	dh_pysupport -plibfreefoam-dev
 
 binary-install/freefoam::
-# dh_python 2 gives lintian (v2.5.5) error: python-script-but-no-python-dep 
-#	dh_python2 -pfreefoam
 	dh_pysupport -pfreefoam
-

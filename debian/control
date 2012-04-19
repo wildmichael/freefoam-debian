@@ -1,30 +1,37 @@
 Source: freefoam
-Section: contrib/science
+Section: science
 Priority: optional
-Maintainer: Gerber van der Graaf <gerber_graaf@users.sourceforge.net>
+Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
+Uploaders: Gerber van der Graaf <gerber_graaf@users.sourceforge.net>
+Vcs-Git: git://git.debian.org/git/debian-science/packages/freefoam.git
+Vcs-Browser: http://git.debian.org/?p=debian-science/packages/freefoam.git
+DM-Upload-Allowed: yes
 Homepage: http://freefoam.wiki.sourceforge.net/
-Build-Depends: cdbs, debhelper (>= 5.0.24), python-support, cmake, , quilt (>= 0.40), flex, gawk, python, libreadline6-dev, zlib1g-dev, libscotch-dev, libparmetis-dev, mpi-default-dev, mpi-default-bin, paraview (>= 3.8), doxygen, libjs-jquery, asciidoc, xmlto, docbook-utils, dvipng, asymptote, texlive-science, dblatex
+Build-Depends: cdbs, debhelper (>= 5.0.24), python-support, cmake, flex, gawk, python, libreadline6-dev, zlib1g-dev, libscotch-dev, libparmetis-dev, mpi-default-dev, mpi-default-bin, paraview (>= 3.8), doxygen, libjs-jquery, asciidoc, xmlto, docbook-utils, dvipng, asymptote, texlive-science, dblatex
 Standards-Version: 3.9.3
 
 Package: libfreefoam
-Section: contrib/libs
+Section: libs
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, ${python:Depends}
 Description: libraries for Computational Fluid Dynamics (CFD)
- Libraries and modules for generation, simulation and analyzing
- from complex fluid flows involving chemical reactions, turbulence and
- heat transfer, to solid dynamics, electromagnetics and the pricing of
- financial options, post-processing and visualizing of resulting data.
+ Libraries and modules for grid generation, simulation and analyzing
+ of complex fluid flows. The flows may involve chemical reactions,
+ turbulence, heat transfer, solid dynamics, electromagnetics and even
+ the pricing of financial options. The libraries also include
+ algorithms for post-processing and visualizing the resulting
+ data. FreeFOAM is a fork of OpenFOAM.
 
 Package: libfreefoam-dev
-Section: contrib/libdevel
+Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, libfreefoam (= ${binary:Version}), ${python:Depends}
 Description: libraries for Computational Fluid Dynamics (CFD) - development files
- Libraries and modules for generation, simulation and analyzing
- from complex fluid flows involving chemical reactions, turbulence and
- heat transfer, to solid dynamics, electromagnetics and the pricing of
- financial options, post-processing and visualizing of resulting data.
+ Libraries and modules for grid generation, simulation and analyzing of
+ complex fluid flows, post-processing and visualizing of the resulting
+ data. The flows may involve chemical reactions, turbulence, heat
+ transfer, solid dynamics, electromagnetics and even the pricing of
+ financial options. FreeFOAM is a fork of OpenFOAM.
  .
  This package contains static linked libraries, headers and templates
 
@@ -33,33 +40,36 @@ Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, libfreefoam (= ${binary:Version}), mpi-default-bin, tcsh | csh | c-shell, ${python:Depends}
 Description: programs for Computational Fluid Dynamics (CFD)
  A collection of solvers and utility programs for grid generation,
- simulation and analyzing from complex fluid flows involving chemical
- reactions, turbulence and heat transfer, to solid dynamics,
- electromagnetics and the pricing of financial options,
- post-processing and visualizing of resulting data.
+ simulation and analyzing of complex fluid flows, post-processing and
+ visualizing of the resulting data. The flows may involve chemical
+ reactions, turbulence and heat transfer, solid dynamics,
+ electromagnetics and even the pricing of financial options. FreeFOAM
+ is a fork of OpenFOAM.
  .
  The programs are invoked with "freefoam foo".
 
 Package: freefoam-user-doc
-Section: contrib/doc
+Section: doc
 Architecture: all
 Depends: ${misc:Depends}
 Recommends: python
 Description: software for Computational Fluid Dynamics - user documentation
  Tutorials and user documentation for a collection of programs for
- grid generation, simulation and analyzing from complex fluid flows
- involving chemical reactions, turbulence and heat transfer, to solid
- dynamics, electromagnetics and the pricing of financial options,
- post-processing and visualizing of resulting data.
+ grid generation, simulation and analyzing of complex fluid flows,
+ post-processing and visualizing of the resulting data. The flows may
+ involve chemical reactions, turbulence and heat transfer, solid
+ dynamics, electromagnetics and even the pricing of financial
+ options. FreeFOAM is a fork of OpenFOAM.
 
 Package: freefoam-dev-doc
-Section: contrib/doc
+Section: doc
 Architecture: all
 Depends: ${misc:Depends}
 Recommends: python
 Description: software for Computational Fluid Dynamics - developers documentation
- Library references and developers documentation for a collection
- of programs for grid generation, simulation and analyzing from
- complex fluid flows involving chemical reactions, turbulence and heat
- transfer, to solid dynamics, electromagnetics and the pricing of
- financial options, post-processing and visualizing of resulting data.
+ Library references and developers documentation for a collection of
+ programs for grid generation, simulation and analyzing of complex
+ fluid flows, post-processing and visualizing of the resulting data. The
+ flows may involve chemical reactions, turbulence and heat transfer,
+ solid dynamics, electromagnetics and even the pricing of financial
+ options. FreeFOAM is a fork of OpenFOAM.

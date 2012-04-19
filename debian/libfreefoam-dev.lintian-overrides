@@ -1,1 +1,3 @@
-libfreefoam-dev binary: scripts
+# A warning for #!/usr/bin/cmake is overridden as probably lintian does not 
+# recognize CMake as a interpreter
+libfreefoam-dev: unusual-interpreter ./usr/share/freefoam/utilities/wmakeToCMake.cmake #!/usr/bin/cmake
