@@ -1,0 +1,134 @@
+'\" t
+.\"     Title: freefoam-surfacefeatureextract
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM\-SURFACEFEATUREEXTRACT" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam-surfaceFeatureExtract \- Extracts and writes surface features to file
+.SH "SYNOPSIS"
+.sp
+\fBfreefoam surfaceFeatureExtract\fR \fI<Foam surface file>\fR \fI<output set>\fR [\-deleteBox \fI<\fR\fI.\" x0 y0 z0)(x1 y1 z1 \fR\fIx0 y0 z0)(x1 y1 z1>\fR] [\-subsetBox \fI<\fR\fI.\" x0 y0 z0)(x1 y1 z1 \fR\fIx0 y0 z0)(x1 y1 z1>\fR] [\-help] [\-minElem] [\-minLen] [\-srcDoc] [\-doc] [\-includedAngle \fI<included angle [0\&.\&.180]>\fR] [\-set \fI<input feature set>\fR] [\-case \fI<dir>\fR]
+.SH "DESCRIPTION"
+.sp
+\fBTODO\fR write detailed description
+.SH "OPTIONS"
+.PP
+\fI<Foam surface file>\fR
+.RS 4
+
+\fBTODO\fR
+Detailed description of argument\&.
+.RE
+.PP
+\fI<output set>\fR
+.RS 4
+
+\fBTODO\fR
+Detailed description of argument\&.
+.RE
+.PP
+\fB\-minLen\fR
+.RS 4
+Minimum cumulative length of feature\&.
+.RE
+.PP
+\fB\-includedAngle\fR \fI<included angle [0\&.\&.180]>\fR
+.RS 4
+Construct set from included angle\&.
+.RE
+.PP
+\fB\-deleteBox\fR \fI<\fR\fI.\" x0 y0 z0)(x1 y1 z1 \fR\fIx0 y0 z0)(x1 y1 z1>\fR
+.RS 4
+Delete axis\-aligned box\&.
+.RE
+.PP
+\fB\-minElem\fR
+.RS 4
+Minimum number of edges in feature\&.
+.RE
+.PP
+\fB\-subsetBox\fR \fI<\fR\fI.\" x0 y0 z0)(x1 y1 z1 \fR\fIx0 y0 z0)(x1 y1 z1>\fR
+.RS 4
+Extract all edges in axis\-aligned box\&.
+.RE
+.PP
+\fB\-set\fR \fI<input feature set>\fR
+.RS 4
+Use existing set\&.
+.RE
+.PP
+\fB\-case\fR \fI<dir>\fR
+.RS 4
+Case directory\&.
+.RE
+.PP
+\fB\-help\fR
+.RS 4
+Display help message\&.
+.RE
+.PP
+\fB\-doc\fR
+.RS 4
+Display Doxygen API documentation page for this application\&.
+.RE
+.PP
+\fB\-srcDoc\fR
+.RS 4
+Display Doxygen source documentation page for this application\&.
+.RE
+.SH "SEE ALSO"
+.sp
+An overview of FreeFOAM is given in \fBfreefoam\fR(1)\&.
+.SH "AUTHOR"
+.sp
+OpenCFD Ltd\&.
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite\&.
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE

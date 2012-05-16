@@ -1,0 +1,122 @@
+'\" t
+.\"     Title: freefoam-setstozones
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM\-SETSTOZONES" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam-setsToZones \- Add pointZones/faceZones/cellZones to the mesh from similar named pointSets/faceSets/cellSets\&.
+.SH "SYNOPSIS"
+.sp
+\fBfreefoam setsToZones\fR [\-help] [\-noFlipMap] [\-latestTime] [\-noZero] [\-srcDoc] [\-doc] [\-time \fI<time>\fR] [\-constant] [\-parallel] [\-case \fI<dir>\fR]
+.SH "DESCRIPTION"
+.sp
+There is one catch: for faceZones you also need to specify a flip condition which basically denotes the side of the face\&. In this app it reads a cellSet (xxxCells if \fIxxx\fR is the name of the faceSet) which is the masterCells of the zone\&. There are lots of situations in which this will go wrong but it is the best I can think of for now\&.
+.sp
+If one is not interested in sideNess specify the \-noFlipMap command line option\&.
+.SH "OPTIONS"
+.PP
+\fB\-noFlipMap\fR
+.RS 4
+No automatic face flipping\&.
+.RE
+.PP
+\fB\-noZero\fR
+.RS 4
+Ignore timestep 0\&.
+.RE
+.PP
+\fB\-constant\fR
+.RS 4
+Include the constant directory\&.
+.RE
+.PP
+\fB\-time\fR \fI<time>\fR
+.RS 4
+Apply only to specific time\&.
+.RE
+.PP
+\fB\-latestTime\fR
+.RS 4
+Only apply to latest time step\&.
+.RE
+.PP
+\fB\-case\fR \fI<dir>\fR
+.RS 4
+Case directory\&.
+.RE
+.PP
+\fB\-parallel\fR
+.RS 4
+Run in parallel\&.
+.RE
+.PP
+\fB\-help\fR
+.RS 4
+Display help message\&.
+.RE
+.PP
+\fB\-doc\fR
+.RS 4
+Display Doxygen API documentation page for this application\&.
+.RE
+.PP
+\fB\-srcDoc\fR
+.RS 4
+Display Doxygen source documentation page for this application\&.
+.RE
+.SH "SEE ALSO"
+.sp
+An overview of FreeFOAM is given in \fBfreefoam\fR(1)\&.
+.SH "AUTHOR"
+.sp
+OpenCFD Ltd\&.
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite\&.
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE

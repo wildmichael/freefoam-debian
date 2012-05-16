@@ -1,7 +1,11 @@
 #!/usr/bin/make -f
 
 #export DH_VERBOSE=1
-#export LD_LIBRARY_PATH="/usr/lib/FreeFOAM-1.5.0"
+
+# Injecting CPPFLAGS:
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+CXXFLAGS+=$(CPPFLAGS) -fpermissive
 
 include /usr/share/cdbs/1/class/cmake.mk
 include /usr/share/cdbs/1/rules/debhelper.mk
@@ -39,7 +43,7 @@ FF_DOC=							\
 	-DFOAM_ENABLE_XHTML_HELP=OFF			\
 	-DFOAM_ENABLE_MATHJAX=OFF			\
 	-DFOAM_ENABLE_DOXYGEN_DOCS=ON			\
-	-DFOAM_ENABLE_MANPAGE_HELP=ON			\
+	-DFOAM_ENABLE_MANPAGE_HELP=OFF			\
 	-DFOAM_DOCS_FOR_SF=OFF				\
 
 FF_INSTALL=								\
@@ -56,21 +60,21 @@ FF_INSTALL=								\
 	-DFOAM_INSTALL_TUTORIALS_PATH=/usr/share/doc/$(FF_SUBDIR)	\
 	-DFOAM_INSTALL_USERDFOAM_PATH=/usr/lib/$(FF_SUBDIR)/plugins/ensightReader
 
-
 DEB_CMAKE_EXTRA_FLAGS= 					\
 	-DFOAM_EXE_PREFIX=freefoam-			\
-	-DFOAM_ENABLE_METIS=ON				\
+	-DFOAM_ENABLE_METIS=OFF				\
 	-DFOAM_ENABLE_MGRIDGEN=OFF			\
 	-DFOAM_USE_MPI=ON				\
 	-DFOAM_DEFAULT_PSTREAM=mpi			\
 	-DFOAM_DOUBLE_PRECISION=ON			\
-	-DFOAM_ENABLE_PARMETIS=ON			\
+	-DFOAM_ENABLE_PARMETIS=OFF			\
 	-DCMAKE_SKIP_RPATH=OFF				\
 	-DFOAM_ENABLE_CCMIO=OFF				\
 	-DFOAM_ENABLE_FULL_TUTORIAL_TEST=OFF		\
 	$(FF_CONFIG_THIRD_PARTY)			\
 	$(FF_DOC)					\
 	$(FF_INSTALL)
+
 
 
 DEB_DH_MAKESHLIBDEPS_ARGS_libfreefoam=-X/usr/lib/$(FF_SUBDIR)

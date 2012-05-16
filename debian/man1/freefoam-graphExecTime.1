@@ -1,0 +1,101 @@
+'\" t
+.\"     Title: freefoam-graphexectime
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM\-GRAPHEXECTIME" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam-graphExecTime \- Computes the time used per iteration
+.SH "SYNOPSIS"
+.sp
+\fBfreefoa graphExecTime\fR \fI<logFile>\fR
+.SH "DESCRIPTION"
+.sp
+This utility computes the time used per iteration in seconds and writes it to the file \fIexecutionTime\&.dat\fR\&. The file has the following format:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Solver Performance
+iterations
+time/iteration
+0 0
+0 0
+1
+time
+0
+<nIterations>
+1\&.000000 <time/iter1>
+2\&.000000 <time/iter2>
+3\&.000000 <time/iter3>
+4\&.000000 <time/iter4>
+5\&.000000 <time/iter5>
+\&.\&.\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+where \fI<nIterations>\fR is the number of iterations and corresponds to the number of lines which are following this entry\&. \fI<time/iterX>\fR is the time this iteration requried\&.
+.SH "OPTIONS"
+.PP
+\fI<logFile>\fR
+.RS 4
+A FreeFOAM log file (i\&.e\&. the screen\-output created by a FreeFOAM solver)
+.RE
+.SH "SEE ALSO"
+.sp
+An overview of FreeFOAM is given in \fBfreefoam\fR(1)\&.
+.SH "AUTHOR"
+.sp
+OpenCFD Ltd\&.
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite\&.
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE

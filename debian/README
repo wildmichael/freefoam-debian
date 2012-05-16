@@ -1,6 +1,0 @@
-The configuration settings:
-FOAM_PARAVIEW3_APP=/usr/bin/paraview 
-FOAM_PARAVIEW3_VERSION=3.8.1 
-have been pre-defined as paraview needs an X11 connection while running 
-"paraview --version". This might give problems when building packages 
-automatically and / or under chroot.

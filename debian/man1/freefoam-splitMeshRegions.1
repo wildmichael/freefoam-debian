@@ -1,0 +1,238 @@
+'\" t
+.\"     Title: freefoam-splitmeshregions
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM\-SPLITMESHREGIONS" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam-splitMeshRegions \- Splits mesh into multiple regions\&.
+.SH "SYNOPSIS"
+.sp
+\fBfreefoam splitMeshRegions\fR [\-cellZones] [\-help] [\-makeCellZones] [\-sloppyCellZones] [\-blockedFaces \fI<faceSet name>\fR] [\-largestOnly] [\-srcDoc] [\-doc] [\-overwrite] [\-insidePoint \fI<point>\fR] [\-parallel] [\-case \fI<dir>\fR] [\-detectOnly]
+.SH "DESCRIPTION"
+.sp
+Each region is defined as a domain whose cells can all be reached by cell\-face\-cell walking without crossing \- boundary faces \- additional faces from faceset (\-blockedFaces faceSet)\&. \- any face inbetween differing cellZones (\-cellZones)
+.sp
+Output is: \- volScalarField with regions as different scalars (\-detectOnly) or \- mesh with multiple regions or \- mesh with cells put into cellZones (\-makeCellZones)
+.SH "OPTIONS"
+.PP
+\fB\-cellZones\fR
+.RS 4
+Split different cell zones\&.
+.RE
+.PP
+\fB\-detectOnly\fR
+.RS 4
+Do no processing\&.
+.RE
+.PP
+\fB\-blockedFaces\fR \fI<faceSet name>\fR
+.RS 4
+Split at give face set\&.
+.RE
+.PP
+\fB\-sloppyCellZones\fR
+.RS 4
+Try to match regions to existing cell zones\&.
+.RE
+.PP
+\fB\-makeCellZones\fR
+.RS 4
+Create mesh with cells in different cell zones\&.
+.RE
+.PP
+\fB\-overwrite\fR
+.RS 4
+Overwrite existing data\&.
+.RE
+.PP
+\fB\-case\fR \fI<dir>\fR
+.RS 4
+Case directory\&.
+.RE
+.PP
+\fB\-parallel\fR
+.RS 4
+Run in parallel\&.
+.RE
+.PP
+\fB\-help\fR
+.RS 4
+Display help message\&.
+.RE
+.PP
+\fB\-doc\fR
+.RS 4
+Display Doxygen API documentation page for this application\&.
+.RE
+.PP
+\fB\-srcDoc\fR
+.RS 4
+Display Doxygen source documentation page for this application\&.
+.RE
+.PP
+\fB\-insidePoint\fR \fI<point>\fR
+.RS 4
+Only keep region containing specified point\&.
+.RE
+.PP
+\fB\-largestOnly\fR
+.RS 4
+Only keep largest region\&.
+.RE
+.SH "NOTE"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+cellZonesOnly does not do a walk and uses the cellZones only\&. Use this if you don\(cqt mind having disconnected domains in a single region\&. This option requires all cells to be in one (and one only) cellZone\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+cellZonesFileOnly behaves like \-cellZonesOnly but reads the cellZones from the specified file\&. This allows one to explicitly specify the region distribution and still have multiple cellZones per region\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+useCellZonesOnly does not do a walk and uses the cellZones only\&. Use this if you don\(cqt mind having disconnected domains in a single region\&. This option requires all cells to be in one (and one only) cellZone\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Should work in parallel\&. cellZones can differ on either side of processor boundaries in which case the faces get moved from processor patch to directMapped patch\&. Not very well tested\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+If a cell zone gets split into more than one region it can detect the largest matching region (\-sloppyCellZones)\&. This will accept any region that covers more than 50% of the zone\&. It has to be a subset so cannot have any cells in any other zone\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+writes maps like decomposePar back to original mesh:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+pointRegionAddressing : for every point in this region the point in the original mesh
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+cellRegionAddressing : ,, cell ,, cell ,,
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+faceRegionAddressing : ,, face ,, face in the original mesh +
+\fIturning index\fR\&. For a face in the same orientation this is the original facelabel+1, for a turned face this is \-facelabel\-1
+.RE
+.RE
+.SH "SEE ALSO"
+.sp
+An overview of FreeFOAM is given in \fBfreefoam\fR(1)\&.
+.SH "AUTHOR"
+.sp
+OpenCFD Ltd\&.
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite\&.
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE

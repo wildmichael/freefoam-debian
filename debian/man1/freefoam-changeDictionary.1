@@ -1,0 +1,132 @@
+'\" t
+.\"     Title: freefoam-changedictionary
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM\-CHANGEDICTIONARY" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam-changeDictionary \- Utility to change dictionary entries\&.
+.SH "SYNOPSIS"
+.sp
+\fBfreefoam changeDictionary\fR [\-region \fI<name>\fR] [\-help] [\-srcDoc] [\-doc] [\-parallel] [\-literalRE] [\-case \fI<dir>\fR]
+.SH "DESCRIPTION"
+.sp
+Reads dictionaries (fields) and entries to change from a dictionary\&. E\&.g\&. to make the \fImovingWall\fR a \fIfixedValue\fR for \fIp\fR but all other \fIWalls\fR a zeroGradient boundary condition, the system/changeDictionaryDict would contain the following:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+dictionaryReplacement
+{
+    p                           // field to change
+    {
+        boundaryField
+        {
+            "\&.*Wall"            // entry to change
+            {
+                type            zeroGradient;
+            }
+            movingWall          // entry to change
+            {
+                type            fixedValue;
+                value           uniform 123\&.45;
+            }
+        }
+    }
+}
+.fi
+.if n \{\
+.RE
+.\}
+.SH "OPTIONS"
+.PP
+\fB\-literalRE\fR
+.RS 4
+Do not interpret regular expressions; treat them as any other keyword\&.
+.RE
+.PP
+\fB\-region\fR \fI<name>\fR
+.RS 4
+Only apply to named mesh region\&.
+.RE
+.PP
+\fB\-case\fR \fI<dir>\fR
+.RS 4
+Case directory\&.
+.RE
+.PP
+\fB\-parallel\fR
+.RS 4
+Run in parallel\&.
+.RE
+.PP
+\fB\-help\fR
+.RS 4
+Display help message\&.
+.RE
+.PP
+\fB\-doc\fR
+.RS 4
+Display Doxygen API documentation page for this application\&.
+.RE
+.PP
+\fB\-srcDoc\fR
+.RS 4
+Display Doxygen source documentation page for this application\&.
+.RE
+.SH "SEE ALSO"
+.sp
+An overview of FreeFOAM is given in \fBfreefoam\fR(1)\&.
+.SH "AUTHOR"
+.sp
+OpenCFD Ltd\&.
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite\&.
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE

@@ -1,0 +1,104 @@
+'\" t
+.\"     Title: freefoam-gmshtofoam
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM\-GMSHTOFOAM" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam-gmshToFoam \- Reads \&.msh file as written by Gmsh\&.
+.SH "SYNOPSIS"
+.sp
+\fBfreefoam gmshToFoam\fR \fI<\&.msh file>\fR [\-keepOrientation] [\-help] [\-srcDoc] [\-doc]
+.SH "DESCRIPTION"
+.sp
+Needs surface elements on mesh to be present and aligned with outside faces of the mesh\&. I\&.e\&. if the mesh is hexes, the outside faces need to be quads
+.SH "OPTIONS"
+.PP
+\fI<\&.msh file>\fR
+.RS 4
+
+\fBTODO\fR
+Detailed description of argument\&.
+.RE
+.PP
+\fB\-keepOrientation\fR
+.RS 4
+Do not check ordering\&.
+.RE
+.PP
+\fB\-help\fR
+.RS 4
+Display help message\&.
+.RE
+.PP
+\fB\-doc\fR
+.RS 4
+Display Doxygen API documentation page for this application\&.
+.RE
+.PP
+\fB\-srcDoc\fR
+.RS 4
+Display Doxygen source documentation page for this application\&.
+.RE
+.SH "NOTE"
+.sp
+There is something seriously wrong with the ordering written in the \&.msh file\&. Normal operation is to check the ordering and invert prisms and hexes if found to be wrong way round\&. Use the \-keepOrientation to keep the raw information\&.
+.sp
+The code now uses the element (cell,face) physical region id number to create cell zones and faces zones (similar to fluentMeshWithInternalFaces)\&.
+.sp
+A use of the cell zone information, is for field initialization with the "setFields" utility\&. see the classes: topoSetSource, zoneToCell\&.
+.SH "SEE ALSO"
+.sp
+An overview of FreeFOAM is given in \fBfreefoam\fR(1)\&.
+.SH "AUTHOR"
+.sp
+OpenCFD Ltd\&.
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite\&.
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE

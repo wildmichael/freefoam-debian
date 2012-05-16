@@ -1,0 +1,133 @@
+'\" t
+.\"     Title: freefoam-decomposepar
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM\-DECOMPOSEPAR" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam-decomposePar \- Automatically decomposes a mesh and fields of a case for parallel execution of OpenFOAM\&.
+.SH "SYNOPSIS"
+.sp
+\fBfreefoam decomposePar\fR [\-force] [\-region] [\-ifRequired] [\-help] [\-copyUniform] [\-fields] [\-cellDist] [\-srcDoc] [\-doc] [\-case \fI<dir>\fR] [\-filterPatches]
+.SH "DESCRIPTION"
+.sp
+\fBTODO\fR write detailed description
+.SH "OPTIONS"
+.PP
+\fB\-cellDist\fR
+.RS 4
+Write the cell distribution as a labelList for use with
+\fImanual\fR
+decomposition method and as a volScalarField for post\-processing\&.
+.RE
+.PP
+\fB\-region\fR
+.RS 4
+Decompose named region\&. Does not check for existence of processor*\&.
+.RE
+.PP
+\fB\-copyUniform\fR
+.RS 4
+Copy any
+\fIuniform\fR
+directories too\&.
+.RE
+.PP
+\fB\-fields\fR
+.RS 4
+Use existing geometry decomposition and convert fields only\&.
+.RE
+.PP
+\fB\-filterPatches\fR
+.RS 4
+Remove empty patches when decomposing the geometry\&.
+.RE
+.PP
+\fB\-force\fR
+.RS 4
+Remove any existing
+\fIprocessor\fR
+subdirectories before decomposing the geometry\&.
+.RE
+.PP
+\fB\-ifRequired\fR
+.RS 4
+Only decompose the geometry if the number of domains has changed from a previous decomposition\&. No
+\fIprocessor\fR
+subdirectories will be removed unless the @a \-force option is also specified\&. This option can be used to avoid redundant geometry decomposition (eg, in scripts), but should be used with caution when the underlying (serial) geometry or the decomposition method etc\&. have been changed between decompositions\&.
+.RE
+.PP
+\fB\-case\fR \fI<dir>\fR
+.RS 4
+Case directory\&.
+.RE
+.PP
+\fB\-help\fR
+.RS 4
+Display help message\&.
+.RE
+.PP
+\fB\-doc\fR
+.RS 4
+Display Doxygen API documentation page for this application\&.
+.RE
+.PP
+\fB\-srcDoc\fR
+.RS 4
+Display Doxygen source documentation page for this application\&.
+.RE
+.SH "SEE ALSO"
+.sp
+An overview of FreeFOAM is given in \fBfreefoam\fR(1)\&.
+.SH "AUTHOR"
+.sp
+OpenCFD Ltd\&.
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite\&.
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE

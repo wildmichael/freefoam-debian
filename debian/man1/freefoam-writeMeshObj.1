@@ -1,0 +1,149 @@
+'\" t
+.\"     Title: freefoam-writemeshobj
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM\-WRITEMESHOBJ" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam-writeMeshObj \- For mesh debugging: writes mesh as three separate OBJ files which can be viewed with e\&.g\&. javaview\&.
+.SH "SYNOPSIS"
+.sp
+\fBfreefoam writeMeshObj\fR [\-latestTime] [\-patchFaces] [\-cellSet \fI<cellSet name>\fR] [\-cell \fI<cell label>\fR] [\-noZero] [\-face \fI<face label>\fR] [\-srcDoc] [\-point \fI<point label>\fR] [\-doc] [\-time \fI<time>\fR] [\-constant] [\-parallel] [\-faceSet \fI<faceSet name>\fR] [\-case \fI<dir>\fR] [\-help]
+.SH "DESCRIPTION"
+.sp
+meshPoints_XXX\&.obj : all points and edges as lines\&. meshFaceCentres_XXX\&.obj : all face centres\&. meshCellCentres_XXX\&.obj : all cell centres\&.
+.sp
+patch_YYY_XXX\&.obj : all face centres of patch YYY
+.sp
+Optional: \- patch faces (as polygons) : patchFaces_YYY_XXX\&.obj \- non\-manifold edges : patchEdges_YYY_XXX\&.obj
+.SH "OPTIONS"
+.PP
+\fB\-face\fR \fI<face label>\fR
+.RS 4
+Export face with specified label\&.
+.RE
+.PP
+\fB\-patchFaces\fR
+.RS 4
+Also export patch faces\&.
+.RE
+.PP
+\fB\-cell\fR \fI<cell label>\fR
+.RS 4
+Export cell with specified label\&.
+.RE
+.PP
+\fB\-point\fR \fI<point label>\fR
+.RS 4
+Export point with specified label\&.
+.RE
+.PP
+\fB\-cellSet\fR \fI<cellSet name>\fR
+.RS 4
+Only apply to named cell set\&.
+.RE
+.PP
+\fB\-faceSet\fR \fI<faceSet name>\fR
+.RS 4
+Only apply to named face set\&.
+.RE
+.PP
+\fB\-noZero\fR
+.RS 4
+Ignore timestep 0\&.
+.RE
+.PP
+\fB\-constant\fR
+.RS 4
+Include the constant directory\&.
+.RE
+.PP
+\fB\-time\fR \fI<time>\fR
+.RS 4
+Apply only to specific time\&.
+.RE
+.PP
+\fB\-latestTime\fR
+.RS 4
+Only apply to latest time step\&.
+.RE
+.PP
+\fB\-case\fR \fI<dir>\fR
+.RS 4
+Case directory\&.
+.RE
+.PP
+\fB\-parallel\fR
+.RS 4
+Run in parallel\&.
+.RE
+.PP
+\fB\-help\fR
+.RS 4
+Display help message\&.
+.RE
+.PP
+\fB\-doc\fR
+.RS 4
+Display Doxygen API documentation page for this application\&.
+.RE
+.PP
+\fB\-srcDoc\fR
+.RS 4
+Display Doxygen source documentation page for this application\&.
+.RE
+.SH "SEE ALSO"
+.sp
+An overview of FreeFOAM is given in \fBfreefoam\fR(1)\&.
+.SH "AUTHOR"
+.sp
+OpenCFD Ltd\&.
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite\&.
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE

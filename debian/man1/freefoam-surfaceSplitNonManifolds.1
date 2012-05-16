@@ -1,0 +1,119 @@
+'\" t
+.\"     Title: freefoam-surfacesplitnonmanifolds
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM\-SURFACESPLITNONMANIFOLDS" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam-surfaceSplitNonManifolds \- Takes multiply connected surface and tries to split surface at multiply connected edges by duplicating points\&.
+.SH "SYNOPSIS"
+.sp
+\fBfreefoam surfaceSplitNonManifolds\fR \fI<Foam surface file>\fR \fI<surface output file>\fR [\-case \fI<dir>\fR] [\-srcDoc] [\-debug] [\-doc] [\-help]
+.SH "DESCRIPTION"
+.sp
+Introduces concept of \- borderEdge\&. Edge with 4 faces connected to it\&. \- borderPoint\&. Point connected to exactly 2 borderEdges\&. \- borderLine\&. Connected list of borderEdges\&.
+.sp
+By duplicating borderPoints this will split \fIborderLines\fR\&. As a preprocessing step it can detect borderEdges without any borderPoints and explicitly split these triangles\&.
+.sp
+The problems in this algorithm are: \- determining which two (of the four) faces form a surface\&. Done by walking face\-edge\-face while keeping and edge or point on the borderEdge borderPoint\&. \- determining the outwards pointing normal to be used to slightly offset the duplicated point\&.
+.sp
+Uses sortedEdgeFaces quite a bit\&.
+.sp
+Is tested on simple borderLines resulting from extracting a surface from a hex mesh\&. Will quite possibly go wrong on more complicated border lines (i\&.e\&. ones forming a loop)\&.
+.sp
+Dumps surface every so often since might take a long time to complete\&.
+.SH "OPTIONS"
+.PP
+\fI<Foam surface file>\fR
+.RS 4
+
+\fBTODO\fR
+Detailed description of argument\&.
+.RE
+.PP
+\fI<surface output file>\fR
+.RS 4
+
+\fBTODO\fR
+Detailed description of argument\&.
+.RE
+.PP
+\fB\-debug\fR
+.RS 4
+Generate debugging output\&.
+.RE
+.PP
+\fB\-case\fR \fI<dir>\fR
+.RS 4
+Case directory\&.
+.RE
+.PP
+\fB\-help\fR
+.RS 4
+Display help message\&.
+.RE
+.PP
+\fB\-doc\fR
+.RS 4
+Display Doxygen API documentation page for this application\&.
+.RE
+.PP
+\fB\-srcDoc\fR
+.RS 4
+Display Doxygen source documentation page for this application\&.
+.RE
+.SH "SEE ALSO"
+.sp
+An overview of FreeFOAM is given in \fBfreefoam\fR(1)\&.
+.SH "AUTHOR"
+.sp
+OpenCFD Ltd\&.
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite\&.
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE

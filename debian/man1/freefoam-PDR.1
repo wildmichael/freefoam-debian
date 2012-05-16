@@ -1,0 +1,103 @@
+'\" t
+.\"     Title: freefoam-pdr
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM\-PDR" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam-PDR \- Solver for compressible premixed/partially\-premixed combustion with turbulence modelling\&.
+.SH "SYNOPSIS"
+.sp
+\fBfreefoam PDR\fR [\-parallel] [\-srcDoc] [\-case \fI<dir>\fR] [\-doc] [\-help]
+.SH "DESCRIPTION"
+.sp
+Combusting RANS code using the b\-Xi two\-equation model\&. Xi may be obtained by either the solution of the Xi transport equation or from an algebraic exression\&. Both approaches are based on Gulder\(cqs flame speed correlation which has been shown to be appropriate by comparison with the results from the spectral model\&.
+.sp
+Strain effects are incorporated directly into the Xi equation but not in the algebraic approximation\&. Further work need to be done on this issue, particularly regarding the enhanced removal rate caused by flame compression\&. Analysis using results of the spectral model will be required\&.
+.sp
+For cases involving very lean Propane flames or other flames which are very strain\-sensitive, a transport equation for the laminar flame speed is present\&. This equation is derived using heuristic arguments involving the strain time scale and the strain\-rate at extinction\&. the transport velocity is the same as that for the Xi equation\&.
+.sp
+For large flames e\&.g\&. explosions additional modelling for the flame wrinkling due to surface instabilities may be applied\&.
+.sp
+PDR (porosity/distributed resistance) modelling is included to handle regions containing blockages which cannot be resolved by the mesh\&.
+.SH "OPTIONS"
+.PP
+\fB\-case\fR \fI<dir>\fR
+.RS 4
+Specify the case directory
+.RE
+.PP
+\fB\-parallel\fR
+.RS 4
+Run the case in parallel
+.RE
+.PP
+\fB\-help\fR
+.RS 4
+Display short usage message
+.RE
+.PP
+\fB\-doc\fR
+.RS 4
+Display Doxygen documentation page
+.RE
+.PP
+\fB\-srcDoc\fR
+.RS 4
+Display source code
+.RE
+.SH "SEE ALSO"
+.sp
+An overview of FreeFOAM is given in \fBfreefoam\fR(1)\&.
+.SH "AUTHOR"
+.sp
+OpenCFD Ltd\&.
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite\&.
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE

@@ -1,0 +1,1821 @@
+'\" t
+.\"     Title: freefoam
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam \- The Cross\-Platform CFD Toolkit
+.SH "SYNOPSIS"
+.sp
+\fBfreefoam\fR [\-b \fI<baseDir>\fR] [\-P] [\-V | \-version] [\-h | \-help] [\-\-] \fI<application>\fR [\fI<args>\fR]
+.SH "DESCRIPTION"
+.sp
+FreeFOAM is a cross\-platform toolkit for computational fluid dynamics (CFD)\&. It consists of a large collection of C++ libraries, allowing the user to write new solvers for partial differential equations using a notation very close to the mathematical one\&. FreeFOAM comes with a comprehensive set of solvers for a wide range of problems and accompanying pre\-/and post\-processing utilities\&.
+.sp
+FreeFOAM is based on the fantastic Open\-Source OpenFOAM software\&. The goal of the FreeFOAM project is to remove the system\-dependencies from OpenFOAM and make it generally more useable and easier to install\&.
+.sp
+The \fBfreefoam\fR(1) command is used to invoke the actual FreeFOAM applications\&. It was mainly created to avoid putting a large number of binaries on the system PATH, cluttering the namespace unnecessarily\&. It also allows for the user to easily add her own applications to the search path, without having to extend the PATH variable or being root\&.
+.sp
+\fBfreefoam\fR(1) uses the following mechanism to find the application \fI<name>\fR:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+It searches in the directory
+\fI<libexecDir>\fR
+for an executable with the name
+\fIfreefoam\-<name>\fR\&.
+\fI<libexecDir>\fR
+defaults to
+\fI/usr/local/libexec/FreeFOAM\-0\&.1\&.0\fR\&. This can be overridden using the
+\fI\-b\fR
+option\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+If the
+FREEFOAM_PATH
+variable is set, it is prepended to the above described search path\&. It is a colon\-separated list of directories\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+The
+\fI\-P\fR
+option can be used to append the system
+PATH
+to the search path\&.
+.RE
+.SH "OPTIONS"
+.PP
+\fB\-b\fR \fI<baseDir>\fR
+.RS 4
+Specify a different directory to search for applications (default is /usr/local/libexec/FreeFOAM\-0\&.1\&.0)
+.RE
+.PP
+\fB\-P\fR
+.RS 4
+Also search the system PATH variable first
+.RE
+.PP
+\fB\-\-\fR
+.RS 4
+Separates options for this program from the application and its arguments (useful if the application name should start with a \-)
+.RE
+.PP
+\fB\-V | \-version\fR
+.RS 4
+Display the version of FreeFOAM and exit
+.RE
+.PP
+\fB\-h | \-help\fR
+.RS 4
+Display an option summary
+.RE
+.PP
+\fI<application>\fR
+.RS 4
+The short name of the application to run (i\&.e\&. for the
+\fIfreefoam\-ico\fR
+application the short name would be
+\fIico\fR)
+.RE
+.PP
+\fI<args>\fR
+.RS 4
+Arguments and options to be passed to the application
+.RE
+.sp
+environment variables: FREEFOAM_PATH specify an alternative path where to search for applications
+.SH "FREEFOAM STANDARD APPLICATIONS"
+.sp
+The following sections give a short description for all the available standard solvers and utilities\&. More information is available from the individual manual pages\&.
+.SH "SOLVERS"
+.SS "DNS"
+.PP
+\fB\fBfreefoam-dns\fR(1)\fR
+.RS 4
+Direct numerical simulation solver for boxes of isotropic turbulence\&.
+.RE
+.SS "Basic Solvers"
+.PP
+\fB\fBfreefoam-laplacian\fR(1)\fR
+.RS 4
+Solves a simple Laplace equation, e\&.g\&. for thermal diffusion in a solid\&.
+.RE
+.PP
+\fB\fBfreefoam-scalarTransport\fR(1)\fR
+.RS 4
+Solves a transport equation for a passive scalar\&.
+.RE
+.PP
+\fB\fBfreefoam-potential-app\fR(1)\fR
+.RS 4
+Simple potential flow solver which can be used to generate starting fields for full Navier\-Stokes codes\&.
+.RE
+.SS "Combustion Solvers"
+.PP
+\fB\fBfreefoam-PDR\fR(1)\fR
+.RS 4
+Solver for compressible premixed/partially\-premixed combustion with turbulence modelling\&.
+.RE
+.PP
+\fB\fBfreefoam-PDRAutoRefine\fR(1)\fR
+.RS 4
+Solver for compressible premixed/partially\-premixed combustion with turbulence modelling\&.
+.RE
+.PP
+\fB\fBfreefoam-Xi\fR(1)\fR
+.RS 4
+Solver for compressible premixed/partially\-premixed combustion with turbulence modelling\&.
+.RE
+.PP
+\fB\fBfreefoam-coldEngine\fR(1)\fR
+.RS 4
+Solver for cold\-flow in internal combustion engines\&.
+.RE
+.PP
+\fB\fBfreefoam-dieselEngine\fR(1)\fR
+.RS 4
+Solver for diesel engine spray and combustion\&.
+.RE
+.PP
+\fB\fBfreefoam-diesel\fR(1)\fR
+.RS 4
+Solver for diesel spray and combustion\&.
+.RE
+.PP
+\fB\fBfreefoam-engine-app\fR(1)\fR
+.RS 4
+Solver for internal combustion engines\&.
+.RE
+.PP
+\fB\fBfreefoam-reacting\fR(1)\fR
+.RS 4
+Solver for combustion with chemical reactions\&.
+.RE
+.PP
+\fB\fBfreefoam-rhoReacting\fR(1)\fR
+.RS 4
+Solver for combustion with chemical reactions using density based thermodynamics package\&.
+.RE
+.PP
+\fB\fBfreefoam-fire\fR(1)\fR
+.RS 4
+Transient Solver for Fires and turbulent diffusion flames\&.
+.RE
+.SS "Compressible Flow Solvers"
+.PP
+\fB\fBfreefoam-rhoCentralDyM\fR(1)\fR
+.RS 4
+Density\-based compressible flow solver based on central\-upwind schemes of Kurganov and Tadmor\&.
+.RE
+.PP
+\fB\fBfreefoam-rhoCentral\fR(1)\fR
+.RS 4
+Density\-based compressible flow solver based on central\-upwind schemes of Kurganov and Tadmor\&.
+.RE
+.PP
+\fB\fBfreefoam-rhoPimple\fR(1)\fR
+.RS 4
+Transient solver for laminar or turbulent flow of compressible fluids for HVAC and similar applications\&.
+.RE
+.PP
+\fB\fBfreefoam-rhoPorousMRFPimple\fR(1)\fR
+.RS 4
+Transient solver for laminar or turbulent flow of compressible fluids with support for porous media and MRF for HVAC and similar applications\&.
+.RE
+.PP
+\fB\fBfreefoam-rhoPorousSimple\fR(1)\fR
+.RS 4
+Steady\-state solver for turbulent flow of compressible fluids with RANS turbulence modelling, and implicit or explicit porosity treatment\&.
+.RE
+.PP
+\fB\fBfreefoam-rhoSimple\fR(1)\fR
+.RS 4
+Steady\-state SIMPLE solver for laminar or turbulent RANS flow of compressible fluids\&.
+.RE
+.PP
+\fB\fBfreefoam-rhoPiso\fR(1)\fR
+.RS 4
+Transient PISO solver for compressible, laminar or turbulent flow\&.
+.RE
+.PP
+\fB\fBfreefoam-sonic\fR(1)\fR
+.RS 4
+Transient solver for trans\-sonic/supersonic, laminar or turbulent flow of a compressible gas\&.
+.RE
+.PP
+\fB\fBfreefoam-sonicLiquid\fR(1)\fR
+.RS 4
+Transient solver for trans\-sonic/supersonic, laminar flow of a compressible liquid\&.
+.RE
+.PP
+\fB\fBfreefoam-sonicDyM\fR(1)\fR
+.RS 4
+Transient solver for trans\-sonic/supersonic, laminar or turbulent flow of a compressible gas with mesh motion\&.
+.RE
+.SS "Electromagnetic Solvers"
+.PP
+\fB\fBfreefoam-electrostatic\fR(1)\fR
+.RS 4
+Solver for electrostatics\&.
+.RE
+.PP
+\fB\fBfreefoam-mhd\fR(1)\fR
+.RS 4
+Solver for magnetohydrodynamics (MHD): incompressible, laminar flow of a conducting fluid under the influence of a magnetic field\&.
+.RE
+.SS "Financial Solvers"
+.PP
+\fB\fBfreefoam-financial\fR(1)\fR
+.RS 4
+Solves the Black\-Scholes equation to price commodities\&.
+.RE
+.SS "Heat Transfer Solvers"
+.PP
+\fB\fBfreefoam-buoyantBoussinesqPimple\fR(1)\fR
+.RS 4
+Transient solver for buoyant, turbulent flow of incompressible fluids\&.
+.RE
+.PP
+\fB\fBfreefoam-buoyantBoussinesqSimple\fR(1)\fR
+.RS 4
+Steady\-state solver for buoyant, turbulent flow of incompressible fluids\&.
+.RE
+.PP
+\fB\fBfreefoam-buoyantPimple\fR(1)\fR
+.RS 4
+Transient solver for buoyant, turbulent flow of compressible fluids for ventilation and heat\-transfer\&.
+.RE
+.PP
+\fB\fBfreefoam-buoyantSimple\fR(1)\fR
+.RS 4
+Steady\-state solver for buoyant, turbulent flow of compressible fluids\&.
+.RE
+.PP
+\fB\fBfreefoam-buoyantSimpleRadiation\fR(1)\fR
+.RS 4
+Steady\-state solver for buoyant, turbulent flow of compressible fluids, including radiation, for ventilation and heat\-transfer\&.
+.RE
+.PP
+\fB\fBfreefoam-chtMultiRegion\fR(1)\fR
+.RS 4
+Combination of heatConductionFoam and buoyantFoam for conjugate heat transfer between a solid region and fluid region\&.
+.RE
+.PP
+\fB\fBfreefoam-chtMultiRegionSimple\fR(1)\fR
+.RS 4
+Steady\-state version of chtMultiRegionFoam\&.
+.RE
+.SS "Incompressible Flow Solvers"
+.PP
+\fB\fBfreefoam-boundary\fR(1)\fR
+.RS 4
+Steady\-state solver for 1D turbulent flow, typically to generate boundary layer conditions at an inlet, for use in a simulation\&.
+.RE
+.PP
+\fB\fBfreefoam-channel\fR(1)\fR
+.RS 4
+Incompressible LES solver for flow in a channel\&.
+.RE
+.PP
+\fB\fBfreefoam-ico\fR(1)\fR
+.RS 4
+Transient solver for incompressible, laminar flow of Newtonian fluids\&.
+.RE
+.PP
+\fB\fBfreefoam-nonNewtonianIco\fR(1)\fR
+.RS 4
+Transient solver for incompressible, laminar flow of non\-Newtonian fluids\&.
+.RE
+.PP
+\fB\fBfreefoam-simple\fR(1)\fR
+.RS 4
+Steady\-state solver for incompressible, turbulent flow\&.
+.RE
+.PP
+\fB\fBfreefoam-pimpleDyM\fR(1)\fR
+.RS 4
+Transient solver for incompressible, flow of Newtonian fluids on a moving mesh using the PIMPLE (merged PISO\-SIMPLE) algorithm\&.
+.RE
+.PP
+\fB\fBfreefoam-pimple\fR(1)\fR
+.RS 4
+Large time\-step transient solver for incompressible, flow using the PIMPLE (merged PISO\-SIMPLE) algorithm\&.
+.RE
+.PP
+\fB\fBfreefoam-piso\fR(1)\fR
+.RS 4
+Transient solver for incompressible flow\&.
+.RE
+.PP
+\fB\fBfreefoam-shallowWater\fR(1)\fR
+.RS 4
+Transient solver for inviscid shallow\-water equations with rotation\&.
+.RE
+.PP
+\fB\fBfreefoam-porousSimple\fR(1)\fR
+.RS 4
+Steady\-state solver for incompressible, turbulent flow with implicit or explicit porosity treatment\&.
+.RE
+.SS "Discrete Methods Solvers"
+.PP
+\fB\fBfreefoam-md\fR(1)\fR
+.RS 4
+Molecular dynamics solver for fluid dynamics\&.
+.RE
+.PP
+\fB\fBfreefoam-mdEquilibration\fR(1)\fR
+.RS 4
+Equilibrates and/or preconditions molecular dynamics systems\&.
+.RE
+.PP
+\fB\fBfreefoam-dsmc-app\fR(1)\fR
+.RS 4
+Direct simulation Monte Carlo (DSMC) solver for 3D, transient, multi\- species flows\&.
+.RE
+.SS "Lagrangian Solvers"
+.PP
+\fB\fBfreefoam-coalChemistry\fR(1)\fR
+.RS 4
+Transient solver for compressible, turbulent flow with coal and limestone parcel injections, and combustion\&.
+.RE
+.PP
+\fB\fBfreefoam-porousExplicitSourceReactingParcel\fR(1)\fR
+.RS 4
+Transient PISO solver for compressible, laminar or turbulent flow with reacting multiphase Lagrangian parcels for porous media, including explicit sources for mass, momentum and energy\&.
+.RE
+.PP
+\fB\fBfreefoam-reactingParcel\fR(1)\fR
+.RS 4
+Transient PISO solver for compressible, laminar or turbulent flow with reacting Lagrangian parcels\&.
+.RE
+.PP
+\fB\fBfreefoam-uncoupledKinematicParcel\fR(1)\fR
+.RS 4
+Transient solver for the passive transport of a single kinematic particle cloud\&.
+.RE
+.SS "Multiphase Solvers"
+.PP
+\fB\fBfreefoam-bubble\fR(1)\fR
+.RS 4
+Solver for a system of 2 incompressible fluid phases with one phase dispersed, e\&.g\&. gas bubbles in a liquid\&.
+.RE
+.PP
+\fB\fBfreefoam-compressibleInter\fR(1)\fR
+.RS 4
+Solver for 2 compressible, isothermal immiscible fluids using a VOF (volume of fluid) phase\-fraction based interface capturing approach\&.
+.RE
+.PP
+\fB\fBfreefoam-compressibleInterDyM\fR(1)\fR
+.RS 4
+Solver for 2 compressible, isothermal immiscible fluids using a VOF (volume of fluid) phase\-fraction based interface capturing approach, with optional mesh motion and mesh topology changes including adaptive re\-meshing\&.
+.RE
+.PP
+\fB\fBfreefoam-inter\fR(1)\fR
+.RS 4
+Solver for 2 incompressible, isothermal immiscible fluids using a VOF (volume of fluid) phase\-fraction based interface capturing approach\&.
+.RE
+.PP
+\fB\fBfreefoam-interDyM\fR(1)\fR
+.RS 4
+Solver for 2 incompressible, isothermal immiscible fluids using a VOF (volume of fluid) phase\-fraction based interface capturing approach, with optional mesh motion and mesh topology changes including adaptive re\-meshing\&.
+.RE
+.PP
+\fB\fBfreefoam-MRFInter\fR(1)\fR
+.RS 4
+Solver for 2 incompressible, isothermal immiscible fluids\&.
+.RE
+.PP
+\fB\fBfreefoam-porousInter\fR(1)\fR
+.RS 4
+Solver for 2 incompressible, isothermal immiscible fluids\&.
+.RE
+.PP
+\fB\fBfreefoam-interPhaseChange\fR(1)\fR
+.RS 4
+Solver for 2 incompressible, isothermal immiscible fluids with phase\-change (e\&.g\&. cavitation)\&.
+.RE
+.PP
+\fB\fBfreefoam-cavitating\fR(1)\fR
+.RS 4
+Transient cavitation code based on the homogeneous equilibrium model from which the compressibility of the liquid/vapour "mixture" is obtained\&.
+.RE
+.PP
+\fB\fBfreefoam-MRFMultiphaseInter\fR(1)\fR
+.RS 4
+Solver for n incompressible fluids which captures the interfaces and includes surface\-tension and contact\-angle effects for each phase\&.
+.RE
+.PP
+\fB\fBfreefoam-multiphaseInter\fR(1)\fR
+.RS 4
+Solver for n incompressible fluids which captures the interfaces and includes surface\-tension and contact\-angle effects for each phase\&.
+.RE
+.PP
+\fB\fBfreefoam-settling\fR(1)\fR
+.RS 4
+Solver for 2 incompressible fluids for simulating the settling of the dispersed phase\&.
+.RE
+.PP
+\fB\fBfreefoam-twoLiquidMixing\fR(1)\fR
+.RS 4
+Solver for mixing 2 incompressible fluids\&.
+.RE
+.PP
+\fB\fBfreefoam-twoPhaseEuler\fR(1)\fR
+.RS 4
+Solver for a system of 2 incompressible fluid phases with one phase dispersed, e\&.g\&. gas bubbles in a liquid\&.
+.RE
+.PP
+\fB\fBfreefoam-interMixing\fR(1)\fR
+.RS 4
+Solver for 3 incompressible fluids, two of which are miscible, using a VOF method to capture the interface\&.
+.RE
+.SS "Stress\-Analysis"
+.PP
+\fB\fBfreefoam-solidDisplacement\fR(1)\fR
+.RS 4
+Transient segregated finite\-volume solver of linear\-elastic, small\-strain deformation of a solid body, with optional thermal diffusion and thermal stresses\&.
+.RE
+.PP
+\fB\fBfreefoam-solidEquilibriumDisplacement\fR(1)\fR
+.RS 4
+Steady\-state segregated finite\-volume solver of linear\-elastic, small\-strain deformation of a solid body, with optional thermal diffusion and thermal stresses\&.
+.RE
+.SH "UTILITIES"
+.SS "Advanced Mesh Manipulation"
+.PP
+\fB\fBfreefoam-autoRefineMesh\fR(1)\fR
+.RS 4
+Utility to refine cells near to a surface\&.
+.RE
+.PP
+\fB\fBfreefoam-collapseEdges\fR(1)\fR
+.RS 4
+Collapse short edges and combines edges that are in line\&.
+.RE
+.PP
+\fB\fBfreefoam-combinePatchFaces\fR(1)\fR
+.RS 4
+Checks for multiple patch faces on same cell and combines them\&.
+.RE
+.PP
+\fB\fBfreefoam-modifyMesh\fR(1)\fR
+.RS 4
+Manipulates mesh elements\&.
+.RE
+.PP
+\fB\fBfreefoam-refineHexMesh\fR(1)\fR
+.RS 4
+Refines a hex mesh by 2x2x2 cell splitting\&.
+.RE
+.PP
+\fB\fBfreefoam-refineWallLayer\fR(1)\fR
+.RS 4
+Utility to refine cells next to patches\&.
+.RE
+.PP
+\fB\fBfreefoam-refinementLevel\fR(1)\fR
+.RS 4
+Tries to figure out what the refinement level is on refined cartesian meshes\&. Run BEFORE snapping\&.
+.RE
+.PP
+\fB\fBfreefoam-removeFaces\fR(1)\fR
+.RS 4
+Utility to remove faces (combines cells on both sides)\&.
+.RE
+.PP
+\fB\fBfreefoam-selectCells\fR(1)\fR
+.RS 4
+Select cells in relation to surface\&.
+.RE
+.PP
+\fB\fBfreefoam-splitCells\fR(1)\fR
+.RS 4
+Utility to split cells with flat faces\&.
+.RE
+.SS "Mesh Conversion"
+.PP
+\fB\fBfreefoam-ansysToFoam\fR(1)\fR
+.RS 4
+Converts an ANSYS input mesh file, exported from I\-DEAS, to FOAM format\&.
+.RE
+.PP
+\fB\fBfreefoam-cfx4ToFoam\fR(1)\fR
+.RS 4
+Converts a CFX 4 mesh to FOAM format\&.
+.RE
+.PP
+\fB\fBfreefoam-fluent3DMeshToFoam\fR(1)\fR
+.RS 4
+Converts a Fluent mesh to OpenFOAM format\&.
+.RE
+.PP
+\fB\fBfreefoam-fluentMeshToFoam\fR(1)\fR
+.RS 4
+Converts a Fluent mesh to FOAM format including multiple region and region boundary handling\&.
+.RE
+.PP
+\fB\fBfreefoam-foamMeshToFluent\fR(1)\fR
+.RS 4
+Writes out the FOAM mesh in Fluent mesh format\&.
+.RE
+.PP
+\fB\fBfreefoam-foamToStarMesh\fR(1)\fR
+.RS 4
+Reads an OpenFOAM mesh and writes a pro\-STAR (v4) bnd/cel/vrt format\&.
+.RE
+.PP
+\fB\fBfreefoam-gambitToFoam\fR(1)\fR
+.RS 4
+Converts a GAMBIT mesh to FOAM format\&.
+.RE
+.PP
+\fB\fBfreefoam-gmshToFoam\fR(1)\fR
+.RS 4
+Reads \&.msh file as written by Gmsh\&.
+.RE
+.PP
+\fB\fBfreefoam-ideasUnvToFoam\fR(1)\fR
+.RS 4
+I\-Deas unv format mesh conversion\&.
+.RE
+.PP
+\fB\fBfreefoam-kivaToFoam\fR(1)\fR
+.RS 4
+Converts a KIVA3v grid to FOAM format\&.
+.RE
+.PP
+\fB\fBfreefoam-mshToFoam\fR(1)\fR
+.RS 4
+Converts \&.msh file generated by the Adventure system\&.
+.RE
+.PP
+\fB\fBfreefoam-netgenNeutralToFoam\fR(1)\fR
+.RS 4
+Converts neutral file format as written by Netgen v4\&.4\&.
+.RE
+.PP
+\fB\fBfreefoam-plot3dToFoam\fR(1)\fR
+.RS 4
+Plot3d mesh (ascii/formatted format) converter\&.
+.RE
+.PP
+\fB\fBfreefoam-polyDualMesh\fR(1)\fR
+.RS 4
+Calculate the dual of a polyMesh\&. Adheres to all the feature and patch edges\&.
+.RE
+.PP
+\fB\fBfreefoam-sammToFoam\fR(1)\fR
+.RS 4
+Converts a STAR\-CD SAMM mesh to FOAM format\&.
+.RE
+.PP
+\fB\fBfreefoam-star4ToFoam\fR(1)\fR
+.RS 4
+Converts a Star\-CD (v4) pro\-STAR mesh into OpenFOAM format\&.
+.RE
+.PP
+\fB\fBfreefoam-starToFoam\fR(1)\fR
+.RS 4
+Converts a STAR\-CD PROSTAR mesh into FOAM format\&.
+.RE
+.PP
+\fB\fBfreefoam-tetgenToFoam\fR(1)\fR
+.RS 4
+Converts \&.ele and \&.node and \&.face files, written by tetgen\&.
+.RE
+.PP
+\fB\fBfreefoam-writeMeshObj\fR(1)\fR
+.RS 4
+For mesh debugging: writes mesh as three separate OBJ files which can be viewed with e\&.g\&. javaview\&.
+.RE
+.SS "Mesh Generation"
+.PP
+\fB\fBfreefoam-extrudeMesh\fR(1)\fR
+.RS 4
+Extrude mesh from existing patch or from patch read from file\&.
+.RE
+.PP
+\fB\fBfreefoam-blockMesh\fR(1)\fR
+.RS 4
+A multi\-block mesh generator\&.
+.RE
+.PP
+\fB\fBfreefoam-snappyHexMesh\fR(1)\fR
+.RS 4
+Automatic split hex mesher\&. Refines and snaps to surface\&.
+.RE
+.PP
+\fB\fBfreefoam-extrude2DMesh\fR(1)\fR
+.RS 4
+Takes 2D mesh (all faces 2 points only, no front and back faces) and creates a 3D mesh by extruding with specified thickness\&.
+.RE
+.SS "Mesh Manipulation"
+.PP
+\fB\fBfreefoam-attachMesh\fR(1)\fR
+.RS 4
+Attach topologically detached mesh using prescribed mesh modifiers\&.
+.RE
+.PP
+\fB\fBfreefoam-autoPatch\fR(1)\fR
+.RS 4
+Divides external faces into patches based on (user supplied) feature angle\&.
+.RE
+.PP
+\fB\fBfreefoam-cellSet\fR(1)\fR
+.RS 4
+Selects a cell set through a dictionary\&.
+.RE
+.PP
+\fB\fBfreefoam-checkMesh\fR(1)\fR
+.RS 4
+Checks validity of a mesh\&.
+.RE
+.PP
+\fB\fBfreefoam-createBaffles\fR(1)\fR
+.RS 4
+Makes internal faces into boundary faces\&.
+.RE
+.PP
+\fB\fBfreefoam-createPatch\fR(1)\fR
+.RS 4
+Utility to create patches out of selected boundary faces\&.
+.RE
+.PP
+\fB\fBfreefoam-deformedGeom\fR(1)\fR
+.RS 4
+Deforms a polyMesh using a displacement field U and a scaling factor supplied as an argument\&.
+.RE
+.PP
+\fB\fBfreefoam-faceSet\fR(1)\fR
+.RS 4
+Selects a face set through a dictionary\&.
+.RE
+.PP
+\fB\fBfreefoam-flattenMesh\fR(1)\fR
+.RS 4
+Flattens the front and back planes of a 2D cartesian mesh\&.
+.RE
+.PP
+\fB\fBfreefoam-insideCells\fR(1)\fR
+.RS 4
+Picks up cells with cell centre
+\fIinside\fR
+of surface\&.
+.RE
+.PP
+\fB\fBfreefoam-mergeMeshes\fR(1)\fR
+.RS 4
+Merge two meshes\&.
+.RE
+.PP
+\fB\fBfreefoam-mergeOrSplitBaffles\fR(1)\fR
+.RS 4
+Detects faces that share points (baffles)\&. Either merge them or duplicate the points\&.
+.RE
+.PP
+\fB\fBfreefoam-mirrorMesh\fR(1)\fR
+.RS 4
+Mirrors a mesh around a given plane\&.
+.RE
+.PP
+\fB\fBfreefoam-moveDynamicMesh\fR(1)\fR
+.RS 4
+Mesh motion and topological mesh changes utility\&.
+.RE
+.PP
+\fB\fBfreefoam-moveEngineMesh\fR(1)\fR
+.RS 4
+Solver for moving meshes for engine calculations\&.
+.RE
+.PP
+\fB\fBfreefoam-moveMesh\fR(1)\fR
+.RS 4
+Solver for moving meshes\&.
+.RE
+.PP
+\fB\fBfreefoam-objToVTK\fR(1)\fR
+.RS 4
+Read obj line (not surface!) file and convert into vtk\&.
+.RE
+.PP
+\fB\fBfreefoam-pointSet\fR(1)\fR
+.RS 4
+Selects a point set through a dictionary\&.
+.RE
+.PP
+\fB\fBfreefoam-refineMesh\fR(1)\fR
+.RS 4
+Utility to refine cells in multiple directions\&.
+.RE
+.PP
+\fB\fBfreefoam-renumberMesh\fR(1)\fR
+.RS 4
+Renumbers the cell list in order to reduce the bandwidth, reading and renumbering all fields from all the time directories\&.
+.RE
+.PP
+\fB\fBfreefoam-rotateMesh\fR(1)\fR
+.RS 4
+Rotates the mesh and fields from the direcion n1 to the direction n2\&.
+.RE
+.PP
+\fB\fBfreefoam-setSet\fR(1)\fR
+.RS 4
+Manipulate a cell/face/point/ set or zone interactively\&.
+.RE
+.PP
+\fB\fBfreefoam-setsToZones\fR(1)\fR
+.RS 4
+Add pointZones/faceZones/cellZones to the mesh from similar named pointSets/faceSets/cellSets\&.
+.RE
+.PP
+\fB\fBfreefoam-splitMesh\fR(1)\fR
+.RS 4
+Splits mesh by making internal faces external\&.
+.RE
+.PP
+\fB\fBfreefoam-splitMeshRegions\fR(1)\fR
+.RS 4
+Splits mesh into multiple regions\&.
+.RE
+.PP
+\fB\fBfreefoam-stitchMesh\fR(1)\fR
+.RS 4
+
+\fIStitches\fR
+a mesh\&.
+.RE
+.PP
+\fB\fBfreefoam-subsetMesh\fR(1)\fR
+.RS 4
+Selects a section of mesh based on a cellSet\&.
+.RE
+.PP
+\fB\fBfreefoam-transformPoints\fR(1)\fR
+.RS 4
+Transforms the mesh points in the polyMesh directory according to the translate, rotate and scale options\&.
+.RE
+.PP
+\fB\fBfreefoam-zipUpMesh\fR(1)\fR
+.RS 4
+Reads in a mesh with hanging vertices and zips up the cells to guarantee that all polyhedral cells of valid shape are closed\&.
+.RE
+.SS "Error Estimation"
+.PP
+\fB\fBfreefoam-momentScalarError\fR(1)\fR
+.RS 4
+Estimates the error in the solution for a scalar transport equation in the standard form\&.
+.RE
+.PP
+\fB\fBfreefoam-icoErrorEstimate\fR(1)\fR
+.RS 4
+Estimates error for the incompressible laminar CFD application icoFoam\&.
+.RE
+.PP
+\fB\fBfreefoam-estimateScalarError\fR(1)\fR
+.RS 4
+Estimates the error in the solution for a scalar transport equation in the standard form\&.
+.RE
+.PP
+\fB\fBfreefoam-icoMomentError\fR(1)\fR
+.RS 4
+Estimates error for the incompressible laminar CFD application icoFoam\&.
+.RE
+.SS "Miscellaneous Utilities"
+.PP
+\fB\fBfreefoam-expandDictionary\fR(1)\fR
+.RS 4
+Read the dictionary provided as an argument, expand the macros etc\&. and write the resulting dictionary to standard output\&.
+.RE
+.PP
+\fB\fBfreefoam-debugSwitches\fR(1)\fR
+.RS 4
+Write out all library debug switches\&.
+.RE
+.PP
+\fB\fBfreefoam-formatConvert\fR(1)\fR
+.RS 4
+Converts all IOobjects associated with a case into the format specified in the controlDict\&.
+.RE
+.PP
+\fB\fBfreefoam-infoExec\fR(1)\fR
+.RS 4
+Interrogates a case and prints information to screen\&.
+.RE
+.PP
+\fB\fBfreefoam-patchSummary\fR(1)\fR
+.RS 4
+Writes fields and boundary condition info for each patch at each requested time instance\&.
+.RE
+.SS "Parallel Processing"
+.PP
+\fB\fBfreefoam-redistributeMeshPar\fR(1)\fR
+.RS 4
+Redistributes existing decomposed mesh and fields according to the current settings in the decomposeParDict file\&.
+.RE
+.PP
+\fB\fBfreefoam-reconstructParMesh\fR(1)\fR
+.RS 4
+Reconstructs a mesh using geometric information only\&.
+.RE
+.PP
+\fB\fBfreefoam-decomposePar\fR(1)\fR
+.RS 4
+Automatically decomposes a mesh and fields of a case for parallel execution of OpenFOAM\&.
+.RE
+.PP
+\fB\fBfreefoam-reconstructPar\fR(1)\fR
+.RS 4
+Reconstructs a mesh and fields of a case that is decomposed for parallel execution of OpenFOAM\&.
+.RE
+.SS "Post\-Processing"
+.PP
+\fB\fBfreefoam-calc\fR(1)\fR
+.RS 4
+Generic wrapper for calculating a quantity at each time\&.
+.RE
+.PP
+\fB\fBfreefoam-dsmcFieldsCalc\fR(1)\fR
+.RS 4
+Calculate intensive fields (U and T) from averaged extensive fields from a DSMC calculation\&.
+.RE
+.PP
+\fB\fBfreefoam-particleTracks\fR(1)\fR
+.RS 4
+Generates a VTK file of particle tracks for cases that were computed using a tracked\-parcel\-type cloud\&.
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBData Conversion\fR
+.RS 4
+.PP
+\fB\fBfreefoam-foamDataToFluent\fR(1)\fR
+.RS 4
+Translates FOAM data to Fluent format\&.
+.RE
+.PP
+\fB\fBfreefoam-foamToEnsight\fR(1)\fR
+.RS 4
+Translates FOAM data to EnSight format\&.
+.RE
+.PP
+\fB\fBfreefoam-foamToEnsightParts\fR(1)\fR
+.RS 4
+Translates OpenFOAM data to Ensight format\&. An Ensight part is created for each cellZone and patch\&.
+.RE
+.PP
+\fB\fBfreefoam-foamToFieldview9\fR(1)\fR
+.RS 4
+Write out the OpenFOAM mesh in Version 3\&.0 Fieldview\-UNS format (binary)\&.
+.RE
+.PP
+\fB\fBfreefoam-foamToGMV\fR(1)\fR
+.RS 4
+Translates foam output to GMV readable files\&.
+.RE
+.PP
+\fB\fBfreefoam-foamToVTK\fR(1)\fR
+.RS 4
+Legacy VTK file format writer\&.
+.RE
+.PP
+\fB\fBfreefoam-smapToFoam\fR(1)\fR
+.RS 4
+Translates a STAR\-CD SMAP data file into FOAM field format\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBMiscellaneous\fR
+.RS 4
+.PP
+\fB\fBfreefoam-engineCompRatio\fR(1)\fR
+.RS 4
+Calculate the geometric compression ratio\&. Note that if you have valves and/or extra volumes it will not work, since it calculates the volume at BDC and TCD\&.
+.RE
+.PP
+\fB\fBfreefoam-execFlowFunctionObjects\fR(1)\fR
+.RS 4
+Execute the set of functionObjects specified in the selected dictionary (which defaults to system/controlDict) for the selected set of times\&.
+.RE
+.PP
+\fB\fBfreefoam-pdfPlot\fR(1)\fR
+.RS 4
+Generates an \&.obj file to plot a probability distribution function\&.
+.RE
+.PP
+\fB\fBfreefoam-postChannel\fR(1)\fR
+.RS 4
+Post\-processes data from channel flow calculations\&.
+.RE
+.PP
+\fB\fBfreefoam-ptot\fR(1)\fR
+.RS 4
+For each time: calculate the total pressure\&.
+.RE
+.PP
+\fB\fBfreefoam-wdot\fR(1)\fR
+.RS 4
+Calculates and writes wdot for each time\&.
+.RE
+.PP
+\fB\fBfreefoam-writeCellCentres\fR(1)\fR
+.RS 4
+Write the three components of the cell centres as volScalarFields so they can be used in postprocessing in thresholding\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBData Sampling, Averaging and Integration\fR
+.RS 4
+.PP
+\fB\fBfreefoam-patchIntegrate\fR(1)\fR
+.RS 4
+Calculates the integral of the specified field over the specified patch\&.
+.RE
+.PP
+\fB\fBfreefoam-patchAverage\fR(1)\fR
+.RS 4
+Calculates the average of the specified field over the specified patch\&.
+.RE
+.PP
+\fB\fBfreefoam-sample\fR(1)\fR
+.RS 4
+Sample field data with a choice of interpolation schemes, sampling options and write formats\&.
+.RE
+.PP
+\fB\fBfreefoam-probeLocations\fR(1)\fR
+.RS 4
+Probe locations\&.
+.RE
+.PP
+\fB\fBfreefoam-pPrime2\fR(1)\fR
+.RS 4
+Calculates and writes the scalar field of pPrime2 (sqr(p \- pMean)) at each time\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBStress Analysis\fR
+.RS 4
+.PP
+\fB\fBfreefoam-stressComponents\fR(1)\fR
+.RS 4
+Calculates and writes the scalar fields of the six components of the stress tensor sigma for each time\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTurbulence Quantities\fR
+.RS 4
+.PP
+\fB\fBfreefoam-createTurbulenceFields\fR(1)\fR
+.RS 4
+Creates a full set of turbulence fields\&.
+.RE
+.PP
+\fB\fBfreefoam-R\fR(1)\fR
+.RS 4
+Calculates and writes the Reynolds stress R for the current time step\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBFlow Field Quantities\fR
+.RS 4
+.PP
+\fB\fBfreefoam-Co\fR(1)\fR
+.RS 4
+Calculates and writes the Co number as a surfaceScalarField obtained from field phi\&.
+.RE
+.PP
+\fB\fBfreefoam-Lambda2\fR(1)\fR
+.RS 4
+Calculates and writes the second largest eigenvalue of the sum of the square of the symmetrical and anti\-symmetrical parts of the velocity gradient tensor\&.
+.RE
+.PP
+\fB\fBfreefoam-Mach\fR(1)\fR
+.RS 4
+Calculates and optionally writes the local Mach number from the velocity field U at each time\&.
+.RE
+.PP
+\fB\fBfreefoam-Pe\fR(1)\fR
+.RS 4
+Calculates and writes the Pe number as a surfaceScalarField obtained from field phi\&.
+.RE
+.PP
+\fB\fBfreefoam-Q\fR(1)\fR
+.RS 4
+Calculates and writes the second invariant of the velocity gradient tensor\&.
+.RE
+.PP
+\fB\fBfreefoam-enstrophy\fR(1)\fR
+.RS 4
+Calculates and writes the enstrophy of the velocity field U\&.
+.RE
+.PP
+\fB\fBfreefoam-flowType\fR(1)\fR
+.RS 4
+Calculates and writes the flowType of velocity field U\&.
+.RE
+.PP
+\fB\fBfreefoam-streamFunction\fR(1)\fR
+.RS 4
+Calculates and writes the stream function of velocity field U at each time\&.
+.RE
+.PP
+\fB\fBfreefoam-uprime\fR(1)\fR
+.RS 4
+Calculates and writes the scalar field of uprime (sqrt(2/3 k))\&.
+.RE
+.PP
+\fB\fBfreefoam-vorticity\fR(1)\fR
+.RS 4
+Calculates and writes the vorticity of velocity field U\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBWall Quantities\fR
+.RS 4
+.PP
+\fB\fBfreefoam-wallGradU\fR(1)\fR
+.RS 4
+Calculates and writes the gradient of U at the wall\&.
+.RE
+.PP
+\fB\fBfreefoam-wallHeatFlux\fR(1)\fR
+.RS 4
+Calculates and writes the heat flux for all patches as the boundary field of a volScalarField and also prints the integrated flux for all wall patches\&.
+.RE
+.PP
+\fB\fBfreefoam-wallShearStress\fR(1)\fR
+.RS 4
+Calculates and writes the wall shear stress, for the specified times\&.
+.RE
+.PP
+\fB\fBfreefoam-yPlusLES\fR(1)\fR
+.RS 4
+Calculates and reports yPlus for all wall patches, for the specified times\&.
+.RE
+.PP
+\fB\fBfreefoam-yPlusRAS\fR(1)\fR
+.RS 4
+Calculates and reports yPlus for all wall patches, for the specified times when using RAS turbulence models\&.
+.RE
+.RE
+.SS "Pre\-Processing"
+.PP
+\fB\fBfreefoam-applyBoundaryLayer\fR(1)\fR
+.RS 4
+Apply a simplified boundary\-layer model to the velocity and turbulence fields based on the 1/7th power\-law\&.
+.RE
+.PP
+\fB\fBfreefoam-applyWallFunctionBoundaryConditions\fR(1)\fR
+.RS 4
+Updates OpenFOAM RAS cases to use the new (v1\&.6) wall function framework\&.
+.RE
+.PP
+\fB\fBfreefoam-boxTurb\fR(1)\fR
+.RS 4
+Makes a box of turbulence which conforms to a given energy spectrum and is divergence free\&.
+.RE
+.PP
+\fB\fBfreefoam-changeDictionary\fR(1)\fR
+.RS 4
+Utility to change dictionary entries\&.
+.RE
+.PP
+\fB\fBfreefoam-dsmcInitialise\fR(1)\fR
+.RS 4
+Initialise a case for dsmcFoam by reading the initialisation dictionary system/dsmcInitialise\&.
+.RE
+.PP
+\fB\fBfreefoam-engineSwirl\fR(1)\fR
+.RS 4
+Generates a swirling flow for engine calulations\&.
+.RE
+.PP
+\fB\fBfreefoam-upgradeFvSolution\fR(1)\fR
+.RS 4
+Simple tool to upgrade the syntax of system/fvSolution::solvers\&.
+.RE
+.PP
+\fB\fBfreefoam-mapFields\fR(1)\fR
+.RS 4
+Maps volume fields from one mesh to another\&.
+.RE
+.PP
+\fB\fBfreefoam-mdInitialise\fR(1)\fR
+.RS 4
+Initialises fields for a molecular dynamics (MD) simulation\&.
+.RE
+.PP
+\fB\fBfreefoam-setFields\fR(1)\fR
+.RS 4
+Selects a cell set through a dictionary\&.
+.RE
+.SS "Surface File Manipulation"
+.PP
+\fB\fBfreefoam-surfaceAdd\fR(1)\fR
+.RS 4
+Add two surfaces\&. Does geometric merge on points\&. Does not check for overlapping/intersecting triangles\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceAutoPatch\fR(1)\fR
+.RS 4
+Patches surface according to feature angle\&. Like autoPatch\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceCheck\fR(1)\fR
+.RS 4
+Performs various checks on surface\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceClean\fR(1)\fR
+.RS 4
+Collapses small edges, removing triangles and converts sliver triangles into split edges by projecting point onto base of triangle\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceCoarsen\fR(1)\fR
+.RS 4
+Surface coarsening using
+\fIbunnylod\fR\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceConvert\fR(1)\fR
+.RS 4
+Converts from one surface mesh format to another\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceFeatureConvert\fR(1)\fR
+.RS 4
+Extracts and writes surface features to file\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceFeatureExtract\fR(1)\fR
+.RS 4
+Extracts and writes surface features to file\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceFind\fR(1)\fR
+.RS 4
+Finds nearest triangle and vertex\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceMeshConvert\fR(1)\fR
+.RS 4
+Convert between surface formats with optional scaling or transformations (rotate/translate) on a coordinateSystem\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceMeshConvertTesting\fR(1)\fR
+.RS 4
+Converts from one surface mesh format to another, but primarily used for testing functionality\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceMeshExport\fR(1)\fR
+.RS 4
+Export from surfMesh to various third\-party surface formats with optional scaling or transformations (rotate/translate) on a coordinateSystem\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceMeshImport\fR(1)\fR
+.RS 4
+Import from various third\-party surface formats into surfMesh with optional scaling or transformations (rotate/translate) on a coordinateSystem\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceMeshTriangulate\fR(1)\fR
+.RS 4
+Extracts triSurface from a polyMesh\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceOrient\fR(1)\fR
+.RS 4
+Set normal consistent with respect to a user provided
+\fIoutside\fR
+point\&.
+.RE
+.PP
+\fB\fBfreefoam-surfacePointMerge\fR(1)\fR
+.RS 4
+Merges points on surface if they are within absolute distance\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceRedistributePar\fR(1)\fR
+.RS 4
+(Re)distribution of triSurface\&. Either takes an undecomposed surface or an already decomposed surface and redistribute it so each processor has all triangles that overlap its mesh\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceRefineRedGreen\fR(1)\fR
+.RS 4
+Refine by splitting all three edges of triangle (\fIred\fR
+refinement)\&. Neighbouring triangles (which are not marked for refinement get split in half (\fIgreen\fR) refinement\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceSmooth\fR(1)\fR
+.RS 4
+Example of simple laplacian smoother\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceSplitByPatch\fR(1)\fR
+.RS 4
+Writes regions of triSurface to separate files\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceSplitNonManifolds\fR(1)\fR
+.RS 4
+Takes multiply connected surface and tries to split surface at multiply connected edges by duplicating points\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceSubset\fR(1)\fR
+.RS 4
+A surface analysis tool which sub\-sets the triSurface to choose only a part of interest\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceToPatch\fR(1)\fR
+.RS 4
+Reads surface and applies surface regioning to a mesh\&.
+.RE
+.PP
+\fB\fBfreefoam-surfaceTransformPoints\fR(1)\fR
+.RS 4
+Transform (scale/rotate) a surface\&.
+.RE
+.SS "Thermophysical Utilities"
+.PP
+\fB\fBfreefoam-adiabaticFlameT\fR(1)\fR
+.RS 4
+Calculates the adiabatic flame temperature for a given fuel over a range of unburnt temperatures and equivalence ratios\&.
+.RE
+.PP
+\fB\fBfreefoam-chemkinToFoam\fR(1)\fR
+.RS 4
+Converts CHEMKINIII thermodynamics and reaction data files into FOAM format\&.
+.RE
+.PP
+\fB\fBfreefoam-equilibriumCO\fR(1)\fR
+.RS 4
+Calculates the equilibrium level of carbon monoxide\&.
+.RE
+.PP
+\fB\fBfreefoam-equilibriumFlameT\fR(1)\fR
+.RS 4
+Calculates the equilibrium flame temperature\&.
+.RE
+.PP
+\fB\fBfreefoam-mixtureAdiabaticFlameT\fR(1)\fR
+.RS 4
+Calculates the adiabatic flame temperature for a given mixture at a given temperature\&.
+.RE
+.PP
+\fB\fBfreefoam-IFCLookUpTableGen\fR(1)\fR
+.RS 4
+Calculate the the infinitely\-fast chemistry relationships in function of ft\&. for a given fuel\&.
+.RE
+.SS "FreeFOAM Helper Scripts"
+.sp
+Below you find an overview of the small helper scripts provided by FreeFOAM\&.
+.PP
+\fB\fBfreefoam-clearPolyMesh\fR(1)\fR
+.RS 4
+Remove the contents of the constant/polyMesh directory\&.
+.RE
+.PP
+\fB\fBfreefoam-copySettings\fR(1)\fR
+.RS 4
+Copy settings from one case directory to another, without copying the mesh or results\&.
+.RE
+.PP
+\fB\fBfreefoam-graphExecTime\fR(1)\fR
+.RS 4
+Computes the time used per iteration\&.
+.RE
+.PP
+\fB\fBfreefoam-graphResKE\fR(1)\fR
+.RS 4
+Extract the residuals of k and epsilon at each time step\&.
+.RE
+.PP
+\fB\fBfreefoam-graphResUVWP\fR(1)\fR
+.RS 4
+Extract the residuals of
+\fIU\fR,
+\fIV\fR,
+\fIW\fR
+and
+\fIp\fR
+at each time step\&.
+.RE
+.PP
+\fB\fBfreefoam-job\fR(1)\fR
+.RS 4
+Runs a FreeFOAM job in the background\&.
+.RE
+.PP
+\fB\fBfreefoam-log\fR(1)\fR
+.RS 4
+Extracts xy files from Foam logs\&.
+.RE
+.PP
+\fB\fBfreefoam-para\fR(1)\fR
+.RS 4
+Start ParaView3 to visualize a case\&.
+.RE
+.PP
+\fB\fBfreefoam-solverSweeps\fR(1)\fR
+.RS 4
+Extract solver statistics from a log file\&.
+.RE
+.SH "CONFIGURATION MECHANISM"
+.sp
+FreeFOAM offers a number of global configuration options\&. These include
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+location of the API documentation and the method to display it
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+debug, info and optimisation switches
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+physical constants
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+plugin search paths
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+parallel communications method
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+starting of a parallel job
+.RE
+.SS "Global Configuration Files"
+.sp
+Unfortunately the OpenFOAM library (on which FreeFOAM builds) and some applications require the following files to be present for start\-up:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
+\fIcellModels\fR
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
+\fIcontrolDict\fR
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
+\fIthermoData/BurcatCpData\fR
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
+\fIthermoData/therm\&.dat\fR
+.RE
+.sp
+It finds them in the following places (in the specified order, picking the first hit):
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+Under the directory specified in the
+$FREEFOAM_CONFIG_DIR
+environment variable
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+In
+\fI$HOME/\&.FreeFOAM/0\&.1\fR
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 3.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  3." 4.2
+.\}
+In
+\fI$HOME/\&.FreeFOAM\fR
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 4.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  4." 4.2
+.\}
+In the installation directory of the configuration files,
+\fI/usr/local/etc/FreeFOAM/0\&.1\&.0\fR
+.RE
+.sp
+where the versions in above directory names depend on the version of the FreeFOAM application to be run\&.
+.SS "Locating the API documentation"
+.sp
+All FreeFOAM applications accept the options \fI\-doc\fR and \fI\-srcDoc\fR\&. The former locates and displays the API documentation of the application, the latter the source code\&. This, however, requires that FreeFOAM is able to locate the API documentation and knows which program to use for display\&.
+.sp
+By default FreeFOAM uses the API documentation provided on http://freefoam\&.sf\&.net/doc/API because most users will not want to install the sizeable documentation package\&. The method FreeFOAM uses to locate the documentation files is via index files which are conventional FreeFOAM dictionaries\&. Each of them contains an entry \fIdocDir\fR specifying the documentation root location (such as http://freefoam\&.sf\&.net/doc/API) and a dictionary called \fIdocFiles\fR mapping the application name to the names of the corresponding HTML documentation and source page\&.
+.sp
+These documentation indices are found by querying the list \fIDocumentation::doxyDocIndices\fR in the global \fIcontrolDict\fR file\&. If multiple documentation indices are specified, the first index that provides documentation for the given application is picked\&.
+.SS "Displaying the API documentation"
+.sp
+FreeFOAM can automatically open a browser window displaying the HTML documentation for you\&. The entry \fIDocumentation::docBrowser\fR in the global \fIcontrolDict\fR can be used to change which program is used for this\&. In this string the token \fI%f\fR gets replaced by the filename to open\&.
+.SS "Debug, Info and Optimisation Switches"
+.sp
+The lists \fIDebugSwitches\fR, \fIInfoSwitches\fR and \fIOptimisationSwitches\fR in the global \fIcontrolDict\fR file determine some global run\-time behaviour of FreeFOAM\&. The entries in \fIDebugSwitches\fR can be set to \fI1\fR for more verbose output in the specified class\&.
+.sp
+The \fIInfoSwitches::writePrecision\fR setting determines the write precision in the output to the terminal (i\&.e\&. not the output written to files)\&. Whether a job\-info file should be created can be specified by enabling \fIInfoSwitches::writeJobeInfo\fR\&.
+.sp
+For files that are modifieable during run\-time (e\&.g\&. to change the interval at which the output is created), FreeFOAM compares the modification times of these files in order to determine whether they have to be re\-read\&. The setting \fIOptimisationSwitches::fileModificationSkew\fR determines the minimum modification\-time difference in seconds for a file to be considered changed\&.
+.sp
+The setting \fIOptimisationSwitches::commsType\fR determines whether inter\-process communications are either \fIblocking\fR, \fIscheduled\fR or \fInonBlocking\fR\&.
+.sp
+\fIOptimisationSwitches::floatTransfer\fR causes to convert \fIdouble\fR values to \fIfloat\fR before transferring them through the communications library\&. This saves some bandwidth at the loss of accuracy\&.
+.sp
+The sum operation across processors can be executed either in a linear or a tree fashion\&. Especially for a large number of processors, tree\-summation is significantly faster\&. The threshold at which to switch from linear to tree\-summation is determined by \fIOptimisationSwitches::nProcsSimpleSum\fR\&.
+.SS "Physical Constants"
+.PP
+\fIDimensionedConstants::R\fR
+.RS 4
+Universal gas constant
+.RE
+.PP
+\fIDimensionedConstants::Pstd\fR
+.RS 4
+Standard pressure
+.RE
+.PP
+\fIDimensionedConstants::Tstd\fR
+.RS 4
+Standard temperature
+.RE
+.PP
+\fIDimensionedConstants::sigmaSB\fR
+.RS 4
+Stefan\-Boltzmann constant
+.RE
+.SS "Plugin Search Path"
+.sp
+FreeFOAM very often relies on dynamically loading libraries (a\&.k\&.a plugins)\&. If the library name is given as an absolute path, FreeFOAM tries to load it directly\&. To locate libraries specified just by their name or with a relative path, FreeFOAM first tries to find the library in one of the directories specified in the list \fILibrarySearchPaths\fR in the global \fIcontrolDict\fR and, if the library was not found, falls back to the mechanism provided by your operating system (i\&.e\&. for Linux systems this would be the LD_LIBRARY_PATH and the default search path)\&.
+.SS "Selecting the Parallel Communications Library"
+.sp
+Both, FreeFOAM and OpenFOAM abstract the parallel operations into the \fIPstream\fR library, making it rather simple to firstly switch between parallel implementations and secondly port the software to a new communications library\&. However, FreeFOAM uses a much more flexible mechanism of determining which \fIPstream\fR implementation library to use than OpenFOAM\&. The latter does this by adjusting the LD_LIBRARY_PATH environment variable\&. As FreeFOAM wants to be a well behaved Linux citizen, this is not an option\&. Instead, FreeFOAM dynamically loads the desired \fIPstream\fR library at startup (i\&.e\&. as a plug\-in)\&. The following list details how FreeFOAM determines what library to load (if at all):
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+If the environment variable
+FREEFOAM_PSTREAM_LIBRARY
+is set, FreeFOAM will try to load the library specified by it\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+If the sub\-dictionary
+PstreamImplementation
+exists in the global
+\fIcontrolDict\fR
+file (see above), it reads the value of the entry
+PstreamImplementation::configName
+therein\&. This entry can be overridden by setting the
+FREEFOAM_PSTREAM_CONFIG
+environment variable\&. It then expects that a sub\-dictionary of
+PstreamImplementation
+with the name specified in
+FREEFOAM_PSTREAM_CONFIG
+or
+PstreamImplementation::configName
+exists\&. If that sub\-dictionary contains the entry
+PstreamImplementation::library, it will try to load a library specified by the value of that entry\&.
+.RE
+.sp
+Please note that this library is also considered to be a plugin, and thus is located in the same way as described above\&.
+.sp
+After FreeFOAM (possibly) loaded the library, it will try to instantiate concrete implementations of the abstract base classes PstreamImpl, IPstreamImpl and OPstreamImpl\&. Which classes are to be instantiated is determined as follows:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+FreeFOAM queries the environment variables
+FREEFOAM_PSTREAM_CLASS,
+FREEFOAM_IPSTREAM_CLASS
+and
+FREEFOAM_OPSTREAM_CLASS
+for the class names to be instantiated\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+For any of the variables not set, it requires the sub\-dictionary
+PstreamImplementation
+to be present in the global
+\fIcontrolDict\fR, reads the value of
+FREEFOAM_PSTREAM_CONFIG
+or the entry
+PstreamImplementation::configName
+and similarly to the library loading, loads the sub\-dictionary specified by that value\&. It then expects to find the entries
+PstreamImplementation::Pstream,
+PstreamImplementation::IPstream
+and
+PstreamImplementation::OPstream
+which specify the names of the classes to load\&.
+.RE
+.sp
+This means that one can create a global \fIcontrolDict\fR file containing (among other things) something like the following:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+PstreamImplementation
+{
+    //configName dummy;
+    configName mpi;
+
+    dummy
+    {
+        library libdummyPstream\&.so;
+        Pstream dummyPstreamImpl;
+        OPstream dummyOPstreamImpl;
+        IPstream dummyIPstreamImpl;
+    }
+
+    mpi
+    {
+        library libmpiPstream\&.so;
+        Pstream mpiPstreamImpl;
+        OPstream mpiOPstreamImpl;
+        IPstream mpiIPstreamImpl;
+    }
+}
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+This way the administrator can provide a global \fIcontrolDict\fR in the FreeFOAM installation\&. Every user can then override that \fIcontrolDict\fR by supplying her own file in her home directory as detailed above\&. In order to select a particular \fIPstream\fR implementation for a specific communications library, the user can then either adjust the PstreamImplementation::configName entry in the global \fIcontrolDict\fR file, set the FREEFOAM_PSTREAM_CONFIG variable or, for full control, set the variables FREEFOAM_PSTREAM_LIBRARY, FREEFOAM_PSTREAM_CLASS, FREEFOAM_IPSTREAM_CLASS and FREEFOAM_OPSTREAM_CLASS\&.
+.SS "Starting of a Parallel Job"
+.sp
+Some of the tutorial scripts need to run FreeFOAM applications in parallel\&. However, how to do so differs strongly from system to system and between parallel communication libraries\&. This is why the command line to start an application in parallel is configureable in the parRunTemplate setting\&. \fI${NPROCS}\fR, \fI${PAROPTS}\fR, \fI${APPLICATION}\fR and \fI${ARGS}\fR are placeholders for the number of processors to use, options for the parallel communications system, the application to run and its arguments, respectively\&. Note that the \fI\-parallel\fR option is \fBNOT\fR included in \fI${ARGS}\fR\&.
+.SH "ENVIRONMENT VARIABLES"
+.PP
+FREEFOAM_CONFIG_DIR
+.RS 4
+Directory containing the global configuration files
+.RE
+.PP
+FREEFOAM_PATH
+.RS 4
+Additional, colon separated paths in which to first search for FreeFOAM executables
+.RE
+.PP
+FREEFOAM_PSTREAM_CONFIG
+.RS 4
+Name of the
+\fIPstream\fR
+configuration in the global
+\fIcontrolDict\fR
+file to use
+.RE
+.PP
+FREEFOAM_PSTREAM_LIBRARY
+.RS 4
+The
+\fIPstream\fR
+library to load
+.RE
+.PP
+FREEFOAM_PSTREAM_CLASS
+.RS 4
+Name of the concrete
+\fIPstreamImpl\fR
+class to instantiate
+.RE
+.PP
+FREEFOAM_IPSTREAM_CLASS
+.RS 4
+Name of the concrete
+\fIIPstreamImpl\fR
+class to instantiate
+.RE
+.PP
+FREEFOAM_OPSTREAM_CLASS
+.RS 4
+Name of the concrete
+\fIOPstreamImpl\fR
+class to instantiate
+.RE
+.SH "SEE ALSO"
+.sp
+The user guide is available from http://freefoam\&.sourceforge\&.net/doc/UserGuide and the Doxygen\-generated API documentation can be accessed at http://freefoam\&.sourceforge\&.net/doc/API\&.
+.SH "AUTHOR"
+.sp
+Michael Wild <themiwi@users\&.sourceforge\&.net>
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE

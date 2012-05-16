@@ -1,0 +1,101 @@
+'\" t
+.\"     Title: freefoam-graphresuvwp
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/14/2012
+.\"    Manual: FreeFOAM Manual
+.\"    Source: FreeFOAM 0.1.0
+.\"  Language: English
+.\"
+.TH "FREEFOAM\-GRAPHRESUVWP" "1" "05/14/2012" "FreeFOAM 0\&.1\&.0" "FreeFOAM Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+freefoam-graphResUVWP \- Extract the residuals of \*(AqU\*(Aq, \*(AqV\*(Aq, \*(AqW\*(Aq and \*(Aqp\*(Aq at each time step
+.SH "SYNOPSIS"
+.sp
+\fBfreefoam graphResUVWP\fR \fI<logFile>\fR
+.SH "DESCRIPTION"
+.sp
+The utility extracts the residuals of the velocity components \fIU\fR, \fIV\fR and \fIW\fR and the pressure \fIp\fR at each time step and writes them to \fIresidualUVWP\&.dat\fR\&. The file has the following format:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+1 <resU1>
+2 <resU2>
+\&.\&.\&.
+
+1 <resV1>
+2 <resV2>
+\&.\&.\&.
+
+1 <resW1>
+2 <resW2>
+\&.\&.\&.
+
+1 <resP1>
+2 <resP2>
+\&.\&.\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+where \fI<resUX>\fR, \fI<resVX>\fR, \fI<resWX>\fR and \fI<resPX>\fR are the residuals for \fIU\fR, \fIV\fR, \fIW\fR and \fIp\fR, respectively, at a given time\-step \fIX\fR\&.
+.SH "OPTIONS"
+.PP
+\fI<logFile>\fR
+.RS 4
+A FreeFOAM log file (i\&.e\&. the screen\-output created by a FreeFOAM solver)
+.RE
+.SH "SEE ALSO"
+.sp
+An overview of FreeFOAM is given in \fBfreefoam\fR(1)\&.
+.SH "AUTHOR"
+.sp
+OpenCFD Ltd\&.
+.SH "FREEFOAM"
+.sp
+Part of the \fBfreefoam\fR(1) suite\&.
+.SH "COPYRIGHT"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 1991\-2010 OpenCFD Ltd\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Copyright \(co 2008\-2012 Michael Wild\&.
+.RE
