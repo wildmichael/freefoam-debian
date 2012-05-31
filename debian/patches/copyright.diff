@@ -1,3 +1,5 @@
+Included logo type and copyright statements on files, originally created 
+by (upstream) FreeFOAM developers, that were missing them.
 --- a/data/asciidoc/dblatex/asciidoc-dblatex.xsl
 +++ b/data/asciidoc/dblatex/asciidoc-dblatex.xsl
 @@ -1,10 +1,41 @@
