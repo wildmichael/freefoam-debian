@@ -1,0 +1,224 @@
+--- a/data/asciidoc/dblatex/asciidoc-dblatex.xsl
++++ b/data/asciidoc/dblatex/asciidoc-dblatex.xsl
+@@ -1,10 +1,41 @@
+ <?xml version='1.0'?>
+-<!--
+-Additional user-stylesheet for dblatex. It customizes
+-- the template matching the <alt> element such that no automatic math mode
+-  wrappers are added
+-- the appearance of <gui(menu|label|button|icon)> elements
+--->
++<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++                ______                _     ____          __  __
++               |  ____|             _| |_  / __ \   /\   |  \/  |
++               | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
++               |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
++               | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
++               |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
++
++                    FreeFOAM: The Cross-Platform CFD Toolkit
++
++  Copyright (C) 2008-2012 Michael Wild themiwi@users.sf.net
++                          Gerber van der Graaf gerber_graaf@users.sf.net
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++  License
++    This file is part of FreeFOAM.
++
++    FreeFOAM is free software: you can redistribute it and/or modify it
++    under the terms of the GNU General Public License as published by the
++    Free Software Foundation, either version 3 of the License, or (at your
++    option) any later version.
++
++    FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
++    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++    for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
++
++  Description
++      Additional user-stylesheet for dblatex. It customizes
++      - the template matching the <alt> element such that no automatic math mode
++      wrappers are added
++      - the appearance of <gui(menu|label|button|icon)> elements
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
++
++
+ <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version='1.0'>
+ 
+ <xsl:import href="orig-asciidoc-dblatex.xsl"/>
+--- a/data/asciidoc/docbook-xsl/chunked.xsl
++++ b/data/asciidoc/docbook-xsl/chunked.xsl
+@@ -1,7 +1,37 @@
+-<!--
+-  Generates chunked XHTML documents from DocBook XML source using DocBook XSL
+-  stylesheets.
+--->
++<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++                ______                _     ____          __  __
++               |  ____|             _| |_  / __ \   /\   |  \/  |
++               | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
++               |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
++               | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
++               |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
++
++                    FreeFOAM: The Cross-Platform CFD Toolkit
++
++  Copyright (C) 2008-2012 Michael Wild themiwi@users.sf.net
++                          Gerber van der Graaf gerber_graaf@users.sf.net
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++  License
++    This file is part of FreeFOAM.
++
++    FreeFOAM is free software: you can redistribute it and/or modify it
++    under the terms of the GNU General Public License as published by the
++    Free Software Foundation, either version 3 of the License, or (at your
++    option) any later version.
++
++    FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
++    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++    for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
++
++  Description
++    Generates chunked XHTML documents from DocBook XML source using DocBook XSL
++    stylesheets.
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
++
+ <!DOCTYPE xsl:stylesheet
+ [
+   <!ENTITY nbsp "&#160;">
+--- a/data/asciidoc/docbook-xsl/common.xsl
++++ b/data/asciidoc/docbook-xsl/common.xsl
+@@ -1,8 +1,38 @@
+-<!--
+-  Inlcuded in xhtml.xsl, xhtml.chunked.xsl, htmlhelp.xsl.
+-  Contains common XSL stylesheets parameters.
+-  Output documents styled by docbook.css.
+--->
++<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++                ______                _     ____          __  __
++               |  ____|             _| |_  / __ \   /\   |  \/  |
++               | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
++               |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
++               | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
++               |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
++
++                    FreeFOAM: The Cross-Platform CFD Toolkit
++
++  Copyright (C) 2008-2012 Michael Wild themiwi@users.sf.net
++                          Gerber van der Graaf gerber_graaf@users.sf.net
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++  License
++    This file is part of FreeFOAM.
++
++    FreeFOAM is free software: you can redistribute it and/or modify it
++    under the terms of the GNU General Public License as published by the
++    Free Software Foundation, either version 3 of the License, or (at your
++    option) any later version.
++
++    FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
++    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++    for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
++
++  Description
++      Inlcuded in xhtml.xsl, xhtml.chunked.xsl, htmlhelp.xsl.
++      Contains common XSL stylesheets parameters.
++      Output documents styled by docbook.css.
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
++
+ <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+ <xsl:include href="orig-common.xsl"/>
+ <!-- Exclude GNU FDL sections from TOC (how to do this with dblatex???) -->
+--- a/data/asciidoc/docbook-xsl/custom.xsl
++++ b/data/asciidoc/docbook-xsl/custom.xsl
+@@ -1,5 +1,37 @@
++<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++                ______                _     ____          __  __
++               |  ____|             _| |_  / __ \   /\   |  \/  |
++               | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
++               |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
++               | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
++               |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
++
++                    FreeFOAM: The Cross-Platform CFD Toolkit
++
++  Copyright (C) 2008-2012 Michael Wild themiwi@users.sf.net
++                          Gerber van der Graaf gerber_graaf@users.sf.net
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++  License
++    This file is part of FreeFOAM.
++
++    FreeFOAM is free software: you can redistribute it and/or modify it
++    under the terms of the GNU General Public License as published by the
++    Free Software Foundation, either version 3 of the License, or (at your
++    option) any later version.
++
++    FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
++    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++    for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
++
++  Description
++      Custom parameters and user templates.
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
++
+ <!--
+-  Custom parameters and user templates.
+ -->
+ 
+ <!DOCTYPE xsl:stylesheet
+--- a/data/asciidoc/docbook-xsl/xhtml.xsl
++++ b/data/asciidoc/docbook-xsl/xhtml.xsl
+@@ -1,7 +1,36 @@
+-<!--
+-  Generates chunked XHTML documents from DocBook XML source using DocBook XSL
+-  stylesheets.
+--->
++<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++                ______                _     ____          __  __
++               |  ____|             _| |_  / __ \   /\   |  \/  |
++               | |__ _ __ ___  ___ /     \| |  | | /  \  | \  / |
++               |  __| '__/ _ \/ _ ( (| |) ) |  | |/ /\ \ | |\/| |
++               | |  | | |  __/  __/\_   _/| |__| / ____ \| |  | |
++               |_|  |_|  \___|\___|  |_|   \____/_/    \_\_|  |_|
++
++                    FreeFOAM: The Cross-Platform CFD Toolkit
++
++  Copyright (C) 2008-2012 Michael Wild themiwi@users.sf.net
++                          Gerber van der Graaf gerber_graaf@users.sf.net
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++  License
++    This file is part of FreeFOAM.
++
++    FreeFOAM is free software: you can redistribute it and/or modify it
++    under the terms of the GNU General Public License as published by the
++    Free Software Foundation, either version 3 of the License, or (at your
++    option) any later version.
++
++    FreeFOAM is distributed in the hope that it will be useful, but WITHOUT
++    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++    for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with FreeFOAM.  If not, see <http://www.gnu.org/licenses/>.
++
++  Description
++      Generates chunked XHTML documents from DocBook XML source using DocBook XSL
++      stylesheets.
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+ 
+ <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+   xmlns="http://www.w3.org/1999/xhtml"

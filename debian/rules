@@ -9,8 +9,6 @@ CXXFLAGS+=$(CPPFLAGS) -fpermissive
 
 include /usr/share/cdbs/1/class/cmake.mk
 include /usr/share/cdbs/1/rules/debhelper.mk
-## include /usr/share/cdbs/1/class/python-distutils.mk
-#include /usr/share/cdbs/1/rules/patchsys-quilt.mk
 
  
 export OMPI_MCA_plm_rsh_agent=/bin/false
@@ -70,6 +68,7 @@ DEB_CMAKE_EXTRA_FLAGS= 					\
 	-DFOAM_ENABLE_PARMETIS=OFF			\
 	-DCMAKE_SKIP_RPATH=OFF				\
 	-DFOAM_ENABLE_CCMIO=OFF				\
+        -DBUILD_TESTING=OFF				\
 	-DFOAM_ENABLE_FULL_TUTORIAL_TEST=OFF		\
 	$(FF_CONFIG_THIRD_PARTY)			\
 	$(FF_DOC)					\
