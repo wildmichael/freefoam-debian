@@ -114,12 +114,3 @@ License: PSF-2 and GPL-3+
  .
  By copying, installing or otherwise using Python, Licensee agrees to be bound
  by the terms and conditions of this License Agreement.
-
-Files: ./applications/utilities/surface/surfaceCoarsen/bunnylod/progmesh.h
-Copyright: (c) 1998, Stan Melax <melax@cs.ualberta.ca>
-License: UNKNOWN
-
-Files: ./applications/utilities/surface/surfaceCoarsen/bunnylod/rabdata.h
-Copyright: 1996, Viewpoint Datalabs Int'l, www.viewpoint.com, 1-800-DATASET
-License: UNKNOWN
-
