@@ -1,0 +1,8 @@
+because of non-free or non-distributable files the following have been removed:
+the freefoam-surfaceCoarsen utility
+
+the userd plugin for Paraview to convert ensight data:
+Files:
+ ./applications/utilities/postProcessing/graphics/ensightFoamReader/global_extern.h 
+ ./applications/utilities/postProcessing/graphics/ensightFoamReader/global_extern_proto.h
+Copyright: 1998, Computational Engineering International, Inc
