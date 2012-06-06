@@ -31,10 +31,6 @@ License: GPL-3+
  License version 3 can be found in the file
  '/usr/share/common-licenses/GPL-3'
 
-Files: ./applications/utilities/postProcessing/graphics/ensightFoamReader/global_extern.h  ./applications/utilities/postProcessing/graphics/ensightFoamReader/global_extern_proto.h
-Copyright: 1998, Computational Engineering International, Inc
-License: UNKNOWN
-
 Files: ./data/asciidoc/dblatex/asciidoc-dblatex.xsl ./data/asciidoc/docbook-xsl/chunked.xsl  ./data/asciidoc/docbook-xsl/common.xsl ./data/asciidoc/docbook-xsl/custom.xsl  ./data/asciidoc/docbook-xsl/xhtml.xsl ./data/python/FreeFOAM/doxyFilter.py ./data/python/FreeFOAM/doxyToAsciidoc.py ./data/python/FreeFOAM/path.py  ./data/python/FreeFOAM/run.py ./data/python/FreeFOAM/tutorial.py ./data/python/FreeFOAM/util.py ./data/utilities/db2md.xsl ./applications/utilities/postProcessing/graphics/fieldview9Reader/errno.c ./data/editor-modes/foamdict-mode.el
 Copyright: 2008-2012, Michael Wild <themiwi@users.sf.net>
 License: GPL-3+

@@ -1,8 +1,10 @@
-because of non-free or non-distributable files the following have been removed:
-the freefoam-surfaceCoarsen utility
+The following non-free or non-distributable files the following have been removed:
+./applications/utilities/surface/surfaceCoarsen/bunnylod/rabdata.h
+./applications/utilities/surface/surfaceCoarsen/bunnylod/rabdata.C
+These file are not used.
 
-the userd plugin for Paraview to convert ensight data:
-Files:
- ./applications/utilities/postProcessing/graphics/ensightFoamReader/global_extern.h 
- ./applications/utilities/postProcessing/graphics/ensightFoamReader/global_extern_proto.h
-Copyright: 1998, Computational Engineering International, Inc
+The userd plugin for Paraview to convert ensight data has been desibled because 
+of the non-free files:
+./applications/utilities/postProcessing/graphics/ensightFoamReader/global_extern.h
+./applications/utilities/postProcessing/graphics/ensightFoamReader/global_extern_proto.h
+
