@@ -11,7 +11,7 @@ Build-Depends: cdbs, debhelper (>= 5.0.24), python-support, cmake, flex,
  gawk, python, libreadline6-dev, zlib1g-dev, libscotch-dev, 
  mpi-default-dev, mpi-default-bin, paraview (>= 3.8), doxygen, 
  libjs-jquery, asciidoc, xmlto, docbook-utils, dvipng, asymptote, 
- texlive-science, dblatex, dpkg-dev (>= 1.16.1~)
+ texlive-science, dblatex, dpkg-dev (>= 1.16.1~), graphviz
 Standards-Version: 3.9.3
 
 Package: libfreefoam
