@@ -1,3 +1,14 @@
+freefoam (0.1.0+dfsg-1ubuntu1) UNRELEASED; urgency=low
+
+  * [bcc03ba] Build docs only as needed by splitting build-arch and
+    build-indep. This is part of fixing #685114, but doesn't actually fix real
+    problem.
+  * [8372fb3] Allow non-Intel-architecture CPUs in FOAMDetermineArch.make
+    - Added d/p/allow-non-intel-arch-cpus.diff
+    (Closes: #685112)
+
+ -- Michael Wild <themiwi@users.sourceforge.net>  Sat, 18 Aug 2012 20:24:19 +0200
+
 freefoam (0.1.0+dfsg-1) unstable; urgency=low
 
   * [92ca47f] New upstream version 0.1.0+dfsg (Closes: #682928)
