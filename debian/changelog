@@ -1,3 +1,55 @@
+freefoam (0.1.2-1) experimental; urgency=low
+
+  * [84c7923] New upstream version 0.1.2
+  * [162a878] Removed debian/patches/spelling.diff. Fixed in upstream.
+  * [881573d] Removed debian/patches/copyright.diff. This information belongs
+    into debian/copyright
+  * [d834177] Removed debian/patches/userd.diff, upstream removed that part
+  * [86c646e] Build man-pages from source, remove pre-compiled copies in
+    debian/man1
+  * [0452a37] Build HTML version of UserGuide, depend on libjs-mathjax
+  * [e0e97d7] Added missing build-deps: graphviz
+  * [0a2c68d] Move to straight dh sequencer with parallel builds enabled
+    - The debhelper version present in Ubuntu precise doesn't contain the fix
+      for the CPPFLAGS variable being ignored by CMake (#668813), so also add
+      the manual workaround, just to make sure.
+    - Removed build-depends on cdbs
+    - Bumped minimum required version of debhelper to 7.0.50~.
+    - Keep dh_installchangelogs from trying to install doc/changes/ as a file
+  * [63668d2] Split off Python module into python{,3}-freefoam, move to
+    dh_python*
+    - Changed build-dependency from python-all to simply python added new
+    - Build-depends on python3
+    - Add X-Python{,3}-Version tags
+  * [59cd2fe] Install private binaries into /usr/lib/freefoam/bin
+  * [2a39577] Fix bogus lintian override
+  * [1240767] Cleanup debian/control, fix Homepage/Source entries
+  * [703e36b] Make debian/copyright complete, cleanup
+  * [b87d5f9] Do not version plugins directory
+  * [037f959] Properly assign files to correct package in debian/*.install.
+    Requires new build-depends on bash-completion.
+  * [2bdf7d5] Link docs of freefoam-{dev,user}-docs into
+    /usr/share/docs/freefoam
+  * [36a0288] Added debian/patches/disable-git-version-check.diff. Instead of
+    querying git about the build number, use the Debian version.
+  * [981346d] Override warnings about useless ldconfig calls
+  * [e4c2b99] Add Michael Wild to the uploaders
+  * [02f2ab1] Added debian/patches/fix-doc-urls-and-references-for-debian.diff.
+    Update the installation directories accordingly in
+    debian/freefoam-*-doc.install.
+  * [63e9652] Added debian/patches/remove-hard-coded-python-modules-path.diff.
+    For the build to work it is now required to set the PYTHONPATH environment
+    variable in debian/rules.
+  * [06d66a3] Add multiarch support
+  * [658f053] Create debug-symbols packages {lib,}freefoam-dbg
+  * [13446a4] Build hardened libraries and executables. This requires
+    CMake/FOAMUtilities.cmake to be patched, otherwise it would be impossible
+    to pass the PIE flags to the executables only in CMake.
+    - Added d/p/add-DEB_EXE_COMPILE_LINKER_FLAGS-to-build-system.diff
+    - Added a build-depends on hardening-includes
+
+ -- Michael Wild <themiwi@users.sourceforge.net>  Thu, 26 Jul 2012 09:15:45 +0200
+
 freefoam (0.1.0-1)  unstable; urgency=low
 
    * Initial Release. Closes: #528662
