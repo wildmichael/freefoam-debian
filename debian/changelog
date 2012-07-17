@@ -1,3 +1,56 @@
+freefoam (0.1.0+dfsg-1) unstable; urgency=low
+
+  * [92ca47f] New upstream version 0.1.0+dfsg (Closes: #682928)
+  * [e07e2f1] Removed d/p/copyright.diff.
+    This information belongs into debian/copyright and the CHEMKIN ckinterp.f
+    file has been removed by the 0.1.0+dfsg import.
+  * [300a38d] Remove DFSG-deleted directories from the build system
+    - Added d/p/remove-dfsg-deleted-directories-from-build-system.diff
+    - Removed d/p/userd.diff.
+  * [5ff801c] Update documentation and completion scripts for DFSG-cleaning
+    - Added d/p/update-for-removed-apps.diff
+  * [d813ede] Added missing build-deps: graphviz (Closes: #682940)
+  * [6a280d2] Fix FTBFS with GCC-4.7 because of non-qualified
+    template-dependent names
+    - Added d/p/missing-qualifications-of-template-dependent-names.diff
+    - Removed the -fpermissive flag from CXXFLAGS.
+    (Closes: #682927)
+  * [a669cc7] Fix bogus lintian override
+  * [a414aa0] Make debian/copyright complete, cleanup (Closes: #682942)
+  * [7f41940] Fix /usr/share/freefoam/DoxyDocIndex installation, fix name
+    mangling
+    - Install it into freefoam-dev-doc package instead of libfreefoam-dev
+    - Add d/p/doxygen-generated-file-names-breakage.diff to fix the name
+      mangling issue
+    - Add d/p/fix-api-doc-location.diff to fix the API documentation
+      location in DoxyDocIndex.
+    (Closes: #682934)
+  * [c14eda9] Fix error in freefoam-log when operating on truncated log files
+    - Add d/p/handle-truncated-logs-in-freefoam-log.diff
+    (Closes: #682931)
+  * [f35bb9c] Fix freefoam-log to create logs/ directory in the case
+    directory, not $PWD
+    - Added d/p/correct-output-directory-for-freefoam-log.diff
+    (Closes: #682932)
+  * [6de0d22] Rename the libfreefoam package to libfreefoam1
+    - This is to be compliant with policy 8.2
+    - Also rename the plugins0 directory to plugins1 to honour the same policy
+    (Closes: 682953)
+  * [d2767a3] Install *.so links into the libfreefoam-dev package, not
+    libfreefoam1 (Closes: #682943)
+  * [a307676] Add Michael Wild to the uploaders
+  * [199ae68] Escape meta-characters before creating doc/Doxygen/filter.py
+    - Added d/p/escape-meta-chars-for-doxygen-filter.diff
+  * [6f94315] Fix installation dirs for template files (Closes: #683175)
+  * [b5cc1ea] Install foamLog.db into the freefoam binary package
+    (Closes: #683176)
+  * [149cf7e] Install Doxygen CSS and image resources, update FoamHeader.html
+    - In d/freefoam-dev-doc.install install the css/ and img/ folders
+    - Update doc/Doxygen/FoamHeader.hmtl to Doxygen version 1.8.1.2
+    (Closes: #683369)
+
+ -- Michael Wild <themiwi@users.sourceforge.net>  Tue, 31 Jul 2012 15:32:35 +0200
+
 freefoam (0.1.0-1)  unstable; urgency=low
 
    * Initial Release. Closes: #528662
