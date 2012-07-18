@@ -55,7 +55,7 @@ override_dh_auto_configure:
 	  -DFOAM_INSTALL_LIBEXEC_PATH=/usr/lib/$(FF_SUBDIR)/bin                     \
 	  -DFOAM_INSTALL_LIBRARY_PATH=/usr/lib/$(FF_SUBDIR)                         \
 	  -DFOAM_INSTALL_MAN_PATH=/usr/share/man                                    \
-	  -DFOAM_INSTALL_PLUGIN_PATH=/usr/lib/$(FF_SUBDIR)/plugins0                 \
+	  -DFOAM_INSTALL_PLUGIN_PATH=/usr/lib/$(FF_SUBDIR)/plugins                  \
 	  -DFOAM_INSTALL_TUTORIALS_PATH=/usr/share/doc/$(FF_SUBDIR)                 \
 	  -DFOAM_INSTALL_PYTHON_PATH=/usr/lib/python                                \
 	                                                                            \
