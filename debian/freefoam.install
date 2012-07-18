@@ -1,4 +1,7 @@
 debian/tmp/usr/bin/* /usr/bin
+debian/tmp/usr/lib/freefoam/bin/* /usr/lib/freefoam/bin
 debian/tmp/usr/share/man/man1/* /usr/share/man/man1
+debian/tmp/usr/share/freefoam/utilities/foamUpdateCaseFileHeader debian/tmp/usr/share/freefoam/utilities/foamUpgradeTurbulenceProperties /usr/share/freefoam/utilities
+debian/tmp/usr/share/freefoam/foamLog.db /usr/share/freefoam
 debian/tmp/etc/freefoam/* /etc/freefoam
-data/shellFunctions/bashCompletion/freefoam /etc/bash_completion.d
+data/shellFunctions/zshCompletion/_freefoam /usr/share/zsh/functions/Completion/FreeFOAM

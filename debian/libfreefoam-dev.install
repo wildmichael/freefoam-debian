@@ -1,2 +1,4 @@
 debian/tmp/usr/include/* /usr/include
-debian/tmp/usr/share/freefoam/* /usr/share/freefoam/
+debian/tmp/usr/lib/freefoam/*.so /usr/lib/freefoam
+debian/tmp/usr/share/freefoam/utilities/wmakeToCMake.cmake debian/tmp/usr/share/freefoam/utilities/foamPNGMathFilter debian/tmp/usr/share/freefoam/utilities/doxyToX debian/tmp/usr/share/freefoam/utilities/foamNew debian/tmp/usr/share/freefoam/utilities/extractBrief /usr/share/freefoam/utilities
+debian/tmp/usr/share/freefoam/asciidoc debian/tmp/usr/share/freefoam/templates debian/tmp/usr/share/freefoam/CMake /usr/share/freefoam

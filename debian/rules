@@ -22,7 +22,7 @@ CXXFLAGS+=$(CPPFLAGS)
 
 # Catch-all rule
 %:
-	dh $@ -B$(BUILD_DIR) --parallel --with=python2,python3
+	dh $@ -B$(BUILD_DIR) --parallel --with=python2,python3,bash-completion
 
 
 override_dh_auto_configure:

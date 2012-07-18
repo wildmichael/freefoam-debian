@@ -5,5 +5,5 @@ Abstract: This manual describes the internal library structures of FreeFOAM, gen
 Section: Programming
 
 Format: html
-Index: /usr/share/doc/freefoam-dev-doc/api/index.html
-Files: /usr/share/doc/freefoam-dev-doc/api/*.html
+Index: /usr/share/doc/freefoam-dev-doc/API/index.html
+Files: /usr/share/doc/freefoam-dev-doc/API/*.html
