@@ -1,7 +1,7 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: FreeFOAM
 Upstream-Contact: Michael Wild <themiwi@users.sourceforge.net>
-Source: http://freefoam.wiki.sourceforge.net/
+Source: http://freefoam.sourceforge.net/
 
 Files: ./applications/utilities/surface/surfaceCoarsen/bunnylod/font.h  ./applications/utilities/surface/surfaceCoarsen/bunnylod/list.h  ./applications/utilities/surface/surfaceCoarsen/bunnylod/vector.h
 Copyright: (c) 1998, Stan Melax <melax@cs.ualberta.ca>

@@ -5,8 +5,7 @@ Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.
 Uploaders: Gerber van der Graaf <gerber_graaf@users.sourceforge.net>
 Vcs-Git: git://git.debian.org/git/debian-science/packages/freefoam.git
 Vcs-Browser: http://git.debian.org/?p=debian-science/packages/freefoam.git
-DM-Upload-Allowed: yes
-Homepage: http://freefoam.wiki.sourceforge.net/
+Homepage: http://freefoam.sourceforge.net/
 Build-Depends: debhelper (>= 9), cmake, flex, gawk,
  python (>=2.6.6-3~), python3, libreadline6-dev, zlib1g-dev, libscotch-dev,
  mpi-default-dev, mpi-default-bin, paraview (>= 3.8), doxygen,
@@ -32,6 +31,7 @@ Package: libfreefoam-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, libfreefoam (= ${binary:Version}), ${python:Depends}
+Suggests: freefoam-dev-doc (= ${binary:Version})
 Description: libraries for Computational Fluid Dynamics (CFD) - development files
  Libraries and modules for grid generation, simulation and analyzing of
  complex fluid flows, post-processing and visualizing of the resulting
@@ -39,7 +39,7 @@ Description: libraries for Computational Fluid Dynamics (CFD) - development file
  transfer, solid dynamics, electromagnetics and even the pricing of
  financial options. FreeFOAM is a fork of OpenFOAM.
  .
- This package contains static linked libraries, headers and templates
+ This package contains headers and file templates
 
 Package: python-freefoam
 Section: python
@@ -70,8 +70,8 @@ Description: software for Computational Fluid Dynamics - Python3 files
 Package: freefoam
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, libfreefoam (= ${binary:Version}),
- python-freefoam (= ${source:Version}), ${python:Depends}, mpi-default-bin,
- tcsh | csh | c-shell
+ python-freefoam (= ${source:Version}), ${python:Depends}, mpi-default-bin
+Suggests: freefoam-user-doc (= ${binary:Version})
 Description: programs for Computational Fluid Dynamics (CFD)
  A collection of solvers and utility programs for grid generation,
  simulation and analyzing of complex fluid flows, post-processing and
@@ -86,7 +86,6 @@ Package: freefoam-user-doc
 Section: doc
 Architecture: all
 Depends: ${misc:Depends}, libjs-mathjax
-Recommends: python
 Description: software for Computational Fluid Dynamics - user documentation
  Tutorials and user documentation for a collection of programs for
  grid generation, simulation and analyzing of complex fluid flows,
@@ -99,7 +98,6 @@ Package: freefoam-dev-doc
 Section: doc
 Architecture: all
 Depends: ${misc:Depends}
-Recommends: python
 Description: software for Computational Fluid Dynamics - developers documentation
  Library references and developers documentation for a collection of
  programs for grid generation, simulation and analyzing of complex
