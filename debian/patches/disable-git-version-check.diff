@@ -1,0 +1,55 @@
+From: Michael Wild <themiwi@users.sourceforge.net>
+Subject: Disable git version check
+Date: 2012-07-20 17:19:19.000000000 +0200
+
+The git hash of the packaging repository is of little use to the users. Hence
+replace that information with the Debian package version suffix instead.
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ CMakeLists.txt |   24 ------------------------
+ 1 file changed, 24 deletions(-)
+
+Index: freefoam/CMakeLists.txt
+===================================================================
+--- freefoam.orig/CMakeLists.txt	2012-07-20 17:19:19.000000000 +0200
++++ freefoam/CMakeLists.txt	2012-07-20 17:54:26.276352543 +0200
+@@ -643,36 +643,12 @@
+ 
+ # set up version info checks and updating of global.C
+ set(FOAM_HAVE_GIT FALSE)
+-if(EXISTS "${CMAKE_SOURCE_DIR}/.git/config")
+-  find_package(Git)
+-  if(GIT_FOUND)
+-    set(FOAM_HAVE_GIT TRUE)
+-    option(FOAM_VERSION_CHECK_WARN_ONLY
+-      "Only warn if the version numbers are wrong" FALSE)
+-    mark_as_advanced(FOAM_VERSION_CHECK_WARN_ONLY)
+-    configure_file(CMake/ConfigureGlobalC.cmake.in
+-      "${CMAKE_BINARY_DIR}/CMake/ConfigureGlobalC.cmake" @ONLY)
+-    add_custom_target(version_check ALL
+-      COMMAND "${PYTHON_EXECUTABLE}"
+-        "${CMAKE_BINARY_DIR}/data/utilities/checkVersionInfo.py"
+-        ${_CHECK_VERSION_INFO_ARGS}
+-      DEPENDS "${CMAKE_BINARY_DIR}/data/utilities/checkVersionInfo.py"
+-      COMMENT "Checking version information"
+-      VERBATIM)
+-  else()
+-    message(WARNING
+-      "Not performing version checks because GIT_EXECUTABLE is missing")
+-  endif()
+-else()
+-  message(STATUS
+-    "Not performing version checks because not in a Git checkout")
+-endif()
+ 
+ if(NOT FOAM_HAVE_GIT)
+-  if(NOT EXISTS ${CMAKE_SOURCE_DIR}/.build.cmake)
++  if(NOT EXISTS ${CMAKE_BINARY_DIR}/.build.cmake)
+     message(SEND_ERROR "If not in a Git checkout, .build.cmake is required")
+   endif()
+-  include(${CMAKE_SOURCE_DIR}/.build.cmake)
++  include(${CMAKE_BINARY_DIR}/.build.cmake)
+ endif()
+ 
+ # helper variables to force linking on some systems

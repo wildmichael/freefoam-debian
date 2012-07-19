@@ -26,6 +26,10 @@ CXXFLAGS+=$(CPPFLAGS)
 
 
 override_dh_auto_configure:
+	mkdir -p $(BUILD_DIR)
+	dpkg-parsechangelog |                                                       \
+	  awk '/^Version:/{printf("set(FOAM_BUILD_NUMBER \"debian%s\")", gensub(/^([0-9]+\.)+[0-9]+/,"",1,$$2))}' > \
+	  $(BUILD_DIR)/.build.cmake
 	dh_auto_configure --                                                        \
 	  -DCMAKE_BUILD_TYPE=Release                                                \
 	  -DCMAKE_CXX_FLAGS_RELEASE="-DNDEBUG"                                      \
