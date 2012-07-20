@@ -72,7 +72,7 @@ for(int i=0; i < ind1_list.length; ++i) {
   triple pt2 = corners[ind2_list[i]];
   path3 line = (pt1--pt2);
   pen p = black;
-  if(hidden[i]) p = linetype(new real[] {8,16});
+  if(hidden[i]) p = linetype("8 16");
   draw(line,p);
 }
 

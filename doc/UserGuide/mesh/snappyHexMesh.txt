@@ -33,7 +33,7 @@ understand, even though the `snappyHexMesh` is a 3D meshing tool.
 In order to run `snappyHexMesh`, the user requires the following:
 
 - surface data files in STL format, either binary or ASCII, located in a
-  dirname:triSurface[] sub-directory of the case directory;
+  dirname:constant/triSurface[] sub-directory of the case directory;
 - a background hex mesh which defines the extent of the computational domain
   and a base level mesh density; typically generated using `blockMesh`,
   discussed in <<sec_snappyHexMeshBaseMesh>>.

@@ -133,9 +133,10 @@ conditions are reached:
 The solver tolerance should represent the level at which the residual is small
 enough that the solution can be deemed sufficiently accurate. The solver
 relative tolerance limits the relative improvement from initial to final
-solution. It is quite common to set the solver relative tolerance to 0 to force
-the solution to converge to the solver tolerance. The tolerances, `tolerance`
-and `relTol` must be specified in the dictionaries for all solvers.
+solution. In transient simulations, it is usual to set the solver relative
+tolerance to 0 to force the solution to converge to the solver tolerance in
+each time step. The tolerances, `tolerance` and `relTol` must be specified in
+the dictionaries for all solvers; `maxIter` is optional.
 
 ===== Preconditioned conjugate gradient solvers
 

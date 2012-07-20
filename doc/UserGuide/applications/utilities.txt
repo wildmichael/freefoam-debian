@@ -346,7 +346,7 @@ temperatures and equivalence ratios; the effects of dissociation on
 math:[\text{O}_2], math:[\text{H}_2\text{O}] and math:[\text{CO}_2] are
 included
 | `IFCLookUpTableGen`(((`IFCLookUpTableGen` utility)))
-(((utility,`IFCLookUpTableGen`))) | Calculate the the infinitely-fast chemistry
+(((utility,`IFCLookUpTableGen`))) | Calculate the infinitely-fast chemistry
 relationships in function of ft. for a given fuel. The output is given in moles
 | `mixtureAdiabaticFlameT`(((`mixtureAdiabaticFlameT` utility)))
 (((utility,`mixtureAdiabaticFlameT`))) | Calculates the adiabatic flame

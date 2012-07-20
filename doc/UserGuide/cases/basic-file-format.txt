@@ -45,7 +45,7 @@ Most {project} data files are themselves dictionaries containing a set of
 keyword entries. Dictionaries provide the means for organising entries into
 logical categories and can be specified hierarchically so that any dictionary
 can itself contain one or more dictionary entries. The format for a dictionary
-is to specify the dictionary name followed the the entries enclosed in curly
+is to specify the dictionary name followed the entries enclosed in curly
 braces \{\} as follows
 
 -------------------------------------------------------------------------------
@@ -274,9 +274,9 @@ These entries have the format that the following example of a
 nu nu [0 2 -1 0 0 0 0] 1;
 -------------------------------------------------------------------------------
 
-The first `nu` is the keyword; the second `nu` is the word name stored in class
-`word`, usually chosen to be the same as the keyword; the next entry is the
-`dimensionSet` and the final entry is the `scalar` value.
+The first `nu` is the keyword; the second `nu` is the `word` name stored in
+class `dimensionSet`, usually chosen to be the same as the keyword; the next
+entry is the `dimensionSet` and the final entry is the `scalar` value.
 
 [[sec_fieldData]]
 ==== Fields

@@ -9,6 +9,7 @@ v{fullver}, {localdate}
 :asciidoc: http://www.methods.co.nz/asciidoc[Asciidoc]
 :bash: http://www.gnu.org/software/bash/[BASH]
 :cd-adapco: http://www.cd-adapco.com[CD-adapco]
+:cmake: http://cmake.org
 :dblatex: http://dblatex.sourceforge.net[dblatex]
 :debian: http://debian.org[Debian]
 :dvipng: http://sourceforge.net/projects/dvipng[dvipng]
@@ -21,9 +22,9 @@ v{fullver}, {localdate}
 :metis: http://freefoam.sf.net/nonfree/metis-5.0.1.tar.gz
 :mgridgen: http://freefoam.sf.net/nonfree/ParMGridGen-1.0.tar.gz
 :parmetis: http://freefoam.sf.net/nonfree/ParMetis-3.1.tar.gz
-:scotch: http://master.dl.sourceforge.net/project/freefoam/ThirdParty/scotch/scotch_5.1.7.dfsg.orig.tar.gz
-:tarball: http://master.dl.sourceforge.net/sourceforge/freefoam/freefoam-{fullver}.tar.bz2
-:zlib: http://master.dl.sourceforge.net/project/freefoam/ThirdParty/zlib/zlib-1.2.5.tar.gz
+:scotch: http://sourceforge.net/projects/freefoam/files/ThirdParty/scotch/scotch_5.1.7.dfsg.orig.tar.gz
+:tarball: http://sourceforge.net/projects/freefoam/files/FreeFOAM/{fullver}/freefoam-{fullver}.tar.bz2/download
+:zlib: http://sourceforge.net/projects/freefoam/files/ThirdParty/zlib/zlib-1.2.5.tar.gz
 :zsh: http://www.zsh.org/[ZSH]
 
 Obtaining the Prerequisites
@@ -39,18 +40,48 @@ them.
 
 You can obtain the source packages from the following URLs:
 
-'zlib'::
-  {zlib}
+'libccmio'::
+  {libccmio}
 'METIS'::
   {metis}
+'MGRIDGEN'::
+  {mgridgen}
 'ParMetis'::
   {parmetis}
 'scotch'::
   {scotch}
-'MGRIDGEN'::
-  {mgridgen}
-'libccmio'::
-  {libccmio}
+'zlib'::
+  {zlib}
+
+On a Ubuntu or Debian installation you can install the prerequisites as follows
+
+---------------------------------------------------------------------------
+$ apt-get install cmake-curses-gui build-essential flex bison zlib1g-dev \
+    python paraview m4 libreadline-dev
+---------------------------------------------------------------------------
+
+Note that Debian Squeeze (the stable version at the time of this writing) and
+Ubuntu 10.10 (Maverick Meerkat) contain too old versions of CMake. However, it
+is very easy to download a binary distribution of CMake from {cmake} and use it
+directly, no special installation required. Newer versions of these operating
+systems contain more up-to-date versions of CMake.
+
+The optional 'ParMetis' graph partitioning library and the
+parallel-communications library can be installed with
+
+---------------------------------------------------------------------------
+$ apt-get install libparmetis-dev mpi-default-dev mpi-default-bin
+---------------------------------------------------------------------------
+
+Make sure that you have the 'multiverse' (Ubuntu) or 'non-free' (Debian)
+repositories enabled if you want to install the 'libparmetis-dev' package.
+
+The dependencies for the generation of the documentation can be installed with
+
+---------------------------------------------------------------------------
+$ apt-get install asciidoc docbook-xsl libxml2-utils asymptote graphviz \
+    doxygen dblatex texlive-latex-extra texlive-fonts-recommended
+---------------------------------------------------------------------------
 
 [[installation]]
 Building {project}
@@ -64,7 +95,7 @@ Building {project}
 ---------------------------------------------------------------------------
 $ mkdir -p $HOME/Source
 $ cd $HOME/Source
-$ wget {tarball}
+$ wget -O freefoam-{fullver}.tar.bz2 {tarball}
 $ tar xjf freefoam-{fullver}.tar.bz2
 ---------------------------------------------------------------------------
 - Create a build tree and _cd_ into it:
@@ -367,6 +398,9 @@ KEEP ALPHABETICALLY SORTED!
   Automatically download and build 'MGRIDGEN'.
 +FOAM_BUILD_PRIVATE_PARMETIS+::
   Automatically download and build 'ParMetis'.
++FOAM_BUILD_PRIVATE_SCOTCH+::
+  [[private-scotch]]
+  Automatically download and build 'SCOTCH'.
 +FOAM_BUILD_PRIVATE_ZLIB+::
   Automatically download and build the 'ZLIB' compression library.
 +FOAM_DEFAULT_PSTREAM+::

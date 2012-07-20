@@ -57,9 +57,11 @@ class FilePathParser(HTMLParser.HTMLParser):
             self.inNavPath = True
          elif ('class', 'headertitle') in attrs:
             self.inHeaderTitle = True
+      elif tag == 'h1':
+         self.inHeaderTitle = True
 
    def handle_endtag(self, tag):
-      if tag == 'div':
+      if tag in ('div', 'h1'):
          if self.inNavPath:
             self.inNavPath = False
          elif self.inHeaderTitle:
@@ -127,7 +129,11 @@ for f in glob.glob(glob_pattern):
 echo('- Computing mangled file names')
 sources = set(htmlDocMap.values())
 docMap = dict(zip(sources, sources))
+baseNames = []
 for b in map(op.basename, docMap.values()):
+   if b in baseNames:
+      continue
+   baseNames.append(b)
    subDocMap = dict(
          filter(lambda hd: op.basename(hd[0])==b, docMap.items()))
    if len(subDocMap) == 1:

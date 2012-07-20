@@ -154,7 +154,7 @@ void processorPointPatchField<Type>::swapAdd(Field<Type>& pField) const
             }
         }
 
-        addToInternalField(pField, pnf);
+        this->addToInternalField(pField, pnf);
     }
 }
 

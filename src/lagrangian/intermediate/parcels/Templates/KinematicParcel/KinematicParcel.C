@@ -119,7 +119,20 @@ void Foam::KinematicParcel<ParcelType>::calc
 
     // Calculate new particle velocity
     vector U1 =
-        calcVelocity(td, dt, cellI, Re, muc_, d0, U0, rho0, mass0, Su, dUTrans);
+        this->calcVelocity
+        (
+            td,
+            dt,
+            cellI,
+            Re,
+            muc_,
+            d0,
+            U0,
+            rho0,
+            mass0,
+            Su,
+            dUTrans
+        );
 
 
     // Accumulate carrier phase source terms

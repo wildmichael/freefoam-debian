@@ -54,7 +54,7 @@ void Foam::fileFormats::WRLsurfaceFormat<Face>::write
     (
         surf.surfZones().size() > 1
       ? surf.surfZones()
-      : oneZone(faceLst, "")
+      : WRLsurfaceFormat::oneZone(faceLst, "")
     );
 
     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);

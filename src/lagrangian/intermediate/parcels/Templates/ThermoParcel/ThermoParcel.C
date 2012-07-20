@@ -180,7 +180,20 @@ void Foam::ThermoParcel<ParcelType>::calc
 
     // Calculate new particle velocity
     vector U1 =
-        calcVelocity(td, dt, cellI, Re, mus, d0, U0, rho0, mass0, Su, dUTrans);
+        this->calcVelocity
+        (
+            td,
+            dt,
+            cellI,
+            Re,
+            mus,
+            d0,
+            U0,
+            rho0,
+            mass0,
+            Su,
+            dUTrans
+        );
 
 
     //  Accumulate carrier phase source terms

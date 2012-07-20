@@ -48,7 +48,7 @@ foam_configure_files(installFiles DESTDIR ${TUTORIAL_DIR}
   constant/polyMesh/blockMeshDict
   constant/polyMesh/boundary
   constant/transportProperties
-  constant/triSurface/motorBike.stl
+  constant/triSurface/motorBike.obj.gz
   system/controlDict
   system/decomposeParDict
   system/fvSchemes

@@ -7,9 +7,9 @@
   xmlns="http://www.w3.org/1999/xhtml"
   version="1.0">
 
-<xsl:include href="orig-xhtml.xsl"/>
+<xsl:import href="orig-xhtml.xsl"/>
 
-<xsl:include href="custom.xsl"/>
+<xsl:import href="custom.xsl"/>
 
 <xsl:template name="user.header.content">
   <xsl:call-template name="foam.header.content"/>

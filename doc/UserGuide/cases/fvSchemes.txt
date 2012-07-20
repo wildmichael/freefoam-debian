@@ -221,7 +221,7 @@ Gamma differencing
 
 There are enhanced versions of some of the limited schemes for scalars that
 need to be strictly bounded. To bound between user-specified limits, the scheme
-name should be preprended by the word `limited` and followed by the lower and
+name should be preceded by the word `limited` and followed by the lower and
 upper limits respectively. For example, to bound the `vanLeer` scheme strictly
 between -2 and 3, the user would specify:
 
@@ -244,7 +244,7 @@ Strictly bounded versions are available for the following schemes:
 ===== Schemes for vector fields
 
 There are improved versions of some of the limited schemes for vector fields in
-which the limited is formulated to take into account the direction of the
+which the limiter is formulated to take into account the direction of the
 field. These schemes are selected by adding `V` to the name of the general
 scheme, 'e.g.'`limitedLinearV` for `limitedLinear`. `V' versions are available
 for the following schemes: +limitedLinearV+, +vanLeerV+, +GammaV+,
