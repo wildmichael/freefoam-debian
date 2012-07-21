@@ -2,7 +2,9 @@ Source: freefoam
 Section: science
 Priority: optional
 Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
-Uploaders: Gerber van der Graaf <gerber_graaf@users.sourceforge.net>
+Uploaders:
+  Gerber van der Graaf <gerber_graaf@users.sourceforge.net>,
+  Michael Wild <themiwi@users.sourceforge.net>
 Vcs-Git: git://git.debian.org/git/debian-science/packages/freefoam.git
 Vcs-Browser: http://git.debian.org/?p=debian-science/packages/freefoam.git
 Homepage: http://freefoam.sourceforge.net/
