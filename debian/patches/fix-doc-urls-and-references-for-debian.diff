@@ -1,0 +1,172 @@
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Sun, 22 Jul 2012 21:33:06 +0200
+Subject: Fix doc URLs and references for Debian usage
+
+Fix the HTMl doc pages to refer to the FreeFOAM website for the README,
+INSTALL, ChangeLog, ReleaseNotes and COPYING files. Also refer to the css
+and img directories as inside the directory containing the HTML pages because
+they will be installed there for the packaging as the freefoam-user-doc and
+freefoam-dev-doc cannot share them the way that was intended in upstream.
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ data/asciidoc/docbook-xsl/custom.xsl |   23 ++++++++---------------
+ data/asciidoc/html.conf              |   10 +++++-----
+ doc/CMakeLists.txt                   |    2 +-
+ doc/Doxygen/CMakeLists.txt           |    2 +-
+ doc/Doxygen/FoamHeader.html.in       |   10 +++++-----
+ doc/UserGuide/CMakeLists.txt         |    2 +-
+ 6 files changed, 21 insertions(+), 28 deletions(-)
+
+diff --git a/data/asciidoc/docbook-xsl/custom.xsl b/data/asciidoc/docbook-xsl/custom.xsl
+index ae3d55a..bd399e9 100644
+--- a/data/asciidoc/docbook-xsl/custom.xsl
++++ b/data/asciidoc/docbook-xsl/custom.xsl
+@@ -32,7 +32,7 @@
+ <xsl:param name="foam.doc.location">
+   <xsl:choose>
+     <xsl:when test="$foam.man.current">../..</xsl:when>
+-    <xsl:otherwise>..</xsl:otherwise>
++    <xsl:otherwise>.</xsl:otherwise>
+   </xsl:choose>
+ </xsl:param>
+ <!-- doc SF url -->
+@@ -55,14 +55,7 @@
+ 
+ <!-- API doc location -->
+ <xsl:param name="foam.api.location">
+-  <xsl:choose>
+-    <xsl:when test="$foam.api.current">.</xsl:when>
+-    <xsl:when test="$foam.doc.for_sf or $foam.doc.have_doxy">
+-      <xsl:value-of select="concat($foam.doc.location, '/API')"/></xsl:when>
+-    <xsl:otherwise>
+-      <xsl:value-of select="concat($foam.doc.sf_url, '/API')"/>
+-    </xsl:otherwise>
+-  </xsl:choose>
++  <xsl:value-of select="concat($foam.doc.sf_url, '/API')"/>
+ </xsl:param>
+ 
+ <!-- XHTML manpages location -->
+@@ -112,7 +105,7 @@
+           Documentation</a></li>
+       <li>
+         <ul>
+-          <li><a href="{$foam.doc.location}/INSTALL.html">Installation</a></li>
++          <li><a href="{$foam.doc.sf_url}/INSTALL.html">Installation</a></li>
+           <li><a href="{$foam.ug.location}/index.html">
+               <xsl:if test="$foam.ug.current">
+                 <xsl:attribute name="class">current_page</xsl:attribute></xsl:if>
+@@ -121,14 +114,14 @@
+               <xsl:if test="$foam.man.current">
+                 <xsl:attribute name="class">current_page</xsl:attribute></xsl:if>
+               man-pages</a></li>
+-          <li><a href="{$foam.api.location}/index.html">
++          <li><a href="{$foam.doc.sf_url}/index.html">
+               <xsl:if test="$foam.api.current">
+                 <xsl:attribute name="class">current_page</xsl:attribute></xsl:if>
+               API&nbsp;Documentation</a></li>
+-          <li><a href="{$foam.doc.location}/README.html">README</a></li>
+-          <li><a href="{$foam.doc.location}/ReleaseNotes.html">Release Notes</a></li>
+-          <li><a href="{$foam.doc.location}/ChangeLog.html">Changes</a></li>
+-          <li><a href="{$foam.doc.location}/COPYING.html">License</a></li>
++          <li><a href="{$foam.doc.sf_url}/README.html">README</a></li>
++          <li><a href="{$foam.doc.sf_url}/ReleaseNotes.html">Release Notes</a></li>
++          <li><a href="{$foam.doc.sf_url}/ChangeLog.html">Changes</a></li>
++          <li><a href="{$foam.doc.sf_url}/COPYING.html">License</a></li>
+         </ul>
+       </li>
+       <li><a href="http://freefoam.sourceforge.net/support.html">
+diff --git a/data/asciidoc/html.conf b/data/asciidoc/html.conf
+index 326c923..5fc5495 100644
+--- a/data/asciidoc/html.conf
++++ b/data/asciidoc/html.conf
+@@ -141,17 +141,17 @@ endif::foam-use-mathjax[]
+ ifdef::docs-only[]
+           <li>
+             <ul>
+-              <li><a href="{rel-doc}/INSTALL.html"{docfile@.*INSTALL: class="current_page"}>Installation</a></li>
++              <li><a href="{homepage}/doc/v{fullver}/INSTALL.html"{docfile@.*INSTALL: class="current_page"}>Installation</a></li>
+               <li><a href="{foam-have-ug,foam-doc-for_sf?{rel-doc}}{foam-have-ug={homepage}/doc/v{fullver}}/UserGuide/index.html">
+                 User&nbsp;Guide</a></li>
+               <li><a href="{foam-have-man,foam-doc-for-sf?{rel-doc}}{foam-have-man={homepage}/doc/v{fullver}}/man/man1/freefoam.1.html">
+                 man-pages</a></li>
+               <li><a href="{foam-have-doxy,foam-doc-for_sf?{rel-doc}}{foam-have-doxy={homepage}/doc/v{fullver}}/API/index.html">
+                 API&nbsp;Documentation</a></li>
+-              <li><a href="{rel-doc}/README.html"{docfile@.*README: class="current_page"}>README</a></li>
+-              <li><a href="{rel-doc}/ReleaseNotes.html"{docfile@.*ReleaseNotes: class="current_page"}>Release Notes</a></li>
+-              <li><a href="{rel-doc}/ChangeLog.html"{docfile@.*ChangeLog: class="current_page"}>Changes</a></li>
+-              <li><a href="{rel-doc}/COPYING.html"{docfile@.*COPYING: class="current_page"}>License</a></li>
++              <li><a href="{homepage}/doc/v{fullver}/README.html"{docfile@.*README: class="current_page"}>README</a></li>
++              <li><a href="{homepage}/doc/v{fullver}/ReleaseNotes.html"{docfile@.*ReleaseNotes: class="current_page"}>Release Notes</a></li>
++              <li><a href="{homepage}/doc/v{fullver}/ChangeLog.html"{docfile@.*ChangeLog: class="current_page"}>Changes</a></li>
++              <li><a href="{homepage}/doc/v{fullver}/COPYING.html"{docfile@.*COPYING: class="current_page"}>License</a></li>
+             </ul>
+           </li>
+ endif::docs-only[]
+diff --git a/doc/CMakeLists.txt b/doc/CMakeLists.txt
+index b7164c1..5fc42cf 100644
+--- a/doc/CMakeLists.txt
++++ b/doc/CMakeLists.txt
+@@ -110,7 +110,7 @@ if(FOAM_ENABLE_XHTML_HELP OR FOAM_ENABLE_XHTML_GUIDES)
+   if(FOAM_ENABLE_XHTML_HELP)
+     list(APPEND opts -a foam-have-man)
+   endif()
+-  if(FOAM_ENABLE_DOXYGEN_DOCS)
++  if(FALSE)
+     list(APPEND opts -a foam-have-doxy)
+   endif()
+   set(pkgdocs)
+diff --git a/doc/Doxygen/CMakeLists.txt b/doc/Doxygen/CMakeLists.txt
+index ae85b75..85ab9c0 100644
+--- a/doc/Doxygen/CMakeLists.txt
++++ b/doc/Doxygen/CMakeLists.txt
+@@ -50,7 +50,7 @@ else()
+     "http://freefoam.sourceforge.net/doc/v${FOAM_VERSION_FULL}")
+ endif()
+ 
+-if(FOAM_DOCS_FOR_SF OR FOAM_ENABLE_XHTML_HELP OR FOAM_ENABLE_XHTML_GUIDES)
++if(FALSE)
+   set(CONFIG_DOC_BASE_URL ..)
+ else()
+   set(CONFIG_DOC_BASE_URL
+diff --git a/doc/Doxygen/FoamHeader.html.in b/doc/Doxygen/FoamHeader.html.in
+index 907bd62..e583e4f 100644
+--- a/doc/Doxygen/FoamHeader.html.in
++++ b/doc/Doxygen/FoamHeader.html.in
+@@ -11,18 +11,18 @@
+     <link rel="stylesheet" href="search/search.css" type="text/css"/>
+     <script type="text/javaScript" src="search/search.js"></script>
+     <link rel="stylesheet" href="doxygen.css" type="text/css"/>
+-    <link rel="stylesheet" href="../css/xhtml11.css" type="text/css" />
+-    <link rel="stylesheet" href="../css/layout.css" type="text/css" />
+-    <link rel="stylesheet" href="../css/custom.css" type="text/css" />
++    <link rel="stylesheet" href="css/xhtml11.css" type="text/css" />
++    <link rel="stylesheet" href="css/layout.css" type="text/css" />
++    <link rel="stylesheet" href="css/custom.css" type="text/css" />
+     <title>FreeFOAM programmer's C++ documentation</title>
+   </head>
+   <body>
+     <div id="layout-banner-box">
+       <div id="layout-banner">
+         <a href="http://freefoam.sourceforge.net/index.html">
+-          <img id="layout-title" src="../img/FreeFOAMLogo.png" alt="FreeFOAM"/>
++          <img id="layout-title" src="img/FreeFOAMLogo.png" alt="FreeFOAM"/>
+         </a>
+-        <img id="layout-description" src="../img/CrossPlatformToolkit.png"
++        <img id="layout-description" src="img/CrossPlatformToolkit.png"
+           alt="The Cross-Platform CFD Toolkit"/>
+       </div>
+     </div>
+diff --git a/doc/UserGuide/CMakeLists.txt b/doc/UserGuide/CMakeLists.txt
+index 8cd6f8b..8a22737 100644
+--- a/doc/UserGuide/CMakeLists.txt
++++ b/doc/UserGuide/CMakeLists.txt
+@@ -205,7 +205,7 @@ set(XSLTPROC_xhtml_OPTS
+   --stringparam foam.version.full ${FOAM_VERSION_FULL}
+   --param foam.ug.current 1
+   --param foam.doc.have_ug 1
+-  --stringparam html.stylesheet ../css/docbook-xsl.css)
++  --stringparam html.stylesheet css/docbook-xsl.css)
+ if(FOAM_ENABLE_MATHJAX)
+   list(APPEND XSLTPROC_xhtml_OPTS
+     --param foam.use.mathjax 1

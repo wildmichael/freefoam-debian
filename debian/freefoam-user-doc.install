@@ -1,2 +1,2 @@
-debian/tmp/usr/share/doc/freefoam/tutorials debian/tmp/usr/share/doc/freefoam/UserGuide.pdf /usr/share/doc/freefoam-user-doc
-debian/tmp/usr/share/doc/freefoam/UserGuide debian/tmp/usr/share/doc/freefoam/css debian/tmp/usr/share/doc/freefoam/img /usr/share/doc/freefoam-user-doc
+debian/tmp/usr/share/doc/freefoam/tutorials debian/tmp/usr/share/doc/freefoam/UserGuide.pdf debian/tmp/usr/share/doc/freefoam/UserGuide /usr/share/doc/freefoam-user-doc
+debian/tmp/usr/share/doc/freefoam/css debian/tmp/usr/share/doc/freefoam/img debian/tmp/usr/share/doc/freefoam/js /usr/share/doc/freefoam-user-doc/UserGuide
