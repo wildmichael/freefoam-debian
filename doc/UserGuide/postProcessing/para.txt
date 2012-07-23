@@ -71,8 +71,8 @@ The general operation of the system is based on the user making a selection and
 then clicking the green guibutton:[Apply](((guibutton:[Apply] button)))
 (((button,guibutton:[Apply]))) button in the guilabel:[Properties] panel. The
 additional buttons are: the guibutton:[Reset](((guibutton:[Reset] button)))
-(((button,guibutton:[Reset]))) button which used to reset the GUI if necessary;
-and, the guibutton:[Delete](((guibutton:[Delete] button)))
+(((button,guibutton:[Reset]))) button which can be used to reset the GUI if
+necessary; and, the guibutton:[Delete](((guibutton:[Delete] button)))
 (((button,guibutton[[Delete]))) button that will delete the active module.
 
 ==== The guilabel:[Properties] panel
@@ -188,19 +188,22 @@ The view settings are available through
 menuselection:[Edit-->View Settings],
 (((menuselection:[Edit-->View Settings],menu entry)))
 (((menu entry,menuselection:[Edit-->View Settings]))) which opens a
-guilabel:[Render View Options](((guilabel:[Render View Options] window)))
-(((window,guilabel:[Render View Options]))) window with a table of 3 items:
-guilabel:[General], guilabel:[Lights] and guilabel:[Annotation]. The
+guilabel:[View Settings (Render View)]
+(((guilabel:[View Settings (Render View)] window)))
+(((window,guilabel:[View Settings (Render View)]))) window with a table of 3
+items: guilabel:[General], guilabel:[Lights] and guilabel:[Annotation]. The
 guilabel:[General](((guilabel:[General] window panel)))
 (((window panel,guilabel:[General]))) panel includes the following items which
 are *often worth setting at startup*:
 
 - the background colour, where white is often a preferred choice for printed
-  material;
+  material, is set by choosing guilabel:[background] from the down-arrow button
+  next to guilabel:[Choose Color] button, then selecting the color by clicking
+  on the guilabel:[Choose Color] button;
 - guibutton:[Use parallel projection]
   (((guibutton:[Use parallel projection] button)))
   (((button,guibutton:[Use parallel projection]))) which is the usual choice
-  for CFD, especially for 2D cases;
+  for CFD, especially for 2D cases.
 
 The guilabel:[Lights](((guilabel:[Lights] window panel)))
 (((window panel,guilabel:[Lights]))) panel contains detailed lighting controls
@@ -224,7 +227,13 @@ menuselection:[Edit-->Settings]
 (((menuselection:[Edit-->Settings],menu entry)))
 (((menu entry,menuselection:[Edit-->Settings])))  menu, which opens a general
 guilabel:[Options](((guilabel:[Options] window)))
-(((window,guilabel:[Options]))) window with guilabel:[General]
+(((window,guilabel:[Options]))) window with guilabel:[General],
+guilabel:[Colors](((guilabel:[Colors] window panel)))
+(((window panel,guilabel:[Colors]))),
+guilabel:[Animations](((guilabel:[Animations] window panel)))
+(((window panel,guilabel:[Animations]))),
+guilabel:[Charts](((guilabel:[Charts] window panel)))
+(((window panel,guilabel:[Charts]))),
 (((guilabel:[General] window panel)))(((window panel,guilabel:[General]))) and
 guilabel:[Render View](((guilabel:[Render View] window panel)))
 (((window panel,guilabel:[Render View]))) menu items.

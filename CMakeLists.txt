@@ -37,7 +37,7 @@ string(TOLOWER "${PROJECT_NAME}" LOWER_PROJECT_NAME)
 # version information
 set(FOAM_VERSION_MAJOR 0)
 set(FOAM_VERSION_MINOR 1)
-set(FOAM_VERSION_PATCH 0)
+set(FOAM_VERSION_PATCH 2)
 set(FOAM_VERSION_SUFFIX)
 set(FOAM_VERSION ${FOAM_VERSION_MAJOR}.${FOAM_VERSION_MINOR})
 set(FOAM_VERSION_FULL
@@ -177,9 +177,6 @@ foam_installation_path(FOAM_INSTALL_TUTORIALS_PATH
 foam_installation_path(FOAM_INSTALL_CMAKE_PATH
   "${FOAM_INSTALL_DATA_PATH_ORIG}/CMake"
   "CMake files" "CMake configuration files installation path")
-foam_installation_path(FOAM_INSTALL_USERDFOAM_PATH
-  "${FOAM_INSTALL_PLUGIN_PATH_ORIG}/ensightReader"
-  "Ensight plugin" "Ensight OpenFOAM-reader plugin installation path")
 foam_dependent_variables(PYTHON_VERSION FOAM_INSTALL_PYTHON_PATH)
 foam_installation_path(FOAM_INSTALL_PYTHON_PATH
   "lib/python${PYTHON_SHORT_VERSION}/site-packages"
@@ -254,6 +251,11 @@ if(FOAM_ENABLE_DOXYGEN_DOCS)
       "Found Doxygen version ${DOXYGEN_VERSION_OUTPUT}. "
       "Versions newer than 1.6.3 and older than 1.7.2-20101106 "
       "usually crash when processing the ${PROJECT_NAME} documentation.")
+  endif()
+  if(${DOXYGEN_VERSION_OUTPUT} VERSION_LESS 1.5.8)
+    set(DOXYGEN_SOURCE_SEP "-")
+  else()
+    set(DOXYGEN_SOURCE_SEP "_")
   endif()
   # ask user whether she prefers local or www docs
   foam_option(FOAM_USE_LOCAL_DOXYGEN_DOCS "Use local API docs"

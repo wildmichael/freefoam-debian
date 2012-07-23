@@ -259,6 +259,9 @@
 # DO NOT call this function after you called FOAM_WRITE_DOC_INDEX(), it won't
 # have any effect!
 #
+# If the Doxygen version is older than 1.5.8, you should set DOXYGEN_SOURCE_SEP
+# to "-", otherwise the output file names are guessed incorrectly.
+#
 #  FOAM_WRITE_DOC_INDEX()
 #
 # Create the documentation index file. Call this function after all calls to

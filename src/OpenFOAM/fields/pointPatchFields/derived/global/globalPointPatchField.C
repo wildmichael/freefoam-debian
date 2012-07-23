@@ -134,7 +134,7 @@ void globalPointPatchField<Type>::swapAdd(Field<Type>& pField) const
     // Create the global list and insert local values
     if (globalPointPatch_.globalPointSize() > 0)
     {
-        Field<Type> lpf = patchInternalField(pField);
+        Field<Type> lpf = this->patchInternalField(pField);
         const labelList& addr = globalPointPatch_.sharedPointAddr();
 
         Field<Type> gpf
@@ -156,7 +156,7 @@ void globalPointPatchField<Type>::swapAdd(Field<Type>& pField) const
             lpf[i] = gpf[addr[i]];
         }
 
-        setInInternalField(pField, lpf);
+        this->setInInternalField(pField, lpf);
     }
 }
 

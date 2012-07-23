@@ -282,18 +282,19 @@ if listOnly:
    echo('\n'.join(vars))
    sys.exit(0)
 
+logsDir = os.path.join(caseDir, 'logs')
+
 plog('Using:')
 plog('  log      : %s'%logName)
 plog('  database : %s'%dbName)
-plog('  files to : %s/logs/'%caseDir)
+plog('  files to : %s'%logsDir)
 plog('')
 
-logsDir = os.path.join(caseDir, 'logs')
 if not os.path.isdir(logsDir):
    if os.path.exists(logsDir):
       sys.stderr.write('Error: `%s` exists but is not a directory\n'%logsDir)
       sys.exit(1)
-   os.mkdir('logs')
+   os.mkdir(logsDir)
 
 # loop over lines, extract data
 splitRegex = re.compile(r'\s*Time\s*=\s*(?P<time>\S+)')
@@ -307,6 +308,7 @@ for l in logFile:
       time.append(m.group('time'))
       resetCounters(counters)
       iteration += 1
+      continue
    for r in regex:
       # check for data regex
       m = r.search(l)
@@ -321,9 +323,9 @@ logFile.close()
 # loop over data and write
 tLen = max(map(len, time))
 for n, v in data.items():
-   for i in xrange(len(v)):
+   for i in range(len(v)):
       f = open(os.path.join(logsDir, '%s_%d'%(n, i)), 'wt')
-      for j in xrange(len(time)):
+      for j in range(min(len(time), len(v[i]))):
          if not noTime:
             f.write(('%-'+str(tLen)+'s  ')%time[j])
          f.write('%s\n'%v[i][j])

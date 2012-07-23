@@ -54,7 +54,8 @@ discretisation
 interpolation and mapping
 | `surfaceMesh`(((`surfaceMesh` tools)))(((tools,`surfaceMesh`))) | Mesh
 surface data for finite volume discretisation
-| (((tools,))) | Mesh volume (cell) data for finite volume discretisation
+| `volMesh`(((`volMesh` tools)))(((tools,`volMesh`))) | Mesh volume (cell) data
+for finite volume discretisation
 
 2+h| Post-processing libraries
 | `fieldFunctionObjects`(((`fieldFunctionObjects`,library)))

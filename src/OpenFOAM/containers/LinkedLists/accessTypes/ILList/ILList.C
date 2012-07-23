@@ -39,7 +39,7 @@ Foam::ILList<LListBase, T>::ILList(const ILList<LListBase, T>& lst)
         ++iter
     )
     {
-        append(iter().clone().ptr());
+        this->append(iter().clone().ptr());
     }
 }
 
@@ -62,7 +62,7 @@ Foam::ILList<LListBase, T>::ILList
         ++iter
     )
     {
-        append(iter().clone(cloneArg).ptr());
+        this->append(iter().clone(cloneArg).ptr());
     }
 }
 #endif
@@ -145,7 +145,7 @@ void Foam::ILList<LListBase, T>::operator=(const ILList<LListBase, T>& lst)
         ++iter
     )
     {
-        append(iter().clone().ptr());
+        this->append(iter().clone().ptr());
     }
 }
 

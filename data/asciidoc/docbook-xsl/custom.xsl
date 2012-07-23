@@ -168,6 +168,11 @@
         </xsl:call-template>
       </div>
     </div>
+    <xsl:call-template name="foam.footer.close-divs"/>
+</xsl:template>
+
+<xsl:template name="foam.footer.close-divs">
+  <xsl:call-template name="user.footer.navigation"/>
 </xsl:template>
 
 <xsl:template name="user.footer.navigation">

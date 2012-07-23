@@ -29,6 +29,5 @@
 #-------------------------------------------------------------------------------
 
 add_subdirectory(fieldview9Reader)
-add_subdirectory(ensightFoamReader)
 
 # ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file

@@ -39,8 +39,6 @@ foam_configure_files(installFiles DESTDIR ${TUTORIAL_DIR}
   0/B
   0/U
   0/alpha1
-  0/data/Ubulk
-  0/data/ptrace
   0/k
   0/nuSgs
   0/nuTilda

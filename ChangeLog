@@ -16,6 +16,53 @@ It does not include changes made by the upstream developers (i.e. {openfoam}).
 For the detailed changes refer to the log provided by the {repo}.
 
 
+Changes in {project} 0.1.2
+--------------------------
+This is the second maintenance release in the FreeFOAM-0.1.x series. It only
+contains fixes for bugs and typos and removes non-free files. See below for the
+details.
+
+Michael Wild (11)::
+      * FIX: Installation dirs for AsciiDoc, XHTML-UserGuide and template
+         files
+      * ENH: Remove unused files in nozzleFlow2D tutorial
+      * FIX: Remove non-redistributable foamToFieldview9
+      * FIX: Remove potentially non-redistributable ensightFoamReader
+      * FIX: Copyright header in */forceLink.C
+      * FIX: Remove potentially non-redistributable rabdata.[Ch]
+      * FIX: Remove unused file XiEqns
+      * FIX: Remove potentially non-redistributable files kiva3v-valves.*
+      * ENH: Update docs, tutorials and completers after removal of
+         non-free files
+      * FIX: Doxygen generated file names breakage
+      * ENH: Remove shebang from bash-completion script
+
+Changes in {project} 0.1.1
+--------------------------
+This is the first maintenance release in the FreeFOAM-0.1.x series. It only
+contains fixes for bugs and typos. See below for the details.
+
+Michael Wild (13)::
+      * ENH: Fix unclosed <div> in non-chunked docbook output
+      * FIX: Invalid XHTML and wrong doctype
+      * DOC: Improve README and INSTALL
+      * FIX: fixupDoxygen broken; compat with old Doxygen
+      * DOC: API incompatibility in Asymptote
+      * DOC: Spelling in freefoam.1.in.txt
+      * FIX: Handle truncated logs in freefoam-log
+      * FIX: Python3-compat and slight optimization in freefoam-log
+      * FIX: Correct output directory for freefoam-log
+      * FIX: New a2x (since 8.6.7) options in doxyToX.py
+      * ENH: Backport typo fixes and improvements in UserGuide
+      * FIX: Missing qualifications of template-dependent names
+      * FIX: dirs.html no longer created by new Doxygen versions
+      * FIX: Inconsistent space/tabs in fixupDoxygen.py.in
+      * STYLE: Add missing EOL at EOF
+      * FIX: AsciiDoc 8.6.5 renamed some JavaScript and CSS files
+      * FIX: Search order for newer versions of AsciiDoc files
+      * ENH: Converted motorBike.stl to OBJ to save space
+      * FIX: Remove undistributable CHEMKIN files
+
 Changes in {project} 0.1.0
 --------------------------
 Michael Wild (24)::

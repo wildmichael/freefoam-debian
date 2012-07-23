@@ -1,4 +1,3 @@
-#!/bin/bash
 #-------------------------------------------------------------------------------
 #               ______                _     ____          __  __
 #              |  ____|             _| |_  / __ \   /\   |  \/  |
@@ -71,7 +70,7 @@ _freefoam_all() {
       'expandDictionary' 'extrude2DMesh' 'extrudeMesh' 'faceSet' 'flattenMesh'\
       'flowType' 'fluent3DMeshToFoam' 'fluentMeshToFoam' 'foamDataToFluent'   \
       'foamMeshToFluent' 'foamToEnsight' 'foamToEnsightParts'                 \
-      'foamToFieldview9' 'foamToGMV' 'foamToStarMesh' 'foamToVTK'             \
+      'foamToGMV' 'foamToStarMesh' 'foamToVTK'                                \
       'formatConvert' 'gambitToFoam' 'gmshToFoam' 'graphExecTime' 'graphResKE'\
       'graphResUVWP' 'icoErrorEstimate' 'icoMomentError' 'ideasUnvToFoam'     \
       'IFCLookUpTableGen' 'infoExec' 'insideCells' 'job' 'kivaToFoam'         \
@@ -130,4 +129,4 @@ _freefoam()
 complete -F _freefoam freefoam
 
 
-# ------------------------- vim: set sw=3 sts=3 et: --------------- end-of-file
+# ---------------------- vim: set sw=3 sts=3 et ft=sh: ------------ end-of-file

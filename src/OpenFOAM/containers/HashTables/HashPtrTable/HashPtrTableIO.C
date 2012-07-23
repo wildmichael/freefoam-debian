@@ -64,7 +64,7 @@ void Foam::HashPtrTable<T, Key, Hash>::read(Istream& is, const INew& inewt)
                 {
                     Key key;
                     is >> key;
-                    insert(key, inewt(key, is).ptr());
+                    this->insert(key, inewt(key, is).ptr());
 
                     is.fatalCheck
                     (
@@ -111,7 +111,7 @@ void Foam::HashPtrTable<T, Key, Hash>::read(Istream& is, const INew& inewt)
             is.putBack(lastToken);
             Key key;
             is >> key;
-            insert(key, inewt(key, is).ptr());
+            this->insert(key, inewt(key, is).ptr());
 
             is.fatalCheck
             (

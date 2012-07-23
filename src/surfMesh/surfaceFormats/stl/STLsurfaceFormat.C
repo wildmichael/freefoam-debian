@@ -214,7 +214,7 @@ void Foam::fileFormats::STLsurfaceFormat<Face>::writeAscii
     (
         surf.surfZones().size() > 1
       ? surf.surfZones()
-      : oneZone(faceLst)
+      : STLsurfaceFormat::oneZone(faceLst)
     );
 
     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);
@@ -275,7 +275,7 @@ void Foam::fileFormats::STLsurfaceFormat<Face>::writeBinary
     (
         surf.surfZones().size() > 1
       ? surf.surfZones()
-      : oneZone(faceLst)
+      : STLsurfaceFormat::oneZone(faceLst)
     );
 
     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);

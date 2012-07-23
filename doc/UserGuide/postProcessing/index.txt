@@ -7,14 +7,11 @@ supplied with a post-processing utility `para` that uses 'ParaView', an open
 source visualisation application described in <<sec_paraFoam>>.
 
 Other methods of post-processing using third party products are offered,
-including 'EnSight', 'Fieldview' and the post-processing supplied with
-'Fluent'.
+including 'EnSight', and the post-processing supplied with 'Fluent'.
 
 include::para.txt[]
 
 include::fluent.txt[]
-
-include::fieldview.txt[]
 
 include::ensight.txt[]
 

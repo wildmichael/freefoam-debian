@@ -194,9 +194,6 @@ cells in relation to surface
 split cells with flat faces
 
 2+h| Post-processing graphics
-| `ensightFoamReader`(((`ensightFoamReader` utility)))
-(((utility,`ensightFoamReader`))) | 'EnSight' library module to read {project}
-data directly without translation
 | `fieldview9Reader`(((`fieldview9Reader` utility)))
 (((utility,`fieldview9Reader`))) | Reader module for 'Fieldview' 9 to read
 {project} mesh and data
@@ -209,9 +206,6 @@ Translates {project} data to 'EnSight' format
 | `foamToEnsightParts`(((`foamToEnsightParts` utility)))
 (((utility,`foamToEnsightParts`))) | Translates {project} data to 'Ensight'
 format. An Ensight part is created for each `cellZone` and patch
-| `foamToFieldview9`(((`foamToFieldview9` utility)))
-(((utility,`foamToFieldview9`))) | Write out the {project} mesh in Version 3.0
-'Fieldview'-UNS format (binary)
 | `foamToGMV`(((`foamToGMV` utility)))(((utility,`foamToGMV`))) | Translates
 foam output to 'GMV' readable files
 | `foamToVTK`(((`foamToVTK` utility)))(((utility,`foamToVTK`))) | Legacy 'VTK'
@@ -346,7 +340,7 @@ temperatures and equivalence ratios; the effects of dissociation on
 math:[\text{O}_2], math:[\text{H}_2\text{O}] and math:[\text{CO}_2] are
 included
 | `IFCLookUpTableGen`(((`IFCLookUpTableGen` utility)))
-(((utility,`IFCLookUpTableGen`))) | Calculate the the infinitely-fast chemistry
+(((utility,`IFCLookUpTableGen`))) | Calculate the infinitely-fast chemistry
 relationships in function of ft. for a given fuel. The output is given in moles
 | `mixtureAdiabaticFlameT`(((`mixtureAdiabaticFlameT` utility)))
 (((utility,`mixtureAdiabaticFlameT`))) | Calculates the adiabatic flame

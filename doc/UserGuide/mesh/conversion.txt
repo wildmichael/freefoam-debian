@@ -293,7 +293,7 @@ cells and points files necessary for a {project} run:
 $ freefoam starToFoam '<meshFilePrefix>'
 -------------------------------------------------------------------------------
 
-where '<meshFilePrefix>' is the name of the the prefix of the mesh files,
+where '<meshFilePrefix>' is the name of the prefix of the mesh files,
 including the full or relative path. After the utility has finished running,
 {project} boundary types should be specified by editing the filename:boundary[]
 file by hand.

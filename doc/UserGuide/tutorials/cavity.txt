@@ -180,14 +180,14 @@ Reynolds number is defined as:
 [math]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \begin{align*}
-  Re = \frac{d |\U|}{\nu}
+  Re = \frac{d \|\U\|}{\nu}
 \end{align*}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-where math:[d] and math:[|\U|] are the characteristic length and velocity
+where math:[d] and math:[\|\U\|] are the characteristic length and velocity
 respectively and math:[\nu] is the kinematic
 viscosity.(((viscosity,kinematic))) Here math:[d=\unit[0.1\]{m}],
-math:[|\U|=\unitfrac[1\]{m}{s}], so that for math:[Re=10],
+math:[\|\U\|=\unitfrac[1\]{m}{s}], so that for math:[Re=10],
 math:[\nu=\unitfrac[0.01\]{m^2}{s}]. The correct file entry for kinematic
 viscosity is thus specified below:
 
@@ -237,11 +237,11 @@ of less than 1 is required. The Courant number is defined for one cell as:
 [math]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \begin{align*}
-  Co = \frac{\delta t |\U|}{\delta x}
+  Co = \frac{\delta t \|\U\|}{\delta x}
 \end{align*}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-where math:[\delta t] is the time step,(((time step))) math:[|\U|] is the
+where math:[\delta t] is the time step,(((time step))) math:[\|\U\|] is the
 magnitude of the velocity through that cell and math:[\delta x] is
 the cell size in the direction of the velocity. The flow velocity
 varies across the domain and we must ensure math:[Co<1] everywhere. We
@@ -264,7 +264,7 @@ domain the time step `deltaT` must be set to less than or equal to:
 [math]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \begin{align*}
-  \delta t = \frac{Co \delta x}{|\U|} = \frac{1\times 0.005}{1}
+  \delta t = \frac{Co \delta x}{\|\U\|} = \frac{1\times 0.005}{1}
            = \unit[0.005]{s}
 \end{align*}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -337,20 +337,18 @@ the guilabel:[Pipeline Browser], (((guilabel:[Pipeline Browser] window)))
 (((window,guilabel:[Pipeline Browser]))) the user can see that 'ParaView' has
 opened filename:cavity.foam[], the module for the `cavity` case. *Before
 clicking the guibutton:[Apply] button*, the user needs to select some geometry
-from the guilabel:[Region Status](((guilabel:[Region Status] window panel)))
-(((window panel,guilabel:[Region Status]))) panel. Because the case is
+from the guilabel:[Mesh Regions](((guilabel:[Mesh Regions] window panel)))
+(((window panel,guilabel:[Mesh Regions]))) panel. Because the case is
 small, it is easiest to select all the data by checking the box adjacent to the
-guilabel:[Region Status] panel title, which automatically checks all individual
+guilabel:[Mesh Regions] panel title, which automatically checks all individual
 components within the respective panel. The user should then click the
-guibutton:[Apply] button to load the geometry into 'ParaView'. There are some
-general settings are applied as described in <<sec_paraviewViewSettings>>.
-*Please consult this section about these settings*.
+guibutton:[Apply] button to load the geometry into 'ParaView'.
 
 The user should then open the guilabel:[Display]
 (((guilabel:[Display] window panel)))(((window panel,guilabel:[Display])))
 panel that controls the visual representation of the selected module. Within
 the guilabel:[Display] panel the user should do the following as shown in
-<<fig_paraFoamCavityMesh>>: (1) set guilabel:[Color by Solid Color]; (2) click
+<<fig_paraFoamCavityMesh>>: (1) set guilabel:[Color By Solid Color]; (2) click
 guilabel:[Set Solid Color] and select an appropriate colour 'e.g.' black (for a
 white background); (3) in the guilabel:[Style]
 (((guilabel:[Style] window panel)))(((window panel,guilabel:[Style]))) panel,
@@ -422,12 +420,11 @@ enabled;
 To prepare `para` to display the data of interest, we must first load the data
 at the required run time of math:[\unit[0.5\]{s}]. If the case was run while
 'ParaView' was open, the output data in time directories will not be
-automatically loaded within 'ParaView'. To reload the data the user should
-select guibutton:[Delete](((guibutton:[Delete] button)))
-(((button,guibutton:[Delete]))) in the guilabel:[Properties] panel and
-then load the guilabel:[<tutorials>/incompressible/icoFoam/cavity/cavity.foam]
-file from the menu menuselection:[Files --> Recent Files] and click the green
-guibutton:[Apply] button in the guilabel:[Properties] panel.
+automatically loaded within 'ParaView'. To trick 'ParaView' into reloading the
+data, the user can change the selection in the guilabel:[Case Type] drop-down
+list of the guilabel:[Properties] panel, click the now green guibutton:[Apply]
+button, flip the guilabel:[Case Type] selection back to its original value and
+click the green guibutton:[Apply] button again.
 
 ===== Isosurface and contour plots
 
@@ -494,9 +491,9 @@ complete geometry surface by the pressure. In order to produce a genuine
 contour plot the user should first create a cutting plane, or 'slice', through
 the geometry using the +Slice+ filter as described in <<sec_cuttingPlane>>. The
 cutting plane should be centred at math:[(0.05,0.05,0.005)] and its normal
-should be set to math:[(0,0,1)]. Having generated the cutting plane, the
-contours can be created using by the +Contour+ filter described in
-<<sec_contourPlotParaview>>.
+should be set to math:[(0,0,1)] (click the guibutton:[Z Normal] button). Having
+generated the cutting plane, the contours can be created using by the +Contour+
+filter described in <<sec_contourPlotParaview>>.
 
 ===== Vector plots
 
@@ -558,7 +555,7 @@ magnitude is 0.
 
 Again, before the user continues to post-process in 'ParaView', they should
 disable modules such as those for the vector plot described above. We now wish
-to plot a streamlines of velocity as described in <<sec_streamlinesParaview>>.
+to plot streamlines of velocity as described in <<sec_streamlinesParaview>>.
 
 With the guilabel:[cavity.foam] module highlighted in the
 guilabel:[Pipeline Browser], the user should then select
@@ -812,11 +809,11 @@ using the `sample` utility, described in <<sec_sample>> and
 <<sec_plateHolePost>>.
 
 'Before commencing plotting', the user needs to load the newly generated
-filename:Ux[], filename:Uy[] and filename:Uz[] fields by deleting and
-re-opening the data source filename:cavity.foam[]. Data is interpolated
+filename:Ux[], filename:Uy[] and filename:Uz[] fields by flipping the
+guilabel:[Case Type] drop-down as described above. Data is interpolated
 incorrectly at boundaries if the boundary regions are selected in the
-guilabel:[Region Status] panel. Therefore the user should 'deselect the
-patches' in the guilabel:[Region Status] panel, 'i.e.' guilabel:[movingWall],
+guilabel:[Mesh Regions] panel. Therefore the user should 'deselect the patches'
+in the guilabel:[Mesh Regions] panel, 'i.e.' guilabel:[movingWall],
 guilabel:[fixedWall] and guilabel:[frontAndBack], and apply the changes.
 
 Now, in order to display a graph in 'ParaView' the user should select the
@@ -824,13 +821,13 @@ module of interest, 'e.g.' guilabel:[cavity.foam] and apply the
 menuselection:[Filters --> Data Analysis --> Plot Over Line] filter.
 (((menuselection:[Filters --> Data Analysis --> Plot Over Line],menu entry)))
 (((menu entry,menuselection:[Filters --> Data Analysis --> Plot Over Line])))
-This opens up a new guilabel:[XY Plot] window beside the existing guilabel:[3D
-View] window. A guilabel:[PlotOverLline1] module is created in which the user
-can specify the end points of the line in the guilabel:[Properties] panel. In
-this example, the user should position the line vertically up the centre of the
-domain, 'i.e.' from math:[(0.05,0,0.005)] to math:[(0.05,0.1,0.005)], in the
-guilabel:[Point1] and guilabel:[Point2] text boxes. The guilabel:[Resolution]
-can be set to 100.
+This opens up a new guilabel:[XY Plot] window below or beside the existing
+guilabel:[3D View] window. A guilabel:[PlotOverLline1] module is created in
+which the user can specify the end points of the line in the
+guilabel:[Properties] panel. In this example, the user should position the line
+vertically up the centre of the domain, 'i.e.' from math:[(0.05,0,0.005)] to
+math:[(0.05,0.1,0.005)], in the guilabel:[Point1] and guilabel:[Point2] text
+boxes. The guilabel:[Resolution] can be set to 100.
 
 On clicking guibutton:[Apply], a graph is generated in the guilabel:[XY Plot]
 window. In the guilabel:[Display] panel, the guibutton:[Use Data Array] option
@@ -848,16 +845,17 @@ colour box in the adjacent column to the selected series indicates the line
 colour. The user can edit this most easily by a double click of the mouse over
 that selection.
 
-In order to format the graph, the user should move over to the
-guilabel:[XY Plot] itself and press the guibutton:[Edit View Options] button
-in the top-left corner. A guilabel:[View Settings]
-(((guilabel:[View Settings] window)))(((window,guilabel:[View Settings])))
-window appears with guilabel:[General] settings for title and legend and menus
-for each axis. The menu for each axis can be expanded by a double click (or
-clicking the small `+` sign next to it) to reveal individual menus for
-guilabel:[Layout] and guilabel:[Title], one for each axis. The user can set
-font, colour and alignment of the axes titles, and has several options for axis
-range and labels in linear or logarithmic scales.
+In order to format the graph, the user should modify the settings below the
+guilabel:[Line Series] panel, namely guilabel:[Line Color],
+guilabel:[Line Thickness], guilabel:[Line Style], guilabel:[Marker Style] and
+guilabel:[Chart Axes].
+
+Also the user can click one of the buttons above the top left corner of the
+guilabel:[XY Plot]. The third button, for example, allows the user to control
+guilabel:[View Settings] in which the user can set title and legend for each
+axis, for example. Also, the user can set font, colour, and alignment of the
+axes titles, and has several options for axis range and labels in linear or
+logarithmic scales.
 
 <<fig_paraFoamCavityGraph>> is a graph produced using 'ParaView'. The user can
 produce a graph however he/she wishes. For information, the graph in
@@ -1028,7 +1026,7 @@ $ cp -r cavity cavityHighRe
 
 ===== Pre-processing
 
-Enter the the `cavityHighRe` case and edit the
+Enter the `cavityHighRe` case and edit the
 filename:transportProperties[](((filename:transportProperties[],dictionary)))
 (((dictionary,filename:transportProperties[]))) dictionary. Since the Reynolds
 number is required to be increased by a factor of 10, decrease the kinematic
@@ -1119,11 +1117,11 @@ The need to increase spatial and temporal resolution then becomes impractical
 as the flow moves into the turbulent regime, where problems of solution
 stability may also occur. Of course, many engineering problems have very high
 Reynolds numbers and it is infeasible to bear the huge cost of solving the
-turbulent behaviour directly. Instead Reynolds-averaged stress (RAS) turbulence
-models(((turbulence model,RAS))) are used to solve for the mean flow behaviour
-and calculate the statistics of the fluctuations. The standard {keps} model
-with wall functions will be used in this tutorial to solve the lid-driven
-cavity case with a Reynolds number of 104. Two extra variables are
+turbulent behaviour directly. Instead Reynolds-averaged simulation (RAS)
+turbulence models(((turbulence model,RAS))) are used to solve for the mean flow
+behaviour and calculate the statistics of the fluctuations. The standard {keps}
+model with wall functions will be used in this tutorial to solve the lid-driven
+cavity case with a Reynolds number of math:[10^4]. Two extra variables are
 solved for: math:[k], the turbulent kinetic energy;
 (((turbulence,kinetic energy))) and, math:[\varepsilon], the turbulent
 dissipation rate.(((turbulence,dissipation))) The additional equations and
@@ -1209,7 +1207,9 @@ These form the initial conditions for math:[k] and math:[\varepsilon]. The
 initial conditions for math:[U] and math:[p] are math:[(0,0,0)] and 0
 respectively as before.
 
-The choice of turbulence modelling method is selectable at run-time through the
+Turbulence modelling includes a range of methods, 'e.g.' RAS or large-eddy
+simulation (LES) in {project}. In most transient solvers the choice of
+the turbulence modelling method is selectable at run-time through the
 `simulationType`(((`simulationType` keyword)))(((keyword,`simulationType`)))
 keyword in filename:turbulenceProperties[]
 (((filename:turbulenceProperties[],dictionary)))
@@ -1240,8 +1240,8 @@ terminal, when the model is called at run time. The coefficients are printed
 out as a sub-dictionary whose name is that of the model name with the word
 `Coeffs` appended, 'e.g.' `kEpsilonCoeffs` in the case of the `kEpsilon` model.
 The coefficients of the model, 'e.g.' `kEpsilon`, can be modified by optionally
-including that sub-dictionary within the RASProperties dictionary and adjusting
-values accordingly.
+including (copying and pasting) that sub-dictionary within the RASProperties
+dictionary and adjusting values accordingly.
 
 The user should next set the laminar kinematic viscosity in the
 filename:transportProperties[](((filename:transportProperties[],dictionary)))
@@ -1258,12 +1258,12 @@ restriction and the `endTime` to math:[\unit[10\]{s}].
 
 ===== Running the code
 
-Execute `piso` by entering the case directory and typing `freefoam piso`. In
-this case, where the viscosity is low, the boundary layer next to the moving
-lid is very thin and the cells next to the lid are comparatively large so the
-velocity at their centres are much less than the lid velocity. In fact, after
-math:[\approx] 100 time steps it becomes apparent that the velocity in the
-cells adjacent to the lid reaches an upper limit of around
+Execute `piso` by entering the case directory and typing `freefoam piso` in a
+terminal. In this case, where the viscosity is low, the boundary layer next to
+the moving lid is very thin and the cells next to the lid are comparatively
+large so the velocity at their centres are much less than the lid velocity. In
+fact, after math:[\approx] 100 time steps it becomes apparent that the velocity
+in the cells adjacent to the lid reaches an upper limit of around
 math:[\unitfrac[0.2\]{m}{s}] hence the maximum Courant number does not rise
 much above 0.2. It is sensible to increase the solution time by increasing the
 time step to a level where the Courant number is much closer to 1. Therefore

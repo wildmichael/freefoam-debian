@@ -77,7 +77,7 @@ utils=(                                                                    \
    'expandDictionary' 'extrude2DMesh' 'extrudeMesh' 'faceSet' 'flattenMesh'\
    'flowType' 'fluent3DMeshToFoam' 'fluentMeshToFoam' 'foamDataToFluent'   \
    'foamMeshToFluent' 'foamToEnsight' 'foamToEnsightParts'                 \
-   'foamToFieldview9' 'foamToGMV' 'foamToStarMesh' 'foamToVTK'             \
+   'foamToGMV' 'foamToStarMesh' 'foamToVTK'                                \
    'formatConvert' 'gambitToFoam' 'gmshToFoam' 'graphExecTime' 'graphResKE'\
    'graphResUVWP' 'icoErrorEstimate' 'icoMomentError' 'ideasUnvToFoam'     \
    'IFCLookUpTableGen' 'infoExec' 'insideCells' 'job' 'kivaToFoam'         \
@@ -839,12 +839,6 @@ _freefoam-writeMeshObj() {
    '-cell[export cell with specified label]::cell label:_freefoam_match_int "cell index"' \
    '-point[export point with specified label]::point label:_freefoam_match_int "point index"' \
    $_freefoam_cellSet_opt[@] $_freefoam_faceSet_opt[@] $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
-}
-
-(( $+functions[_freefoam-foamToFieldview9] )) ||
-_freefoam-foamToFieldview9() {
-   _arguments -S '-noWall[do not export the walls]' \
-   $_freefoam_all_time_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
 }
 
 # apps taking -dict, all time and common options.

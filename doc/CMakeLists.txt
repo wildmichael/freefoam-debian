@@ -47,12 +47,12 @@ if(FOAM_ENABLE_XHTML_HELP OR FOAM_ENABLE_DOXYGEN_DOCS
     css/custom.css)
   if(FOAM_ENABLE_XHTML_HELP OR FOAM_ENABLE_XHTML_GUIDES)
     # have asciidoc, use xhtml11.css and asciidoc-xhtml12.js from there
-    if(EXISTS "${A2X_CONF_DIR}/stylesheets/xhtml11.css")
-      configure_file("${A2X_CONF_DIR}/stylesheets/xhtml11.css"
-        "${CMAKE_CURRENT_BINARY_DIR}/html/css/xhtml11.css" COPYONLY)
-    elseif(EXISTS "${A2X_CONF_DIR}/stylesheets/asciidoc.css")
+    if(EXISTS "${A2X_CONF_DIR}/stylesheets/asciidoc.css")
       # newer versions renamed xhtml11.css to asciidoc.css
       configure_file("${A2X_CONF_DIR}/stylesheets/asciidoc.css"
+        "${CMAKE_CURRENT_BINARY_DIR}/html/css/xhtml11.css" COPYONLY)
+    elseif(EXISTS "${A2X_CONF_DIR}/stylesheets/xhtml11.css")
+      configure_file("${A2X_CONF_DIR}/stylesheets/xhtml11.css"
         "${CMAKE_CURRENT_BINARY_DIR}/html/css/xhtml11.css" COPYONLY)
     else()
       message(SEND_ERROR "Failed to find xhtml11.css or asciidoc.css")
@@ -62,12 +62,12 @@ if(FOAM_ENABLE_XHTML_HELP OR FOAM_ENABLE_DOXYGEN_DOCS
     set(installXHTMLCSSFiles
       "${CMAKE_CURRENT_BINARY_DIR}/html/css/xhtml11.css"
       "${CMAKE_CURRENT_BINARY_DIR}/html/css/docbook-xsl.css")
-    if(EXISTS "${A2X_CONF_DIR}/javascripts/asciidoc-xhtml11.js")
-      configure_file("${A2X_CONF_DIR}/javascripts/asciidoc-xhtml11.js"
-        "${CMAKE_CURRENT_BINARY_DIR}/html/js/asciidoc-xhtml11.js" COPYONLY)
-    elseif(EXISTS "${A2X_CONF_DIR}/javascripts/asciidoc.js")
+    if(EXISTS "${A2X_CONF_DIR}/javascripts/asciidoc.js")
       # newer versions renamed asciidoc-xhtml11.js to asciidoc.js
       configure_file("${A2X_CONF_DIR}/javascripts/asciidoc.js"
+        "${CMAKE_CURRENT_BINARY_DIR}/html/js/asciidoc-xhtml11.js" COPYONLY)
+    elseif(EXISTS "${A2X_CONF_DIR}/javascripts/asciidoc-xhtml11.js")
+      configure_file("${A2X_CONF_DIR}/javascripts/asciidoc-xhtml11.js"
         "${CMAKE_CURRENT_BINARY_DIR}/html/js/asciidoc-xhtml11.js" COPYONLY)
     else()
       message(SEND_ERROR "Failed to find asciidoc-xhtml11.js or asciidoc.js")

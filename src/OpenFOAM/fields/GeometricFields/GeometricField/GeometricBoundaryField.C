@@ -52,7 +52,7 @@ GeometricBoundaryField
 
     forAll(bmesh_, patchi)
     {
-        set
+        this->set
         (
             patchi,
             PatchField<Type>::New
@@ -104,7 +104,7 @@ GeometricBoundaryField
 
     forAll(bmesh_, patchi)
     {
-        set
+        this->set
         (
             patchi,
             PatchField<Type>::New
@@ -141,7 +141,7 @@ GeometricBoundaryField
 
     forAll(bmesh_, patchi)
     {
-        set(patchi, ptfl[patchi].clone(field));
+        this->set(patchi, ptfl[patchi].clone(field));
     }
 }
 
@@ -169,7 +169,7 @@ GeometricBoundaryField
 
     forAll(bmesh_, patchi)
     {
-        set(patchi, btf[patchi].clone(field));
+        this->set(patchi, btf[patchi].clone(field));
     }
 }
 
@@ -226,7 +226,7 @@ GeometricBoundaryField
     {
         if (bmesh_[patchi].type() != emptyPolyPatch::typeName)
         {
-            set
+            this->set
             (
                 patchi,
                 PatchField<Type>::New
@@ -239,7 +239,7 @@ GeometricBoundaryField
         }
         else
         {
-            set
+            this->set
             (
                 patchi,
                 PatchField<Type>::New

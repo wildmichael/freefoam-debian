@@ -108,7 +108,7 @@ public:
                 ++iter
             )
             {
-                append(iter().clone(cloneArg).ptr());
+                this->append(iter().clone(cloneArg).ptr());
             }
         }
         #else

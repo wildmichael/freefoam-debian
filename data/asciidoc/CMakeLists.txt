@@ -29,7 +29,7 @@
 #-------------------------------------------------------------------------------
 
 # configure the utility data files for build tree and the install tree
-foam_configure_files(installDataFiles
+foam_configure_files(installAsciiDocFiles
   DESTDIR data/asciidoc
   COPYONLY
   chunked.conf
@@ -37,11 +37,19 @@ foam_configure_files(installDataFiles
   manpage.conf
   pdf.conf
   common.conf
-  docbook.conf
+  docbook.conf)
+
+foam_configure_files(installDocBookFiles
+  DESTDIR data/asciidoc
+  COPYONLY
   docbook-xsl/chunked.xsl
   docbook-xsl/common.xsl
   docbook-xsl/custom.xsl
-  docbook-xsl/xhtml.xsl
+  docbook-xsl/xhtml.xsl)
+
+foam_configure_files(installDBLaTeXFiles
+  DESTDIR data/asciidoc
+  COPYONLY
   dblatex/asciidoc-dblatex.sty
   dblatex/foam-macros.sty
   dblatex/asciidoc-dblatex.xsl
@@ -49,9 +57,18 @@ foam_configure_files(installDataFiles
 
 # install the data files
 install(FILES
-  ${installDataFiles}
+  ${installAsciiDocFiles}
   DESTINATION ${FOAM_INSTALL_DATA_PATH}/asciidoc
-  COMPONENT dev
-  )
+  COMPONENT dev)
+
+install(FILES
+  ${installDocBookFiles}
+  DESTINATION ${FOAM_INSTALL_DATA_PATH}/asciidoc/docbook-xsl
+  COMPONENT dev)
+
+install(FILES
+  ${installDBLaTeXFiles}
+  DESTINATION ${FOAM_INSTALL_DATA_PATH}/asciidoc/dblatex
+  COMPONENT dev)
 
 # ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file

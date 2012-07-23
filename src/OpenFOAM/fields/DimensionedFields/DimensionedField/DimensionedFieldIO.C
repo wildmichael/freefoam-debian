@@ -43,7 +43,7 @@ void DimensionedField<Type, GeoMesh>::readField
     dimensions_.reset(dimensionSet(fieldDict.lookup("dimensions")));
 
     Field<Type> f(fieldDictEntry, fieldDict, GeoMesh::size(mesh_));
-    transfer(f);
+    this->transfer(f);
 }
 
 
