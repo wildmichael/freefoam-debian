@@ -114,7 +114,7 @@ file. In the dirname:cavity[] tutorial example, this includes:
   equations, filename:contCumulative_0[], filename:contGlobal_0[],
   filename:contLocal_0[] and filename:contCumulative_1[],
   filename:contGlobal_1[], filename:contLocal_1[];
-- residuals and iterations from the the 2 `p` equations filename:p_0[],
+- residuals and iterations from the 2 `p` equations filename:p_0[],
   filename:pFinalRes_0[], filename:pIters_0[] and filename:p_1[],
   filename:pFinalRes_1[], filename:pIters_1[];
 - and execution time, filename:executionTime[].

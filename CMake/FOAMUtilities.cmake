@@ -582,7 +582,10 @@ unset(__FOAM_ADD_EXECUTABLE_TO_DOC_INDEX_targets CACHE)
 
 function(foam_add_executable_to_doc_index target source)
   get_filename_component(f ${source} NAME_WE)
-  set(files "\"${f}_8C.html\" \"${f}_8C-source.html\"")
+  if(NOT DEFINED DOXYGEN_SOURCE_SEP)
+    set(DOXYGEN_SOURCE_SEP _)
+  endif()
+  set(files "\"${f}_8C.html\" \"${f}_8C${DOXYGEN_SOURCE_SEP}source.html\"")
   set(__FOAM_ADD_EXECUTABLE_TO_DOC_INDEX_targets
     ${__FOAM_ADD_EXECUTABLE_TO_DOC_INDEX_targets} "${target} (${files})"
     CACHE INTERNAL "Files to include in the documentation index"

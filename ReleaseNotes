@@ -12,7 +12,7 @@ OpenFOAM from its system dependence, enabling it to run natively on a variety
 of operating systems. Currently it still requires a Unix-like environment.
 FreeFOAM has been tested to build (and partially to run) on
 
-* http://www.ubuntu.com[Ubuntu] 11.10
+* http://www.ubuntu.com[Ubuntu] 12.04
 
 FreeFOAM uses the excellent cross-platform build system
 http://cmake.org[CMake] thanks to which FreeFOAM can now be installed just like
@@ -23,10 +23,11 @@ system administrators and users alike.
 Refer to the enclosed link:INSTALL.html[INSTALL] file for installation and
 usage instructions.
 
-For an overview of the changes and new features added to FreeFOAM, consult the
-link:ChangeLog.html[ChangeLog] file. For the detailed list of changes, refer
-to the log provided by the http://repo.or.cz/w/freefoam.git[FreeFOAM GIT
-repository].
+This is a bug-fix release of the FreeFOAM 0.1 series. For an overview of the
+changes and new features added to FreeFOAM, consult the
+link:ChangeLog.html[ChangeLog] file. For the detailed list of changes, refer to
+the log provided by the
+http://repo.or.cz/w/freefoam.git[FreeFOAM GIT repository].
 
 If you have questions or think you found a bug, please subscribe and post to
 the http://freefoam.sourceforge.net/support.html[FreeFOAM-users mailing list].

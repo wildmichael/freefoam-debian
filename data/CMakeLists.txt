@@ -32,7 +32,11 @@
 foam_configure_files(installDataFiles
   DESTDIR data
   COPYONLY
-  foamLog.db
+  foamLog.db)
+
+foam_configure_files(installTemplateFiles
+  DESTDIR data
+  COPYONLY
   templates/foamAppTemplate.C
   templates/foamCommentStyles
   templates/foamScript
@@ -47,9 +51,14 @@ foam_configure_files(installDataFiles
   )
 
 # install the data files
-foam_install_configured_files(FILES
+install(FILES
   ${installDataFiles}
   DESTINATION ${FOAM_INSTALL_DATA_PATH}
+  COMPONENT data
+  )
+install(FILES
+  ${installTemplateFiles}
+  DESTINATION ${FOAM_INSTALL_DATA_PATH}/templates
   COMPONENT data
   )
 

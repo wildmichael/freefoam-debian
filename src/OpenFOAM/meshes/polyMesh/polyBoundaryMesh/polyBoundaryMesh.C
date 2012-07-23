@@ -471,7 +471,7 @@ bool Foam::polyBoundaryMesh::checkParallelSync(const bool report) const
                     Pout<< " ***Problem with boundary patch " << patchI
                         << " named " << bm[patchI].name()
                         << " of type " <<  bm[patchI].type()
-                        << ". The patch seems to be preceeded by processor"
+                        << ". The patch seems to be preceded by processor"
                         << " patches. This is can give problems."
                         << endl;
                 }

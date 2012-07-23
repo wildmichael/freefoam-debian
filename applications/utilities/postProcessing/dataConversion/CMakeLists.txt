@@ -31,7 +31,6 @@
 add_subdirectory(foamDataToFluent)
 add_subdirectory(foamToEnsight)
 add_subdirectory(foamToEnsightParts)
-add_subdirectory(foamToFieldview9)
 add_subdirectory(foamToGMV)
 add_subdirectory(foamToVTK)
 add_subdirectory(smapToFoam)

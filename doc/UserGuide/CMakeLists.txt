@@ -324,7 +324,7 @@ if(FOAM_ENABLE_XHTML_GUIDES)
     add_dependencies(UserGuide-xhtml version_check)
   endif()
   install(DIRECTORY ${XSLTPROC_xhtml_DESTDIR}
-    DESTINATION ${FOAM_INSTALL_DOC_PATH}/UserGuide COMPONENT doc
+    DESTINATION ${FOAM_INSTALL_DOC_PATH} COMPONENT doc
     )
 endif()
 

@@ -144,7 +144,7 @@ void cyclicPointPatchField<Type>::swapAdd(Field<Type>& pField) const
         }
     }
 
-    addToInternalField(pField, pf);
+    this->addToInternalField(pField, pf);
 }
 
 

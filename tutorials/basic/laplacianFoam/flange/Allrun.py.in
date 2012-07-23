@@ -15,12 +15,10 @@ class laplacianFlangeRunner(FreeFOAM.tutorial.CaseRunner):
             args=[os.path.join(self.case_dir, 'flange.ans'),
                '-scale', '0.001'])
       self.add_app_step('laplacian')
-      self.add_app_step('foamToFieldview9')
       self.add_app_step('foamToEnsight')
 
    def clean(self):
       FreeFOAM.tutorial.CaseRunner.clean(self)
-      FreeFOAM.util.rmtree('Fieldview')
       FreeFOAM.util.rmtree('EnSight')
 
 if __name__ == '__main__':

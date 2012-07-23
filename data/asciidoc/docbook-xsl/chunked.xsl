@@ -13,12 +13,14 @@
   xmlns="http://www.w3.org/1999/xhtml"
   version="1.0">
 
-<xsl:include href="orig-chunked.xsl"/>
+<xsl:import href="orig-chunked.xsl"/>
 
-<xsl:include href="custom.xsl"/>
+<xsl:import href="custom.xsl"/>
 
 <xsl:template name="user.header.navigation">
   <xsl:call-template name="foam.header.content"/>
 </xsl:template>
+
+<xsl:template name="foam.footer.close-divs"/>
 
 </xsl:stylesheet>

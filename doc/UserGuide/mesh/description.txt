@@ -18,12 +18,12 @@ bounded by arbitrary polygonal faces, 'i.e.' the cells can have an unlimited
 number of faces where, for each face, there is no limit on the number of edges
 nor any restriction on its alignment. A mesh with this general structure is
 known in {project} as a `polyMesh`.(((`polyMesh` class)))(((class,`polyMesh`)))
-It is sufficient to mention here that this type of mesh offers great freedom in
-mesh generation and manipulation in particular when the geometry of the domain
-is complex or changes over time. The price of absolute mesh generality is,
-however, that it can be difficult to convert meshes generated using
-conventional tools. The {project} library therefore provides `cellShape` tools
-to manage conventional mesh formats based on sets of pre-defined cell shapes.
+This type of mesh offers great freedom in mesh generation and manipulation in
+particular when the geometry of the domain is complex or changes over time. The
+price of absolute mesh generality is, however, that it can be difficult to
+convert meshes generated using conventional tools. The {project} library
+therefore provides `cellShape` tools to manage conventional mesh formats based
+on sets of pre-defined cell shapes.
 
 ==== Mesh specification and validity constraints
 (((mesh,specification))) (((mesh,validity constraints)))
@@ -78,7 +78,7 @@ A cell is a list of faces in arbitrary order. Cells must have the properties
 listed below.
 
 *Contiguous*::
-  The cells must completely cover the computational domain and are must not
+  The cells must completely cover the computational domain and must not
   overlap one another.
 *Convex*::
   Every cell must be convex and its cell centre inside the cell.
@@ -92,7 +92,7 @@ listed below.
 *Orthogonality*::
 For all internal faces of the mesh, we define the centre-to-centre vector as
 that connecting the centres of the 2 cells that it adjoins oriented from the
-the centre of the cell with smaller label to the centre of the cell with larger
+centre of the cell with smaller label to the centre of the cell with larger
 label. The orthogonality constraint requires that for each internal face, the
 angle between the face area vector, oriented as described above, and the
 centre-to-centre vector must always be less than 90&deg;.

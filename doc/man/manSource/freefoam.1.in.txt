@@ -35,7 +35,7 @@ application '<name>':
 
 - It searches in the directory '<libexecDir>' for an executable with the name
   '@FOAM_EXE_PREFIX@<name>'. '<libexecDir>' defaults to '@FOAM_INSTALL_LIBEXEC_PATH@'.
-  This can be overriden using the '-b' option.
+  This can be overridden using the '-b' option.
 - If the +FREEFOAM_PATH+ variable is set, it is prepended to the above
   described search path. It is a colon-separated list of directories.
 - The '-P' option can be used to append the system +PATH+ to the search path.
@@ -236,7 +236,7 @@ following list details how FreeFOAM determines what library to load (if at all):
    FreeFOAM will try to load the library specified by it.
 2. If the sub-dictionary +PstreamImplementation+ exists in the global
    'controlDict' file (see above), it reads the value of the entry
-   +PstreamImplementation::configName+ therein. This entry can be overriden by
+   +PstreamImplementation::configName+ therein. This entry can be overridden by
    setting the +FREEFOAM_PSTREAM_CONFIG+ environment variable. It then expects
    that a sub-dictionary of +PstreamImplementation+ with the name specified in
    +FREEFOAM_PSTREAM_CONFIG+ or +PstreamImplementation::configName+ exists. If

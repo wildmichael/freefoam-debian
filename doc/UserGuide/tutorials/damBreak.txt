@@ -133,7 +133,20 @@ bounding box within a vector minimum and maximum to define the set of cells of
 the liquid region. The phase fraction math:[\alpha_1] is defined as 1 in this
 region.
 
-The user should execute `setFields` (((`setFields` utility)))
+The `setFields`(((`setFields` utility)))(((utility,`setFields`))) utility reads
+fields from file and, after re-calculating those fields, will write them back
+to file. Because the files are then overwritten, it is recommended that a
+backup is made before `setFields`(((`setFields` utility)))
+(((utility,`setFields`))) is executed. In the `damBreak` tutorial, the
+filename:[alpha1] field is initially stored as a backup 'only', named
+filename:[alpha1.org]. Before running `setFields`, the user first needs to copy
+filename:[alpha1.org] to filename:[alpha1], 'e.g.' by typing:
+
+-------------------------------------------------------------------------------
+$ cp 0/alpha1.org 0/alpha1
+-------------------------------------------------------------------------------
+
+The user should then execute `setFields` (((`setFields` utility)))
 (((utility,`setFields`))) as any other utility is executed. Using `para`, check
 that the initial alpha1 field corresponds to the desired distribution as in
 <<fig_phaseDamBreak00>>.
@@ -147,7 +160,7 @@ image::images/tut_damBreak_initial.{gfx-fmt}[scaledwidth="40%"]
 Let us examine the filename:transportProperties[]
 (((filename:transportProperties[] file)))
 (((file,filename:transportProperties[]))) file in the dirname:constant[]
-directory. Its dictionary contains the material properties for each fluid,
+directory. The dictionary contains the material properties for each fluid,
 separated into two subdictionaries `phase1` and `phase2`. The transport model
 for each phase is selected by the `transportModel` keyword. The user should
 select `Newtonian` (((`Newtonian`,keyword entry)))
@@ -214,7 +227,7 @@ For more complex cases, this is considerably more difficult. `inter` therefore
 offers automatic adjustment of the time step as standard in the
 filename:controlDict[]. The user should specify `adjustTimeStep`
 (((`adjustTimeStep` keyword))) (((keyword,`adjustTimeStep`))) to be `on` and
-the the maximum math:[Co] for the phase fields, `maxAlphaCo`,
+the maximum math:[Co] for the phase fields, `maxAlphaCo`,
 (((`maxAlphaCo` keyword))) ((keyword,`maxAlphaCo`))) and other fields, `maxCo`,
 (((`maxCo` keyword))) (((keyword,`maxCo`))) to be 0.5. The upper limit on time
 step `maxDeltaT` (((`maxDeltaT` keyword)))(((keyword,`maxDeltaT`))) can be set
@@ -321,7 +334,7 @@ file.
 ==== Post-processing
 
 Post-processing of the results can now be done in the usual way. The user can
-monitor the development of the phase fraction `alpha1` in time;
+monitor the development of the phase fraction `alpha1` in time, 'e.g.' see
 <<fig_phaseDamBreak2550>>.
 
 [[fig_phaseDamBreak2550]]

@@ -333,6 +333,8 @@ if format != 'asciidoc':
       a2xfile.close()
    # set up options for a2x
    opts = {
+         'backend': None,
+         'backend_opts': '',
          'doctype': 'manpage',
          'destination_dir': os.path.abspath(outDir),
          'format': format,

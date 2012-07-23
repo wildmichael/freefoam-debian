@@ -183,7 +183,7 @@ coordinates
 The `surfaces` list contains sub-dictionaries of locations where the data is to
 be sampled. The sub-dictionary is named according to the name of the surface
 and contains a set of entries beginning with the `type`: either a `plane`,
-defined by point and normal direction, with additional sub-dictionary entries a
+defined by point and normal direction, with additional sub-dictionary entries
 specified in <<tab_surfacesPlane>>; or, a `patch`,(((`patch`,keyword entry)))
 (((keyword entry,`patch`))) coinciding with an existing boundary patch, with
 additional sub-dictionary entries a specified in <<tab_surfacesPatch>>.

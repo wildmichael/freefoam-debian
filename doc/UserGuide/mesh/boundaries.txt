@@ -141,7 +141,7 @@ boundaryField
 
 
 The `type` in the boundary file is `patch` for all patches except those that
-patches that have some geometrical constraint applied to them, 'i.e.' the
+have some geometrical constraint applied to them, 'i.e.' the
 `symmetryPlane` and `empty` patches. The filename:p[] file includes primitive
 types applied to the `inlet` and `bottom` faces, and a more complex derived
 type applied to the `outlet`. Comparison of the two files shows that the base
@@ -190,7 +190,7 @@ inter-processor boundary
   wall boundaries. A good example is wall turbulence modelling where a wall
   must be specified with a `wall` (((`wall`,boundary condition)))
   (((boundary condition,`wall`))) patch type, so that the distance from the
-  wall of the cell centres next to the wall are stored as part of the patch.
+  wall to the cell centres next to the wall are stored as part of the patch.
 `symmetryPlane`::
   (((`symmetryPlane`,boundary condition)))
   (((boundary condition,`symmetryPlane`)))
@@ -271,7 +271,7 @@ Mixed `fixedValue`/ `fixedGradient` condition depending on the value in
 There are numerous derived types of boundary
 conditions in {project}, too many to list here. Instead a small
 selection is listed in <<tab_derivedPatchTypes>>. If the user wishes
-to obtain a list of all available model, they should consult the
+to obtain a list of all available models, they should consult the
 {project} source code. Derived boundary condition source code can be
 found at the following locations:
 

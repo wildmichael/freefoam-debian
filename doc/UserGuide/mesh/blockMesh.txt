@@ -193,9 +193,9 @@ The definition of each block is as follows:
 *Vertex numbering*::
   (((`blockMesh` executable,vertex numbering))) The first entry is the is the
   shape identifier(((shape))) of the block, as defined in the
-  filename:.{project}-1.7.1/cellModels[] file. The shape is always `hex` since
-  the blocks are always hexahedra. There follows a list of vertex numbers,
-  ordered in the manner described in <<pge_blockVertexOrder>>.
+  filename:.{project}-{fullver}/cellModels[] file. The shape is always `hex`
+  since the blocks are always hexahedra. There follows a list of vertex
+  numbers, ordered in the manner described in <<pge_blockVertexOrder>>.
 *Number of cells*::
   The second entry gives the number of cells in each of the math:[i_1]
   math:[i_2] and math:[i_3] directions for that block.
@@ -249,8 +249,8 @@ compound entry containing:
   are applied or a particular geometric condition, as listed in
   <<tab_basePatchTypes>> and described in <<sec_baseTypes>>;
 - a list of block faces that make up the patch and whose name is the choice of
-  the the user, although we recommend something that conveniently identifies
-  the patch, 'e.g.' quoteTextinlet; the name is used as an identifier for
+  the user, although we recommend something that conveniently identifies
+  the patch, 'e.g.' `inlet`; the name is used as an identifier for
   setting boundary conditions in the field data files.
 
 

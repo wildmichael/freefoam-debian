@@ -47,7 +47,7 @@ Foam::HashPtrTable<T, Key, Hash>::HashPtrTable
 {
     for (const_iterator iter = ht.begin(); iter != ht.end(); ++iter)
     {
-        insert(iter.key(), new T(**iter));
+        this->insert(iter.key(), new T(**iter));
     }
 }
 
@@ -133,7 +133,7 @@ void Foam::HashPtrTable<T, Key, Hash>::operator=
 
     for (const_iterator iter = rhs.begin(); iter != rhs.end(); ++iter)
     {
-        insert(iter.key(), new T(**iter));
+        this->insert(iter.key(), new T(**iter));
     }
 }
 

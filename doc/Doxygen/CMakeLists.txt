@@ -78,7 +78,6 @@ set(DOXYDOC_OUTPUT
   ${CMAKE_CURRENT_BINARY_DIR}/../html/API/namespaces.html
   ${CMAKE_CURRENT_BINARY_DIR}/../html/API/classes.html
   ${CMAKE_CURRENT_BINARY_DIR}/../html/API/files.html
-  ${CMAKE_CURRENT_BINARY_DIR}/../html/API/dirs.html
   )
 
 set(DOXYGEN_CMD_STRING
