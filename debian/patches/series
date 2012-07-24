@@ -1,2 +1,3 @@
 disable-git-version-check.diff
 fix-doc-urls-and-references-for-debian.diff
+remove-hard-coded-python-modules-path.diff

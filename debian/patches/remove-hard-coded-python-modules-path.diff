@@ -1,0 +1,1716 @@
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Tue, 24 Jul 2012 13:36:47 +0200
+Subject: Remove hard-coded python modules path
+
+It is not needed on Debian since the modules are installed in a standard place.
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ bin/freefoam-clearPolyMesh.py.in                   |    1 -
+ bin/freefoam-copySettings.py.in                    |    1 -
+ bin/freefoam-graphExecTime.py.in                   |    1 -
+ bin/freefoam-graphResKE.py.in                      |    1 -
+ bin/freefoam-graphResUVWP.py.in                    |    1 -
+ bin/freefoam-job.py.in                             |    1 -
+ bin/freefoam-log.py.in                             |    1 -
+ bin/freefoam-para.py.in                            |    1 -
+ bin/freefoam-solverSweeps.py.in                    |    1 -
+ bin/freefoam.py.in                                 |    1 -
+ data/utilities/checkVersionInfo.py.in              |    1 -
+ data/utilities/compareDeps.py.in                   |    1 -
+ data/utilities/doxyToX.py.in                       |    1 -
+ data/utilities/extractBrief.py.in                  |    1 -
+ data/utilities/foamNew.py.in                       |    1 -
+ data/utilities/foamPNGMathFilter.py.in             |    1 -
+ data/utilities/generateOpenFOAMDeps.py.in          |    1 -
+ data/utilities/postProcFreeFOAMDeps.py.in          |    1 -
+ tutorials/Allrun.py.in                             |    1 -
+ tutorials/DNS/dnsFoam/boxTurb16/Allrun.py.in       |    1 -
+ tutorials/basic/laplacianFoam/flange/Allrun.py.in  |    1 -
+ .../basic/potentialFoam/cylinder/Allrun.py.in      |    1 -
+ .../basic/potentialFoam/pitzDaily/Allrun.py.in     |    1 -
+ .../scalarTransportFoam/pitzDaily/Allrun.py.in     |    1 -
+ .../combustion/XiFoam/les/pitzDaily/Allrun.py.in   |    1 -
+ .../combustion/XiFoam/les/pitzDaily3D/Allrun.py.in |    1 -
+ .../XiFoam/ras/moriyoshiHomogeneous/Allrun.py.in   |    1 -
+ .../combustion/dieselFoam/aachenBomb/Allrun.py.in  |    1 -
+ .../combustion/engineFoam/kivaTest/Allrun.py.in    |    1 -
+ .../fireFoam/les/smallPoolFire2D/Allrun.py.in      |    1 -
+ .../fireFoam/les/smallPoolFire3D/Allrun.py.in      |    1 -
+ .../ras/counterFlowFlame2D/Allrun.py.in            |    1 -
+ .../rhoCentralFoam/LadenburgJet60psi/Allrun.py.in  |    1 -
+ .../rhoCentralFoam/biconic25-55Run35/Allrun.py.in  |    1 -
+ .../biconic25-55Run35/sampleCone.py.in             |    1 -
+ .../rhoCentralFoam/forwardStep/Allrun.py.in        |    1 -
+ .../rhoCentralFoam/obliqueShock/Allrun.py.in       |    1 -
+ .../rhoCentralFoam/shockTube/Allrun.py.in          |    1 -
+ .../rhoCentralFoam/wedge15Ma5/Allrun.py.in         |    1 -
+ .../rhoPimpleFoam/angledDuct/Allrun.py.in          |    1 -
+ .../rhoPisoFoam/les/pitzDaily/Allrun.py.in         |    1 -
+ .../rhoPisoFoam/ras/cavity/Allrun.py.in            |    1 -
+ .../mixerVessel2D/Allrun.py.in                     |    1 -
+ .../angledDuctExplicit/Allrun.py.in                |    1 -
+ .../angledDuctImplicit/Allrun.py.in                |    1 -
+ .../sonicFoam/laminar/forwardStep/Allrun.py.in     |    1 -
+ .../sonicFoam/laminar/shockTube/Allrun.py.in       |    1 -
+ .../sonicFoam/ras/nacaAirfoil/Allrun.py.in         |    1 -
+ .../compressible/sonicFoam/ras/prism/Allrun.py.in  |    1 -
+ .../compressible/sonicLiquidFoam/Allrun.py.in      |    1 -
+ .../dsmcFoam/freeSpacePeriodic/Allrun.py.in        |    1 -
+ .../dsmcFoam/freeSpaceStream/Allrun.py.in          |    1 -
+ .../dsmcFoam/supersonicCorner/Allrun.py.in         |    1 -
+ .../dsmcFoam/wedge15Ma5/Allrun.py.in               |    1 -
+ .../periodicCubeArgon/Allrun.py.in                 |    1 -
+ .../periodicCubeWater/Allrun.py.in                 |    1 -
+ .../mdFoam/nanoNozzle/Allrun.py.in                 |    1 -
+ .../electrostaticFoam/chargedWire/Allrun.py.in     |    1 -
+ .../electromagnetics/mhdFoam/hartmann/Allrun.py.in |    1 -
+ .../financialFoam/europeanCall/Allrun.py.in        |    1 -
+ .../hotRoom/Allrun.py.in                           |    1 -
+ .../hotRoom/Allrun.py.in                           |    1 -
+ .../iglooWithFridges/Allrun.py.in                  |    1 -
+ .../buoyantPimpleFoam/hotRoom/Allrun.py.in         |    1 -
+ .../buoyantSimpleFoam/buoyantCavity/Allrun.py.in   |    1 -
+ .../buoyantSimpleFoam/hotRoom/Allrun.py.in         |    1 -
+ .../hotRadiationRoom/Allrun.py.in                  |    1 -
+ .../hotRadiationRoomFvDOM/Allrun.py.in             |    1 -
+ .../multiRegionHeater/Allrun.py.in                 |    1 -
+ .../multiRegionLiquidHeater/Allrun.py.in           |    1 -
+ .../snappyMultiRegionHeater/Allrun.py.in           |    1 -
+ .../multiRegionHeater/Allrun.py.in                 |    1 -
+ .../multiRegionLiquidHeater/Allrun.py.in           |    1 -
+ .../MRFSimpleFoam/mixerVessel2D/Allrun.py.in       |    1 -
+ .../SRFPimpleFoam/rotor2D/Allrun.py.in             |    1 -
+ .../boundaryLaunderSharma/Allrun.py.in             |    1 -
+ .../boundaryWallFunctions/Allrun.py.in             |    1 -
+ .../channelFoam/channel395/Allrun.py.in            |    1 -
+ tutorials/incompressible/icoFoam/Allrun.py.in      |    1 -
+ .../offsetCylinder/Allrun.py.in                    |    1 -
+ .../pimpleDyMFoam/movingCone/Allrun.py.in          |    1 -
+ .../pimpleDyMFoam/wingMotion/Allrun.py.in          |    1 -
+ .../pimpleFoam/t-junction/Allrun.py.in             |    1 -
+ .../pisoFoam/les/pitzDaily/Allrun.py.in            |    1 -
+ .../les/pitzDailyDirectMapped/Allrun.py.in         |    1 -
+ .../pisoFoam/ras/cavity/Allrun.py.in               |    1 -
+ .../angledDuctExplicit/Allrun.py.in                |    1 -
+ .../angledDuctImplicit/Allrun.py.in                |    1 -
+ .../shallowWaterFoam/squareBump/Allrun.py.in       |    1 -
+ .../simpleFoam/airFoil2D/Allrun.py.in              |    1 -
+ .../simpleFoam/motorBike/Allrun.py.in              |    1 -
+ .../simpleFoam/pitzDaily/Allrun.py.in              |    1 -
+ .../simpleFoam/pitzDailyExptInlet/Allrun.py.in     |    1 -
+ .../simpleSRFFoam/mixer/Allrun.py.in               |    1 -
+ .../simpleWindFoam/turbineSiting/Allrun.py.in      |    1 -
+ .../coalChemistryFoam/simplifiedSiwek/Allrun.py.in |    1 -
+ .../filter/Allrun.py.in                            |    1 -
+ .../parcelInBox/Allrun.py.in                       |    1 -
+ .../verticalChannel/Allrun.py.in                   |    1 -
+ .../evaporationTest/Allrun.py.in                   |    1 -
+ .../simplifiedSiwek/Allrun.py.in                   |    1 -
+ .../moveDynamicMesh/SnakeRiverCanyon/Allrun.py.in  |    1 -
+ .../MRFInterFoam/mixerVessel2D/Allrun.py.in        |    1 -
+ .../mixerVessel2D/Allrun.py.in                     |    1 -
+ .../bubbleFoam/bubbleColumn/Allrun.py.in           |    1 -
+ .../multiphase/cavitatingFoam/les/Allrun.py.in     |    1 -
+ .../cavitatingFoam/ras/throttle/Allrun.py.in       |    1 -
+ .../les/depthCharge2D/Allrun.py.in                 |    1 -
+ .../les/depthCharge3D/Allrun.py.in                 |    1 -
+ .../ras/damBreakWithObstacle/Allrun.py.in          |    1 -
+ .../interDyMFoam/ras/floatingObject/Allrun.py.in   |    1 -
+ .../ras/floatingObject/Allrun_parallel.py.in       |    1 -
+ .../interDyMFoam/ras/sloshingTank2D/Allrun.py.in   |    1 -
+ .../ras/sloshingTank2D3DoF/Allrun.py.in            |    1 -
+ .../interDyMFoam/ras/sloshingTank3D/Allrun.py.in   |    1 -
+ .../ras/sloshingTank3D3DoF/Allrun.py.in            |    1 -
+ .../ras/sloshingTank3D6DoF/Allrun.py.in            |    1 -
+ .../multiphase/interFoam/laminar/Allrun.py.in      |    1 -
+ .../interFoam/les/nozzleFlow2D/Allrun.py.in        |    1 -
+ tutorials/multiphase/interFoam/ras/Allrun.py.in    |    1 -
+ .../interMixingFoam/laminar/damBreak/Allrun.py.in  |    1 -
+ .../cavitatingBullet/Allrun.py.in                  |    1 -
+ .../laminar/damBreak4phase/Allrun.py.in            |    1 -
+ .../laminar/damBreak4phaseFine/Allrun.py.in        |    1 -
+ .../multiphase/settlingFoam/ras/dahl/Allrun.py.in  |    1 -
+ .../settlingFoam/ras/tank3D/Allrun.py.in           |    1 -
+ .../multiphase/twoPhaseEulerFoam/bed/Allrun.py.in  |    1 -
+ .../multiphase/twoPhaseEulerFoam/bed2/Allrun.py.in |    1 -
+ .../twoPhaseEulerFoam/bubbleColumn/Allrun.py.in    |    1 -
+ .../solidDisplacementFoam/plateHole/Allrun.py.in   |    1 -
+ .../beamEndLoad/Allrun.py.in                       |    1 -
+ 131 files changed, 131 deletions(-)
+
+diff --git a/bin/freefoam-clearPolyMesh.py.in b/bin/freefoam-clearPolyMesh.py.in
+index e086bd4..c4f3779 100755
+--- a/bin/freefoam-clearPolyMesh.py.in
++++ b/bin/freefoam-clearPolyMesh.py.in
+@@ -52,7 +52,6 @@ Options
+ 
+ import sys
+ # want to be future proof
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.util
+ 
+diff --git a/bin/freefoam-copySettings.py.in b/bin/freefoam-copySettings.py.in
+index c3d6b11..520c702 100755
+--- a/bin/freefoam-copySettings.py.in
++++ b/bin/freefoam-copySettings.py.in
+@@ -55,7 +55,6 @@ import os
+ import os.path
+ import re
+ # want to be future proof
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ # parse options
+diff --git a/bin/freefoam-graphExecTime.py.in b/bin/freefoam-graphExecTime.py.in
+index adeced9..cd56665 100755
+--- a/bin/freefoam-graphExecTime.py.in
++++ b/bin/freefoam-graphExecTime.py.in
+@@ -52,7 +52,6 @@ import sys
+ import os.path
+ import re
+ # want to be future proof
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ if len(sys.argv[1:]) != 1:
+diff --git a/bin/freefoam-graphResKE.py.in b/bin/freefoam-graphResKE.py.in
+index 46e4796..4953dd6 100755
+--- a/bin/freefoam-graphResKE.py.in
++++ b/bin/freefoam-graphResKE.py.in
+@@ -52,7 +52,6 @@ import sys
+ import os.path
+ import re
+ # want to be future proof
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ if len(sys.argv[1:]) != 1:
+diff --git a/bin/freefoam-graphResUVWP.py.in b/bin/freefoam-graphResUVWP.py.in
+index 8b77f03..0d6cb93 100755
+--- a/bin/freefoam-graphResUVWP.py.in
++++ b/bin/freefoam-graphResUVWP.py.in
+@@ -54,7 +54,6 @@ import sys
+ import os.path
+ import re
+ # want to be future proof
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ if len(sys.argv[1:]) != 1:
+diff --git a/bin/freefoam-job.py.in b/bin/freefoam-job.py.in
+index 58ce17e..ea6d905 100755
+--- a/bin/freefoam-job.py.in
++++ b/bin/freefoam-job.py.in
+@@ -59,7 +59,6 @@ import os
+ import sys
+ import subprocess
+ # want to be future proof
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ # parse options
+diff --git a/bin/freefoam-log.py.in b/bin/freefoam-log.py.in
+index 21c54d4..2763df4 100755
+--- a/bin/freefoam-log.py.in
++++ b/bin/freefoam-log.py.in
+@@ -87,7 +87,6 @@ import os.path
+ import sys
+ import re
+ # want to be future proof
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ class PrintLog:
+diff --git a/bin/freefoam-para.py.in b/bin/freefoam-para.py.in
+index 92df0ed..8dc00c0 100755
+--- a/bin/freefoam-para.py.in
++++ b/bin/freefoam-para.py.in
+@@ -53,7 +53,6 @@ import sys
+ import glob
+ import subprocess
+ # want to be future proof
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ # parse options
+diff --git a/bin/freefoam-solverSweeps.py.in b/bin/freefoam-solverSweeps.py.in
+index d0305c0..9b0b356 100755
+--- a/bin/freefoam-solverSweeps.py.in
++++ b/bin/freefoam-solverSweeps.py.in
+@@ -61,7 +61,6 @@ import os.path
+ import sys
+ import re
+ # want to be future proof
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ logFile = None
+diff --git a/bin/freefoam.py.in b/bin/freefoam.py.in
+index f5ca4e9..c7f53ea 100755
+--- a/bin/freefoam.py.in
++++ b/bin/freefoam.py.in
+@@ -62,7 +62,6 @@ search path.
+ 
+ import sys
+ # want to be future proof
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ import FreeFOAM
+diff --git a/data/utilities/checkVersionInfo.py.in b/data/utilities/checkVersionInfo.py.in
+index b1371d5..8bab741 100755
+--- a/data/utilities/checkVersionInfo.py.in
++++ b/data/utilities/checkVersionInfo.py.in
+@@ -49,7 +49,6 @@ Options
+ """
+ 
+ import sys
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import os
+ import os.path as op
+diff --git a/data/utilities/compareDeps.py.in b/data/utilities/compareDeps.py.in
+index 58603c1..56a11b4 100755
+--- a/data/utilities/compareDeps.py.in
++++ b/data/utilities/compareDeps.py.in
+@@ -49,7 +49,6 @@ Options
+ """
+ 
+ import sys
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import re
+ import os
+diff --git a/data/utilities/doxyToX.py.in b/data/utilities/doxyToX.py.in
+index 105cd0f..4b92aa6 100755
+--- a/data/utilities/doxyToX.py.in
++++ b/data/utilities/doxyToX.py.in
+@@ -71,7 +71,6 @@ import os.path
+ import re
+ import shutil
+ import tempfile
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ # cleanup utility function
+diff --git a/data/utilities/extractBrief.py.in b/data/utilities/extractBrief.py.in
+index b3f5060..209e5cf 100755
+--- a/data/utilities/extractBrief.py.in
++++ b/data/utilities/extractBrief.py.in
+@@ -55,7 +55,6 @@ Options
+ 
+ import sys
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ import FreeFOAM.doxyToAsciidoc
+ from FreeFOAM.compat import *
+ 
+diff --git a/data/utilities/foamNew.py.in b/data/utilities/foamNew.py.in
+index 1f6c709..6f66d19 100755
+--- a/data/utilities/foamNew.py.in
++++ b/data/utilities/foamNew.py.in
+@@ -75,7 +75,6 @@ import os
+ import os.path
+ import sys
+ import re
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ def create_source(kind, name, outdir):
+diff --git a/data/utilities/foamPNGMathFilter.py.in b/data/utilities/foamPNGMathFilter.py.in
+index 63e84d5..7b10ba2 100755
+--- a/data/utilities/foamPNGMathFilter.py.in
++++ b/data/utilities/foamPNGMathFilter.py.in
+@@ -61,7 +61,6 @@ import shutil
+ import subprocess
+ import sys
+ import tempfile
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ 
+ # argument parsing
+diff --git a/data/utilities/generateOpenFOAMDeps.py.in b/data/utilities/generateOpenFOAMDeps.py.in
+index 30a393c..9f31a36 100755
+--- a/data/utilities/generateOpenFOAMDeps.py.in
++++ b/data/utilities/generateOpenFOAMDeps.py.in
+@@ -52,7 +52,6 @@ Options
+ """
+ 
+ import sys
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import os
+ import os.path as op
+diff --git a/data/utilities/postProcFreeFOAMDeps.py.in b/data/utilities/postProcFreeFOAMDeps.py.in
+index 002ed67..3290185 100755
+--- a/data/utilities/postProcFreeFOAMDeps.py.in
++++ b/data/utilities/postProcFreeFOAMDeps.py.in
+@@ -43,7 +43,6 @@ Patches up the dependency files generated when compiling with -MD.
+ """
+ 
+ import sys
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import re
+ import os
+diff --git a/tutorials/Allrun.py.in b/tutorials/Allrun.py.in
+index db8ba59..5e49a8c 100755
+--- a/tutorials/Allrun.py.in
++++ b/tutorials/Allrun.py.in
+@@ -6,7 +6,6 @@ import os.path
+ import imp
+ import inspect
+ import re
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/DNS/dnsFoam/boxTurb16/Allrun.py.in b/tutorials/DNS/dnsFoam/boxTurb16/Allrun.py.in
+index 50cbd17..2fbaf57 100755
+--- a/tutorials/DNS/dnsFoam/boxTurb16/Allrun.py.in
++++ b/tutorials/DNS/dnsFoam/boxTurb16/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/basic/laplacianFoam/flange/Allrun.py.in b/tutorials/basic/laplacianFoam/flange/Allrun.py.in
+index 312da08..130c8df 100755
+--- a/tutorials/basic/laplacianFoam/flange/Allrun.py.in
++++ b/tutorials/basic/laplacianFoam/flange/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/basic/potentialFoam/cylinder/Allrun.py.in b/tutorials/basic/potentialFoam/cylinder/Allrun.py.in
+index 1ca7283..61f7e08 100755
+--- a/tutorials/basic/potentialFoam/cylinder/Allrun.py.in
++++ b/tutorials/basic/potentialFoam/cylinder/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/basic/potentialFoam/pitzDaily/Allrun.py.in b/tutorials/basic/potentialFoam/pitzDaily/Allrun.py.in
+index 6974d22..386b904 100755
+--- a/tutorials/basic/potentialFoam/pitzDaily/Allrun.py.in
++++ b/tutorials/basic/potentialFoam/pitzDaily/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/basic/scalarTransportFoam/pitzDaily/Allrun.py.in b/tutorials/basic/scalarTransportFoam/pitzDaily/Allrun.py.in
+index 071420a..2044044 100755
+--- a/tutorials/basic/scalarTransportFoam/pitzDaily/Allrun.py.in
++++ b/tutorials/basic/scalarTransportFoam/pitzDaily/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/combustion/XiFoam/les/pitzDaily/Allrun.py.in b/tutorials/combustion/XiFoam/les/pitzDaily/Allrun.py.in
+index 137fba3..b6526be 100755
+--- a/tutorials/combustion/XiFoam/les/pitzDaily/Allrun.py.in
++++ b/tutorials/combustion/XiFoam/les/pitzDaily/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/combustion/XiFoam/les/pitzDaily3D/Allrun.py.in b/tutorials/combustion/XiFoam/les/pitzDaily3D/Allrun.py.in
+index 28ba642..7dad6f5 100755
+--- a/tutorials/combustion/XiFoam/les/pitzDaily3D/Allrun.py.in
++++ b/tutorials/combustion/XiFoam/les/pitzDaily3D/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/combustion/XiFoam/ras/moriyoshiHomogeneous/Allrun.py.in b/tutorials/combustion/XiFoam/ras/moriyoshiHomogeneous/Allrun.py.in
+index 4d3c0d4..5d6a561 100755
+--- a/tutorials/combustion/XiFoam/ras/moriyoshiHomogeneous/Allrun.py.in
++++ b/tutorials/combustion/XiFoam/ras/moriyoshiHomogeneous/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/combustion/dieselFoam/aachenBomb/Allrun.py.in b/tutorials/combustion/dieselFoam/aachenBomb/Allrun.py.in
+index 3fbd0d9..747aa85 100755
+--- a/tutorials/combustion/dieselFoam/aachenBomb/Allrun.py.in
++++ b/tutorials/combustion/dieselFoam/aachenBomb/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/combustion/engineFoam/kivaTest/Allrun.py.in b/tutorials/combustion/engineFoam/kivaTest/Allrun.py.in
+index 680ea8e..2de0093 100755
+--- a/tutorials/combustion/engineFoam/kivaTest/Allrun.py.in
++++ b/tutorials/combustion/engineFoam/kivaTest/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/combustion/fireFoam/les/smallPoolFire2D/Allrun.py.in b/tutorials/combustion/fireFoam/les/smallPoolFire2D/Allrun.py.in
+index ccca74e..572642f 100755
+--- a/tutorials/combustion/fireFoam/les/smallPoolFire2D/Allrun.py.in
++++ b/tutorials/combustion/fireFoam/les/smallPoolFire2D/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/combustion/fireFoam/les/smallPoolFire3D/Allrun.py.in b/tutorials/combustion/fireFoam/les/smallPoolFire3D/Allrun.py.in
+index 9749d52..be545df 100755
+--- a/tutorials/combustion/fireFoam/les/smallPoolFire3D/Allrun.py.in
++++ b/tutorials/combustion/fireFoam/les/smallPoolFire3D/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/combustion/reactingFoam/ras/counterFlowFlame2D/Allrun.py.in b/tutorials/combustion/reactingFoam/ras/counterFlowFlame2D/Allrun.py.in
+index 5b22a43..f4275cd 100755
+--- a/tutorials/combustion/reactingFoam/ras/counterFlowFlame2D/Allrun.py.in
++++ b/tutorials/combustion/reactingFoam/ras/counterFlowFlame2D/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/rhoCentralFoam/LadenburgJet60psi/Allrun.py.in b/tutorials/compressible/rhoCentralFoam/LadenburgJet60psi/Allrun.py.in
+index 7f858ba..169587f 100755
+--- a/tutorials/compressible/rhoCentralFoam/LadenburgJet60psi/Allrun.py.in
++++ b/tutorials/compressible/rhoCentralFoam/LadenburgJet60psi/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/rhoCentralFoam/biconic25-55Run35/Allrun.py.in b/tutorials/compressible/rhoCentralFoam/biconic25-55Run35/Allrun.py.in
+index 16b9fcc..03c1ca0 100755
+--- a/tutorials/compressible/rhoCentralFoam/biconic25-55Run35/Allrun.py.in
++++ b/tutorials/compressible/rhoCentralFoam/biconic25-55Run35/Allrun.py.in
+@@ -5,7 +5,6 @@ import os
+ import os.path
+ import re
+ import glob
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/compressible/rhoCentralFoam/biconic25-55Run35/sampleCone.py.in b/tutorials/compressible/rhoCentralFoam/biconic25-55Run35/sampleCone.py.in
+index 540f03d..89f63f2 100755
+--- a/tutorials/compressible/rhoCentralFoam/biconic25-55Run35/sampleCone.py.in
++++ b/tutorials/compressible/rhoCentralFoam/biconic25-55Run35/sampleCone.py.in
+@@ -5,7 +5,6 @@ import os
+ import os.path
+ import optparse
+ import glob
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.util
+ import FreeFOAM.run
+diff --git a/tutorials/compressible/rhoCentralFoam/forwardStep/Allrun.py.in b/tutorials/compressible/rhoCentralFoam/forwardStep/Allrun.py.in
+index d6eb5b1..0d93440 100755
+--- a/tutorials/compressible/rhoCentralFoam/forwardStep/Allrun.py.in
++++ b/tutorials/compressible/rhoCentralFoam/forwardStep/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/rhoCentralFoam/obliqueShock/Allrun.py.in b/tutorials/compressible/rhoCentralFoam/obliqueShock/Allrun.py.in
+index 6f4f017..0db8dfa 100755
+--- a/tutorials/compressible/rhoCentralFoam/obliqueShock/Allrun.py.in
++++ b/tutorials/compressible/rhoCentralFoam/obliqueShock/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/rhoCentralFoam/shockTube/Allrun.py.in b/tutorials/compressible/rhoCentralFoam/shockTube/Allrun.py.in
+index 3863943..735b54a 100755
+--- a/tutorials/compressible/rhoCentralFoam/shockTube/Allrun.py.in
++++ b/tutorials/compressible/rhoCentralFoam/shockTube/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/compressible/rhoCentralFoam/wedge15Ma5/Allrun.py.in b/tutorials/compressible/rhoCentralFoam/wedge15Ma5/Allrun.py.in
+index c399d77..6fca87e 100755
+--- a/tutorials/compressible/rhoCentralFoam/wedge15Ma5/Allrun.py.in
++++ b/tutorials/compressible/rhoCentralFoam/wedge15Ma5/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/rhoPimpleFoam/angledDuct/Allrun.py.in b/tutorials/compressible/rhoPimpleFoam/angledDuct/Allrun.py.in
+index 8530463..57c05df 100755
+--- a/tutorials/compressible/rhoPimpleFoam/angledDuct/Allrun.py.in
++++ b/tutorials/compressible/rhoPimpleFoam/angledDuct/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/rhoPisoFoam/les/pitzDaily/Allrun.py.in b/tutorials/compressible/rhoPisoFoam/les/pitzDaily/Allrun.py.in
+index 8200a7f..7af0e0a 100755
+--- a/tutorials/compressible/rhoPisoFoam/les/pitzDaily/Allrun.py.in
++++ b/tutorials/compressible/rhoPisoFoam/les/pitzDaily/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/rhoPisoFoam/ras/cavity/Allrun.py.in b/tutorials/compressible/rhoPisoFoam/ras/cavity/Allrun.py.in
+index 17012a6..20b884c 100755
+--- a/tutorials/compressible/rhoPisoFoam/ras/cavity/Allrun.py.in
++++ b/tutorials/compressible/rhoPisoFoam/ras/cavity/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/rhoPorousMRFPimpleFoam/mixerVessel2D/Allrun.py.in b/tutorials/compressible/rhoPorousMRFPimpleFoam/mixerVessel2D/Allrun.py.in
+index 65be90c..03c6278 100755
+--- a/tutorials/compressible/rhoPorousMRFPimpleFoam/mixerVessel2D/Allrun.py.in
++++ b/tutorials/compressible/rhoPorousMRFPimpleFoam/mixerVessel2D/Allrun.py.in
+@@ -4,7 +4,6 @@ import sys
+ import os
+ import os.path
+ import subprocess
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/rhoPorousSimpleFoam/angledDuctExplicit/Allrun.py.in b/tutorials/compressible/rhoPorousSimpleFoam/angledDuctExplicit/Allrun.py.in
+index db52931..abc133a 100755
+--- a/tutorials/compressible/rhoPorousSimpleFoam/angledDuctExplicit/Allrun.py.in
++++ b/tutorials/compressible/rhoPorousSimpleFoam/angledDuctExplicit/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/rhoPorousSimpleFoam/angledDuctImplicit/Allrun.py.in b/tutorials/compressible/rhoPorousSimpleFoam/angledDuctImplicit/Allrun.py.in
+index 2a9b81d..76da72b 100755
+--- a/tutorials/compressible/rhoPorousSimpleFoam/angledDuctImplicit/Allrun.py.in
++++ b/tutorials/compressible/rhoPorousSimpleFoam/angledDuctImplicit/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/sonicFoam/laminar/forwardStep/Allrun.py.in b/tutorials/compressible/sonicFoam/laminar/forwardStep/Allrun.py.in
+index b58c701..19fcd07 100755
+--- a/tutorials/compressible/sonicFoam/laminar/forwardStep/Allrun.py.in
++++ b/tutorials/compressible/sonicFoam/laminar/forwardStep/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/sonicFoam/laminar/shockTube/Allrun.py.in b/tutorials/compressible/sonicFoam/laminar/shockTube/Allrun.py.in
+index 8f68037..e9b5df7 100755
+--- a/tutorials/compressible/sonicFoam/laminar/shockTube/Allrun.py.in
++++ b/tutorials/compressible/sonicFoam/laminar/shockTube/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/sonicFoam/ras/nacaAirfoil/Allrun.py.in b/tutorials/compressible/sonicFoam/ras/nacaAirfoil/Allrun.py.in
+index a75909c..2b73bf7 100755
+--- a/tutorials/compressible/sonicFoam/ras/nacaAirfoil/Allrun.py.in
++++ b/tutorials/compressible/sonicFoam/ras/nacaAirfoil/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/sonicFoam/ras/prism/Allrun.py.in b/tutorials/compressible/sonicFoam/ras/prism/Allrun.py.in
+index 263c611..b24251e 100755
+--- a/tutorials/compressible/sonicFoam/ras/prism/Allrun.py.in
++++ b/tutorials/compressible/sonicFoam/ras/prism/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/compressible/sonicLiquidFoam/Allrun.py.in b/tutorials/compressible/sonicLiquidFoam/Allrun.py.in
+index 3ee0aec..ac6dd8d 100755
+--- a/tutorials/compressible/sonicLiquidFoam/Allrun.py.in
++++ b/tutorials/compressible/sonicLiquidFoam/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/discreteMethods/dsmcFoam/freeSpacePeriodic/Allrun.py.in b/tutorials/discreteMethods/dsmcFoam/freeSpacePeriodic/Allrun.py.in
+index b673dfb..e5664fc 100755
+--- a/tutorials/discreteMethods/dsmcFoam/freeSpacePeriodic/Allrun.py.in
++++ b/tutorials/discreteMethods/dsmcFoam/freeSpacePeriodic/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/discreteMethods/dsmcFoam/freeSpaceStream/Allrun.py.in b/tutorials/discreteMethods/dsmcFoam/freeSpaceStream/Allrun.py.in
+index ebf5813..1d4326c 100755
+--- a/tutorials/discreteMethods/dsmcFoam/freeSpaceStream/Allrun.py.in
++++ b/tutorials/discreteMethods/dsmcFoam/freeSpaceStream/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/discreteMethods/dsmcFoam/supersonicCorner/Allrun.py.in b/tutorials/discreteMethods/dsmcFoam/supersonicCorner/Allrun.py.in
+index f72cbf5..cea4697 100755
+--- a/tutorials/discreteMethods/dsmcFoam/supersonicCorner/Allrun.py.in
++++ b/tutorials/discreteMethods/dsmcFoam/supersonicCorner/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/discreteMethods/dsmcFoam/wedge15Ma5/Allrun.py.in b/tutorials/discreteMethods/dsmcFoam/wedge15Ma5/Allrun.py.in
+index 3743b99..2233479 100755
+--- a/tutorials/discreteMethods/dsmcFoam/wedge15Ma5/Allrun.py.in
++++ b/tutorials/discreteMethods/dsmcFoam/wedge15Ma5/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/discreteMethods/molecularDynamics/mdEquilibrationFoam/periodicCubeArgon/Allrun.py.in b/tutorials/discreteMethods/molecularDynamics/mdEquilibrationFoam/periodicCubeArgon/Allrun.py.in
+index f0f36ce..21aaeb9 100755
+--- a/tutorials/discreteMethods/molecularDynamics/mdEquilibrationFoam/periodicCubeArgon/Allrun.py.in
++++ b/tutorials/discreteMethods/molecularDynamics/mdEquilibrationFoam/periodicCubeArgon/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/discreteMethods/molecularDynamics/mdEquilibrationFoam/periodicCubeWater/Allrun.py.in b/tutorials/discreteMethods/molecularDynamics/mdEquilibrationFoam/periodicCubeWater/Allrun.py.in
+index 143d720..612581f 100755
+--- a/tutorials/discreteMethods/molecularDynamics/mdEquilibrationFoam/periodicCubeWater/Allrun.py.in
++++ b/tutorials/discreteMethods/molecularDynamics/mdEquilibrationFoam/periodicCubeWater/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/discreteMethods/molecularDynamics/mdFoam/nanoNozzle/Allrun.py.in b/tutorials/discreteMethods/molecularDynamics/mdFoam/nanoNozzle/Allrun.py.in
+index 061a37b..314e270 100755
+--- a/tutorials/discreteMethods/molecularDynamics/mdFoam/nanoNozzle/Allrun.py.in
++++ b/tutorials/discreteMethods/molecularDynamics/mdFoam/nanoNozzle/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/electromagnetics/electrostaticFoam/chargedWire/Allrun.py.in b/tutorials/electromagnetics/electrostaticFoam/chargedWire/Allrun.py.in
+index cd09ce5..4b52358 100755
+--- a/tutorials/electromagnetics/electrostaticFoam/chargedWire/Allrun.py.in
++++ b/tutorials/electromagnetics/electrostaticFoam/chargedWire/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/electromagnetics/mhdFoam/hartmann/Allrun.py.in b/tutorials/electromagnetics/mhdFoam/hartmann/Allrun.py.in
+index 8ccbe9a..b18af25 100755
+--- a/tutorials/electromagnetics/mhdFoam/hartmann/Allrun.py.in
++++ b/tutorials/electromagnetics/mhdFoam/hartmann/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/financial/financialFoam/europeanCall/Allrun.py.in b/tutorials/financial/financialFoam/europeanCall/Allrun.py.in
+index 94c773e..3569e0c 100755
+--- a/tutorials/financial/financialFoam/europeanCall/Allrun.py.in
++++ b/tutorials/financial/financialFoam/europeanCall/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/heatTransfer/buoyantBoussinesqPimpleFoam/hotRoom/Allrun.py.in b/tutorials/heatTransfer/buoyantBoussinesqPimpleFoam/hotRoom/Allrun.py.in
+index 0bda664..6cea994 100755
+--- a/tutorials/heatTransfer/buoyantBoussinesqPimpleFoam/hotRoom/Allrun.py.in
++++ b/tutorials/heatTransfer/buoyantBoussinesqPimpleFoam/hotRoom/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/heatTransfer/buoyantBoussinesqSimpleFoam/hotRoom/Allrun.py.in b/tutorials/heatTransfer/buoyantBoussinesqSimpleFoam/hotRoom/Allrun.py.in
+index af02e35..ad1bcc3 100755
+--- a/tutorials/heatTransfer/buoyantBoussinesqSimpleFoam/hotRoom/Allrun.py.in
++++ b/tutorials/heatTransfer/buoyantBoussinesqSimpleFoam/hotRoom/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/heatTransfer/buoyantBoussinesqSimpleFoam/iglooWithFridges/Allrun.py.in b/tutorials/heatTransfer/buoyantBoussinesqSimpleFoam/iglooWithFridges/Allrun.py.in
+index 9791f79..d8f9e5a 100755
+--- a/tutorials/heatTransfer/buoyantBoussinesqSimpleFoam/iglooWithFridges/Allrun.py.in
++++ b/tutorials/heatTransfer/buoyantBoussinesqSimpleFoam/iglooWithFridges/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/heatTransfer/buoyantPimpleFoam/hotRoom/Allrun.py.in b/tutorials/heatTransfer/buoyantPimpleFoam/hotRoom/Allrun.py.in
+index ff8178b..10c5bf8 100755
+--- a/tutorials/heatTransfer/buoyantPimpleFoam/hotRoom/Allrun.py.in
++++ b/tutorials/heatTransfer/buoyantPimpleFoam/hotRoom/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/heatTransfer/buoyantSimpleFoam/buoyantCavity/Allrun.py.in b/tutorials/heatTransfer/buoyantSimpleFoam/buoyantCavity/Allrun.py.in
+index 4203b1d..dcdbaf4 100755
+--- a/tutorials/heatTransfer/buoyantSimpleFoam/buoyantCavity/Allrun.py.in
++++ b/tutorials/heatTransfer/buoyantSimpleFoam/buoyantCavity/Allrun.py.in
+@@ -4,7 +4,6 @@ import sys
+ import os
+ import os.path
+ import glob
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/heatTransfer/buoyantSimpleFoam/hotRoom/Allrun.py.in b/tutorials/heatTransfer/buoyantSimpleFoam/hotRoom/Allrun.py.in
+index c00f6f3..eb09667 100755
+--- a/tutorials/heatTransfer/buoyantSimpleFoam/hotRoom/Allrun.py.in
++++ b/tutorials/heatTransfer/buoyantSimpleFoam/hotRoom/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/heatTransfer/buoyantSimpleRadiationFoam/hotRadiationRoom/Allrun.py.in b/tutorials/heatTransfer/buoyantSimpleRadiationFoam/hotRadiationRoom/Allrun.py.in
+index 08916c8..e42a28d 100755
+--- a/tutorials/heatTransfer/buoyantSimpleRadiationFoam/hotRadiationRoom/Allrun.py.in
++++ b/tutorials/heatTransfer/buoyantSimpleRadiationFoam/hotRadiationRoom/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/heatTransfer/buoyantSimpleRadiationFoam/hotRadiationRoomFvDOM/Allrun.py.in b/tutorials/heatTransfer/buoyantSimpleRadiationFoam/hotRadiationRoomFvDOM/Allrun.py.in
+index 6454a8c..29a4f6f 100755
+--- a/tutorials/heatTransfer/buoyantSimpleRadiationFoam/hotRadiationRoomFvDOM/Allrun.py.in
++++ b/tutorials/heatTransfer/buoyantSimpleRadiationFoam/hotRadiationRoomFvDOM/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/heatTransfer/chtMultiRegionFoam/multiRegionHeater/Allrun.py.in b/tutorials/heatTransfer/chtMultiRegionFoam/multiRegionHeater/Allrun.py.in
+index d8e9001..c23cd1b 100755
+--- a/tutorials/heatTransfer/chtMultiRegionFoam/multiRegionHeater/Allrun.py.in
++++ b/tutorials/heatTransfer/chtMultiRegionFoam/multiRegionHeater/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/heatTransfer/chtMultiRegionFoam/multiRegionLiquidHeater/Allrun.py.in b/tutorials/heatTransfer/chtMultiRegionFoam/multiRegionLiquidHeater/Allrun.py.in
+index e423ab4..834dd9d 100755
+--- a/tutorials/heatTransfer/chtMultiRegionFoam/multiRegionLiquidHeater/Allrun.py.in
++++ b/tutorials/heatTransfer/chtMultiRegionFoam/multiRegionLiquidHeater/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/heatTransfer/chtMultiRegionFoam/snappyMultiRegionHeater/Allrun.py.in b/tutorials/heatTransfer/chtMultiRegionFoam/snappyMultiRegionHeater/Allrun.py.in
+index 5d75126..5e89bed 100755
+--- a/tutorials/heatTransfer/chtMultiRegionFoam/snappyMultiRegionHeater/Allrun.py.in
++++ b/tutorials/heatTransfer/chtMultiRegionFoam/snappyMultiRegionHeater/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/heatTransfer/chtMultiRegionSimpleFoam/multiRegionHeater/Allrun.py.in b/tutorials/heatTransfer/chtMultiRegionSimpleFoam/multiRegionHeater/Allrun.py.in
+index 2f930bf..1762f77 100755
+--- a/tutorials/heatTransfer/chtMultiRegionSimpleFoam/multiRegionHeater/Allrun.py.in
++++ b/tutorials/heatTransfer/chtMultiRegionSimpleFoam/multiRegionHeater/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/heatTransfer/chtMultiRegionSimpleFoam/multiRegionLiquidHeater/Allrun.py.in b/tutorials/heatTransfer/chtMultiRegionSimpleFoam/multiRegionLiquidHeater/Allrun.py.in
+index b902748..c7a555b 100755
+--- a/tutorials/heatTransfer/chtMultiRegionSimpleFoam/multiRegionLiquidHeater/Allrun.py.in
++++ b/tutorials/heatTransfer/chtMultiRegionSimpleFoam/multiRegionLiquidHeater/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/incompressible/MRFSimpleFoam/mixerVessel2D/Allrun.py.in b/tutorials/incompressible/MRFSimpleFoam/mixerVessel2D/Allrun.py.in
+index 2cb1776..971fb0a 100755
+--- a/tutorials/incompressible/MRFSimpleFoam/mixerVessel2D/Allrun.py.in
++++ b/tutorials/incompressible/MRFSimpleFoam/mixerVessel2D/Allrun.py.in
+@@ -4,7 +4,6 @@ import sys
+ import os
+ import os.path
+ import subprocess
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/incompressible/SRFPimpleFoam/rotor2D/Allrun.py.in b/tutorials/incompressible/SRFPimpleFoam/rotor2D/Allrun.py.in
+index 830e75d..6363221 100755
+--- a/tutorials/incompressible/SRFPimpleFoam/rotor2D/Allrun.py.in
++++ b/tutorials/incompressible/SRFPimpleFoam/rotor2D/Allrun.py.in
+@@ -4,7 +4,6 @@ import sys
+ import os
+ import os.path
+ import subprocess
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/incompressible/boundaryFoam/boundaryLaunderSharma/Allrun.py.in b/tutorials/incompressible/boundaryFoam/boundaryLaunderSharma/Allrun.py.in
+index 2fa5772..91f09ec 100755
+--- a/tutorials/incompressible/boundaryFoam/boundaryLaunderSharma/Allrun.py.in
++++ b/tutorials/incompressible/boundaryFoam/boundaryLaunderSharma/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/boundaryFoam/boundaryWallFunctions/Allrun.py.in b/tutorials/incompressible/boundaryFoam/boundaryWallFunctions/Allrun.py.in
+index 481bfa4..439f74e 100755
+--- a/tutorials/incompressible/boundaryFoam/boundaryWallFunctions/Allrun.py.in
++++ b/tutorials/incompressible/boundaryFoam/boundaryWallFunctions/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/channelFoam/channel395/Allrun.py.in b/tutorials/incompressible/channelFoam/channel395/Allrun.py.in
+index 5859afa..49db8d1 100755
+--- a/tutorials/incompressible/channelFoam/channel395/Allrun.py.in
++++ b/tutorials/incompressible/channelFoam/channel395/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/icoFoam/Allrun.py.in b/tutorials/incompressible/icoFoam/Allrun.py.in
+index ca4af14..eccf901 100755
+--- a/tutorials/incompressible/icoFoam/Allrun.py.in
++++ b/tutorials/incompressible/icoFoam/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/incompressible/nonNewtonianIcoFoam/offsetCylinder/Allrun.py.in b/tutorials/incompressible/nonNewtonianIcoFoam/offsetCylinder/Allrun.py.in
+index 81bb5e9..53609b7 100755
+--- a/tutorials/incompressible/nonNewtonianIcoFoam/offsetCylinder/Allrun.py.in
++++ b/tutorials/incompressible/nonNewtonianIcoFoam/offsetCylinder/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/pimpleDyMFoam/movingCone/Allrun.py.in b/tutorials/incompressible/pimpleDyMFoam/movingCone/Allrun.py.in
+index 25a5188..1cbca34 100755
+--- a/tutorials/incompressible/pimpleDyMFoam/movingCone/Allrun.py.in
++++ b/tutorials/incompressible/pimpleDyMFoam/movingCone/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/pimpleDyMFoam/wingMotion/Allrun.py.in b/tutorials/incompressible/pimpleDyMFoam/wingMotion/Allrun.py.in
+index 6400f8f..feec7e6 100755
+--- a/tutorials/incompressible/pimpleDyMFoam/wingMotion/Allrun.py.in
++++ b/tutorials/incompressible/pimpleDyMFoam/wingMotion/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/incompressible/pimpleFoam/t-junction/Allrun.py.in b/tutorials/incompressible/pimpleFoam/t-junction/Allrun.py.in
+index ed210f2..da68837 100755
+--- a/tutorials/incompressible/pimpleFoam/t-junction/Allrun.py.in
++++ b/tutorials/incompressible/pimpleFoam/t-junction/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/pisoFoam/les/pitzDaily/Allrun.py.in b/tutorials/incompressible/pisoFoam/les/pitzDaily/Allrun.py.in
+index 6fa484e..d7e059a 100755
+--- a/tutorials/incompressible/pisoFoam/les/pitzDaily/Allrun.py.in
++++ b/tutorials/incompressible/pisoFoam/les/pitzDaily/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/pisoFoam/les/pitzDailyDirectMapped/Allrun.py.in b/tutorials/incompressible/pisoFoam/les/pitzDailyDirectMapped/Allrun.py.in
+index 16a12f1..691af0e 100755
+--- a/tutorials/incompressible/pisoFoam/les/pitzDailyDirectMapped/Allrun.py.in
++++ b/tutorials/incompressible/pisoFoam/les/pitzDailyDirectMapped/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/pisoFoam/ras/cavity/Allrun.py.in b/tutorials/incompressible/pisoFoam/ras/cavity/Allrun.py.in
+index f555413..3409bdf 100755
+--- a/tutorials/incompressible/pisoFoam/ras/cavity/Allrun.py.in
++++ b/tutorials/incompressible/pisoFoam/ras/cavity/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/porousSimpleFoam/angledDuctExplicit/Allrun.py.in b/tutorials/incompressible/porousSimpleFoam/angledDuctExplicit/Allrun.py.in
+index b1ab809..671a8e3 100755
+--- a/tutorials/incompressible/porousSimpleFoam/angledDuctExplicit/Allrun.py.in
++++ b/tutorials/incompressible/porousSimpleFoam/angledDuctExplicit/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/porousSimpleFoam/angledDuctImplicit/Allrun.py.in b/tutorials/incompressible/porousSimpleFoam/angledDuctImplicit/Allrun.py.in
+index d1b463d..a2606f5 100755
+--- a/tutorials/incompressible/porousSimpleFoam/angledDuctImplicit/Allrun.py.in
++++ b/tutorials/incompressible/porousSimpleFoam/angledDuctImplicit/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/shallowWaterFoam/squareBump/Allrun.py.in b/tutorials/incompressible/shallowWaterFoam/squareBump/Allrun.py.in
+index d4ed226..0fdd479 100755
+--- a/tutorials/incompressible/shallowWaterFoam/squareBump/Allrun.py.in
++++ b/tutorials/incompressible/shallowWaterFoam/squareBump/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/simpleFoam/airFoil2D/Allrun.py.in b/tutorials/incompressible/simpleFoam/airFoil2D/Allrun.py.in
+index e827534..b3c2f78 100755
+--- a/tutorials/incompressible/simpleFoam/airFoil2D/Allrun.py.in
++++ b/tutorials/incompressible/simpleFoam/airFoil2D/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/simpleFoam/motorBike/Allrun.py.in b/tutorials/incompressible/simpleFoam/motorBike/Allrun.py.in
+index 3e1f8a6..8ae1776 100755
+--- a/tutorials/incompressible/simpleFoam/motorBike/Allrun.py.in
++++ b/tutorials/incompressible/simpleFoam/motorBike/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/incompressible/simpleFoam/pitzDaily/Allrun.py.in b/tutorials/incompressible/simpleFoam/pitzDaily/Allrun.py.in
+index 3ec5df7..248f513 100755
+--- a/tutorials/incompressible/simpleFoam/pitzDaily/Allrun.py.in
++++ b/tutorials/incompressible/simpleFoam/pitzDaily/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/simpleFoam/pitzDailyExptInlet/Allrun.py.in b/tutorials/incompressible/simpleFoam/pitzDailyExptInlet/Allrun.py.in
+index e7fe0d8..f85bd97 100755
+--- a/tutorials/incompressible/simpleFoam/pitzDailyExptInlet/Allrun.py.in
++++ b/tutorials/incompressible/simpleFoam/pitzDailyExptInlet/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/simpleSRFFoam/mixer/Allrun.py.in b/tutorials/incompressible/simpleSRFFoam/mixer/Allrun.py.in
+index 3511094..546ea4b 100755
+--- a/tutorials/incompressible/simpleSRFFoam/mixer/Allrun.py.in
++++ b/tutorials/incompressible/simpleSRFFoam/mixer/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/incompressible/simpleWindFoam/turbineSiting/Allrun.py.in b/tutorials/incompressible/simpleWindFoam/turbineSiting/Allrun.py.in
+index fd35bb0..4c7000a 100755
+--- a/tutorials/incompressible/simpleWindFoam/turbineSiting/Allrun.py.in
++++ b/tutorials/incompressible/simpleWindFoam/turbineSiting/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/lagrangian/coalChemistryFoam/simplifiedSiwek/Allrun.py.in b/tutorials/lagrangian/coalChemistryFoam/simplifiedSiwek/Allrun.py.in
+index 8e87e69..381b738 100755
+--- a/tutorials/lagrangian/coalChemistryFoam/simplifiedSiwek/Allrun.py.in
++++ b/tutorials/lagrangian/coalChemistryFoam/simplifiedSiwek/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/filter/Allrun.py.in b/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/filter/Allrun.py.in
+index 00af7b5..4603bcf 100755
+--- a/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/filter/Allrun.py.in
++++ b/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/filter/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/parcelInBox/Allrun.py.in b/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/parcelInBox/Allrun.py.in
+index 579f340..a5ed701 100755
+--- a/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/parcelInBox/Allrun.py.in
++++ b/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/parcelInBox/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/verticalChannel/Allrun.py.in b/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/verticalChannel/Allrun.py.in
+index de519a9..bdecdaf 100755
+--- a/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/verticalChannel/Allrun.py.in
++++ b/tutorials/lagrangian/porousExplicitSourceReactingParcelFoam/verticalChannel/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/lagrangian/reactingParcelFoam/evaporationTest/Allrun.py.in b/tutorials/lagrangian/reactingParcelFoam/evaporationTest/Allrun.py.in
+index c246337..607cc4b 100755
+--- a/tutorials/lagrangian/reactingParcelFoam/evaporationTest/Allrun.py.in
++++ b/tutorials/lagrangian/reactingParcelFoam/evaporationTest/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/lagrangian/rhoPisoTwinParcelFoam/simplifiedSiwek/Allrun.py.in b/tutorials/lagrangian/rhoPisoTwinParcelFoam/simplifiedSiwek/Allrun.py.in
+index c744c7e..799e846 100755
+--- a/tutorials/lagrangian/rhoPisoTwinParcelFoam/simplifiedSiwek/Allrun.py.in
++++ b/tutorials/lagrangian/rhoPisoTwinParcelFoam/simplifiedSiwek/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/mesh/moveDynamicMesh/SnakeRiverCanyon/Allrun.py.in b/tutorials/mesh/moveDynamicMesh/SnakeRiverCanyon/Allrun.py.in
+index 7fb55ef..7529b76 100755
+--- a/tutorials/mesh/moveDynamicMesh/SnakeRiverCanyon/Allrun.py.in
++++ b/tutorials/mesh/moveDynamicMesh/SnakeRiverCanyon/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/multiphase/MRFInterFoam/mixerVessel2D/Allrun.py.in b/tutorials/multiphase/MRFInterFoam/mixerVessel2D/Allrun.py.in
+index 9002377..85d924b 100755
+--- a/tutorials/multiphase/MRFInterFoam/mixerVessel2D/Allrun.py.in
++++ b/tutorials/multiphase/MRFInterFoam/mixerVessel2D/Allrun.py.in
+@@ -4,7 +4,6 @@ import sys
+ import os
+ import os.path
+ import subprocess
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/multiphase/MRFMultiphaseInterFoam/mixerVessel2D/Allrun.py.in b/tutorials/multiphase/MRFMultiphaseInterFoam/mixerVessel2D/Allrun.py.in
+index f64e5fc..dc7f28b 100755
+--- a/tutorials/multiphase/MRFMultiphaseInterFoam/mixerVessel2D/Allrun.py.in
++++ b/tutorials/multiphase/MRFMultiphaseInterFoam/mixerVessel2D/Allrun.py.in
+@@ -4,7 +4,6 @@ import sys
+ import os
+ import os.path
+ import subprocess
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/multiphase/bubbleFoam/bubbleColumn/Allrun.py.in b/tutorials/multiphase/bubbleFoam/bubbleColumn/Allrun.py.in
+index 769caae..8f9a75b 100755
+--- a/tutorials/multiphase/bubbleFoam/bubbleColumn/Allrun.py.in
++++ b/tutorials/multiphase/bubbleFoam/bubbleColumn/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/multiphase/cavitatingFoam/les/Allrun.py.in b/tutorials/multiphase/cavitatingFoam/les/Allrun.py.in
+index c2674f3..b795eaf 100755
+--- a/tutorials/multiphase/cavitatingFoam/les/Allrun.py.in
++++ b/tutorials/multiphase/cavitatingFoam/les/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/cavitatingFoam/ras/throttle/Allrun.py.in b/tutorials/multiphase/cavitatingFoam/ras/throttle/Allrun.py.in
+index 7a1d92b..4c4909a 100755
+--- a/tutorials/multiphase/cavitatingFoam/ras/throttle/Allrun.py.in
++++ b/tutorials/multiphase/cavitatingFoam/ras/throttle/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/compressibleInterFoam/les/depthCharge2D/Allrun.py.in b/tutorials/multiphase/compressibleInterFoam/les/depthCharge2D/Allrun.py.in
+index 37313d0..0e9339c 100755
+--- a/tutorials/multiphase/compressibleInterFoam/les/depthCharge2D/Allrun.py.in
++++ b/tutorials/multiphase/compressibleInterFoam/les/depthCharge2D/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/compressibleInterFoam/les/depthCharge3D/Allrun.py.in b/tutorials/multiphase/compressibleInterFoam/les/depthCharge3D/Allrun.py.in
+index 65d4aa3..996fbc9 100755
+--- a/tutorials/multiphase/compressibleInterFoam/les/depthCharge3D/Allrun.py.in
++++ b/tutorials/multiphase/compressibleInterFoam/les/depthCharge3D/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interDyMFoam/ras/damBreakWithObstacle/Allrun.py.in b/tutorials/multiphase/interDyMFoam/ras/damBreakWithObstacle/Allrun.py.in
+index 312b7ba..ed900b3 100755
+--- a/tutorials/multiphase/interDyMFoam/ras/damBreakWithObstacle/Allrun.py.in
++++ b/tutorials/multiphase/interDyMFoam/ras/damBreakWithObstacle/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interDyMFoam/ras/floatingObject/Allrun.py.in b/tutorials/multiphase/interDyMFoam/ras/floatingObject/Allrun.py.in
+index d13436c..251d0d9 100755
+--- a/tutorials/multiphase/interDyMFoam/ras/floatingObject/Allrun.py.in
++++ b/tutorials/multiphase/interDyMFoam/ras/floatingObject/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interDyMFoam/ras/floatingObject/Allrun_parallel.py.in b/tutorials/multiphase/interDyMFoam/ras/floatingObject/Allrun_parallel.py.in
+index 388a1ca..4edbe1a 100644
+--- a/tutorials/multiphase/interDyMFoam/ras/floatingObject/Allrun_parallel.py.in
++++ b/tutorials/multiphase/interDyMFoam/ras/floatingObject/Allrun_parallel.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interDyMFoam/ras/sloshingTank2D/Allrun.py.in b/tutorials/multiphase/interDyMFoam/ras/sloshingTank2D/Allrun.py.in
+index 6e25902..3d5d17e 100755
+--- a/tutorials/multiphase/interDyMFoam/ras/sloshingTank2D/Allrun.py.in
++++ b/tutorials/multiphase/interDyMFoam/ras/sloshingTank2D/Allrun.py.in
+@@ -4,7 +4,6 @@ import sys
+ import os
+ import os.path
+ import subprocess
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interDyMFoam/ras/sloshingTank2D3DoF/Allrun.py.in b/tutorials/multiphase/interDyMFoam/ras/sloshingTank2D3DoF/Allrun.py.in
+index 3176a53..3113145 100755
+--- a/tutorials/multiphase/interDyMFoam/ras/sloshingTank2D3DoF/Allrun.py.in
++++ b/tutorials/multiphase/interDyMFoam/ras/sloshingTank2D3DoF/Allrun.py.in
+@@ -4,7 +4,6 @@ import sys
+ import os
+ import os.path
+ import subprocess
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D/Allrun.py.in b/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D/Allrun.py.in
+index a810aa5..a536925 100755
+--- a/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D/Allrun.py.in
++++ b/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D/Allrun.py.in
+@@ -4,7 +4,6 @@ import sys
+ import os
+ import os.path
+ import subprocess
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D3DoF/Allrun.py.in b/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D3DoF/Allrun.py.in
+index 17da3d7..cf4fd3b 100755
+--- a/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D3DoF/Allrun.py.in
++++ b/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D3DoF/Allrun.py.in
+@@ -4,7 +4,6 @@ import sys
+ import os
+ import os.path
+ import subprocess
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D6DoF/Allrun.py.in b/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D6DoF/Allrun.py.in
+index 9040edb..b31314c 100755
+--- a/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D6DoF/Allrun.py.in
++++ b/tutorials/multiphase/interDyMFoam/ras/sloshingTank3D6DoF/Allrun.py.in
+@@ -4,7 +4,6 @@ import sys
+ import os
+ import os.path
+ import subprocess
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interFoam/laminar/Allrun.py.in b/tutorials/multiphase/interFoam/laminar/Allrun.py.in
+index d211004..28c8958 100755
+--- a/tutorials/multiphase/interFoam/laminar/Allrun.py.in
++++ b/tutorials/multiphase/interFoam/laminar/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interFoam/les/nozzleFlow2D/Allrun.py.in b/tutorials/multiphase/interFoam/les/nozzleFlow2D/Allrun.py.in
+index 20b685c..54834bb 100755
+--- a/tutorials/multiphase/interFoam/les/nozzleFlow2D/Allrun.py.in
++++ b/tutorials/multiphase/interFoam/les/nozzleFlow2D/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interFoam/ras/Allrun.py.in b/tutorials/multiphase/interFoam/ras/Allrun.py.in
+index a3af8f3..77867d6 100755
+--- a/tutorials/multiphase/interFoam/ras/Allrun.py.in
++++ b/tutorials/multiphase/interFoam/ras/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interMixingFoam/laminar/damBreak/Allrun.py.in b/tutorials/multiphase/interMixingFoam/laminar/damBreak/Allrun.py.in
+index ecc0334..60ce10f 100755
+--- a/tutorials/multiphase/interMixingFoam/laminar/damBreak/Allrun.py.in
++++ b/tutorials/multiphase/interMixingFoam/laminar/damBreak/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ import FreeFOAM.util
+diff --git a/tutorials/multiphase/interPhaseChangeFoam/cavitatingBullet/Allrun.py.in b/tutorials/multiphase/interPhaseChangeFoam/cavitatingBullet/Allrun.py.in
+index 18bdd53..450b471 100755
+--- a/tutorials/multiphase/interPhaseChangeFoam/cavitatingBullet/Allrun.py.in
++++ b/tutorials/multiphase/interPhaseChangeFoam/cavitatingBullet/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/multiphase/multiphaseInterFoam/laminar/damBreak4phase/Allrun.py.in b/tutorials/multiphase/multiphaseInterFoam/laminar/damBreak4phase/Allrun.py.in
+index 354b112..85e1489 100755
+--- a/tutorials/multiphase/multiphaseInterFoam/laminar/damBreak4phase/Allrun.py.in
++++ b/tutorials/multiphase/multiphaseInterFoam/laminar/damBreak4phase/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/multiphase/multiphaseInterFoam/laminar/damBreak4phaseFine/Allrun.py.in b/tutorials/multiphase/multiphaseInterFoam/laminar/damBreak4phaseFine/Allrun.py.in
+index fb0cec0..f2f32af 100755
+--- a/tutorials/multiphase/multiphaseInterFoam/laminar/damBreak4phaseFine/Allrun.py.in
++++ b/tutorials/multiphase/multiphaseInterFoam/laminar/damBreak4phaseFine/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/multiphase/settlingFoam/ras/dahl/Allrun.py.in b/tutorials/multiphase/settlingFoam/ras/dahl/Allrun.py.in
+index fd0d248..30d3b66 100755
+--- a/tutorials/multiphase/settlingFoam/ras/dahl/Allrun.py.in
++++ b/tutorials/multiphase/settlingFoam/ras/dahl/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/multiphase/settlingFoam/ras/tank3D/Allrun.py.in b/tutorials/multiphase/settlingFoam/ras/tank3D/Allrun.py.in
+index 3eeba9b..0bb7e9d 100755
+--- a/tutorials/multiphase/settlingFoam/ras/tank3D/Allrun.py.in
++++ b/tutorials/multiphase/settlingFoam/ras/tank3D/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/multiphase/twoPhaseEulerFoam/bed/Allrun.py.in b/tutorials/multiphase/twoPhaseEulerFoam/bed/Allrun.py.in
+index 68fccc0..f3fe756 100755
+--- a/tutorials/multiphase/twoPhaseEulerFoam/bed/Allrun.py.in
++++ b/tutorials/multiphase/twoPhaseEulerFoam/bed/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/multiphase/twoPhaseEulerFoam/bed2/Allrun.py.in b/tutorials/multiphase/twoPhaseEulerFoam/bed2/Allrun.py.in
+index 4a1580b..d918abd 100755
+--- a/tutorials/multiphase/twoPhaseEulerFoam/bed2/Allrun.py.in
++++ b/tutorials/multiphase/twoPhaseEulerFoam/bed2/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/multiphase/twoPhaseEulerFoam/bubbleColumn/Allrun.py.in b/tutorials/multiphase/twoPhaseEulerFoam/bubbleColumn/Allrun.py.in
+index 22fab58..a33ac0c 100755
+--- a/tutorials/multiphase/twoPhaseEulerFoam/bubbleColumn/Allrun.py.in
++++ b/tutorials/multiphase/twoPhaseEulerFoam/bubbleColumn/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/stressAnalysis/solidDisplacementFoam/plateHole/Allrun.py.in b/tutorials/stressAnalysis/solidDisplacementFoam/plateHole/Allrun.py.in
+index a099a72..df510a8 100755
+--- a/tutorials/stressAnalysis/solidDisplacementFoam/plateHole/Allrun.py.in
++++ b/tutorials/stressAnalysis/solidDisplacementFoam/plateHole/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+diff --git a/tutorials/stressAnalysis/solidEquilibriumDisplacementFoam/beamEndLoad/Allrun.py.in b/tutorials/stressAnalysis/solidEquilibriumDisplacementFoam/beamEndLoad/Allrun.py.in
+index dd8d2d0..00f4fd9 100755
+--- a/tutorials/stressAnalysis/solidEquilibriumDisplacementFoam/beamEndLoad/Allrun.py.in
++++ b/tutorials/stressAnalysis/solidEquilibriumDisplacementFoam/beamEndLoad/Allrun.py.in
+@@ -3,7 +3,6 @@
+ import sys
+ import os
+ import os.path
+-sys.path.insert(0, '@FOAM_PYTHON_DIR@')
+ from FreeFOAM.compat import *
+ import FreeFOAM.tutorial
+ 
+-- 
+1.7.9.5
+

@@ -9,6 +9,7 @@ FF_SUBDIR=freefoam
 DEB_DIR := $(dir $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
 PKG_DIR := $(dir $(abspath $(DEB_DIR)))
 BUILD_DIR := $(PKG_DIR)/obj-$(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+export PYTHONPATH=$(BUILD_DIR)/data/python
 
 # work around the fact that CMake ignores CPPFLAGS.
 # see http://wiki.debian.org/Hardening#Notes_for_packages_using_CMake.
