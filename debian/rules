@@ -22,7 +22,7 @@ CXXFLAGS+=$(CPPFLAGS)
 
 # Catch-all rule
 %:
-	dh $@ -B$(BUILD_DIR) --parallel
+	dh $@ -B$(BUILD_DIR) --parallel --with=python2,python3
 
 
 override_dh_auto_configure:
@@ -57,6 +57,7 @@ override_dh_auto_configure:
 	  -DFOAM_INSTALL_MAN_PATH=/usr/share/man                                    \
 	  -DFOAM_INSTALL_PLUGIN_PATH=/usr/lib/$(FF_SUBDIR)/plugins0                 \
 	  -DFOAM_INSTALL_TUTORIALS_PATH=/usr/share/doc/$(FF_SUBDIR)                 \
+	  -DFOAM_INSTALL_PYTHON_PATH=/usr/lib/python                                \
 	                                                                            \
 	  -DFOAM_EXE_PREFIX=freefoam-                                               \
 	  -DFOAM_ENABLE_METIS=OFF                                                   \
@@ -76,6 +77,15 @@ override_dh_auto_install:
 	rm -f $(CURDIR)/debian/tmp/usr/share/$(FF_SUBDIR)/data/templates/foamScript
 	rm -rf $(CURDIR)/debian/tmp/usr/share/doc/freefoam/tutorials/multiphase/interFoam/les/nozzleFlow2D/0/data
 	rm -f $(CURDIR)/debian/tmp/usr/share/doc/freefoam/API/jquery.js
+
+
+override_dh_python2:
+	dh_python2 -p python-freefoam -p freefoam
+	dh_python2 -p libfreefoam-dev /usr/share/freefoam/utilities
+
+
+override_dh_python3:
+	dh_python3 -p python3-freefoam
 
 
 # keep dh_installchangelogs from trying to install doc/changes/ as a file
