@@ -47,6 +47,22 @@ Description: libraries for Computational Fluid Dynamics (CFD) - development file
  .
  This package contains headers and file templates
 
+Package: libfreefoam-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, libfreefoam (= ${binary:Version})
+Description: libraries for Computational Fluid Dynamics (CFD) - debugging symbols
+ Libraries and modules for grid generation, simulation and analyzing
+ of complex fluid flows. The flows may involve chemical reactions,
+ turbulence, heat transfer, solid dynamics, electromagnetics and even
+ the pricing of financial options. The libraries also include
+ algorithms for post-processing and visualizing the resulting
+ data. FreeFOAM is a fork of OpenFOAM.
+ .
+ This package contains the debugging symbols for libfreefoam.
+
 Package: python-freefoam
 Section: python
 Architecture: all
@@ -87,6 +103,21 @@ Description: programs for Computational Fluid Dynamics (CFD)
  is a fork of OpenFOAM.
  .
  The programs are invoked with "freefoam foo".
+
+Package: freefoam-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, freefoam (= ${binary:Version})
+Description: programs for Computational Fluid Dynamics (CFD) - debugging symbols
+ A collection of solvers and utility programs for grid generation,
+ simulation and analyzing of complex fluid flows, post-processing and
+ visualizing of the resulting data. The flows may involve chemical
+ reactions, turbulence and heat transfer, solid dynamics,
+ electromagnetics and even the pricing of financial options. FreeFOAM
+ is a fork of OpenFOAM.
+ .
+ This package contains the debugging symbols for freefoam.
 
 Package: freefoam-user-doc
 Section: doc

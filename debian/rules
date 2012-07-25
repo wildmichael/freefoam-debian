@@ -94,6 +94,12 @@ override_dh_python3:
 	dh_python3 -p python3-freefoam
 
 
+override_dh_strip:
+	dh_strip -Nlibfreefoam -Nfreefoam
+	dh_strip -plibfreefoam --dbg-package=libfreefoam-dbg
+	dh_strip -pfreefoam --dbg-package=freefoam-dbg
+
+
 # keep dh_installchangelogs from trying to install doc/changes/ as a file
 override_dh_installchangelogs:
 	dh_installchangelogs -Xdoc/changes
