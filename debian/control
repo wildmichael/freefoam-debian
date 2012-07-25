@@ -20,6 +20,8 @@ X-Python3-Version: >= 3.0
 Package: libfreefoam
 Section: libs
 Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: libraries for Computational Fluid Dynamics (CFD)
  Libraries and modules for grid generation, simulation and analyzing
@@ -32,6 +34,8 @@ Description: libraries for Computational Fluid Dynamics (CFD)
 Package: libfreefoam-dev
 Section: libdevel
 Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, libfreefoam (= ${binary:Version}), ${python:Depends}
 Suggests: freefoam-dev-doc (= ${binary:Version})
 Description: libraries for Computational Fluid Dynamics (CFD) - development files

@@ -1,2 +1,2 @@
-debian/tmp/usr/lib/freefoam/*.so.* /usr/lib/freefoam
-debian/tmp/usr/lib/freefoam/plugins /usr/lib/freefoam
+debian/tmp/usr/lib/*/freefoam/*.so.*
+debian/tmp/usr/lib/*/freefoam/plugins
