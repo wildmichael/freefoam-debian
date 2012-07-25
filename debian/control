@@ -57,7 +57,7 @@ Description: programs for Computational Fluid Dynamics (CFD)
 Package: freefoam-user-doc
 Section: doc
 Architecture: all
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, libjs-mathjax
 Recommends: python
 Description: software for Computational Fluid Dynamics - user documentation
  Tutorials and user documentation for a collection of programs for
