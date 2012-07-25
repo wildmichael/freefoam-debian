@@ -56,7 +56,6 @@ FF_INSTALL=								\
 	-DFOAM_INSTALL_MAN_PATH=/usr/share/man				\
 	-DFOAM_INSTALL_PLUGIN_PATH=/usr/lib/$(FF_SUBDIR)/plugins0	\
 	-DFOAM_INSTALL_TUTORIALS_PATH=/usr/share/doc/$(FF_SUBDIR)	\
-	-DFOAM_INSTALL_USERDFOAM_PATH=/usr/lib/$(FF_SUBDIR)/plugins/ensightReader
 
 DEB_CMAKE_EXTRA_FLAGS= 					\
 	-DFOAM_EXE_PREFIX=freefoam-			\
