@@ -1,0 +1,37 @@
+From 6a02cec539f3d958b2767738d6307a1e534c2355 Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Fri, 27 Jul 2012 09:21:18 +0200
+Subject: Remove DFSG-deleted directories from build system
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ .../postProcessing/dataConversion/CMakeLists.txt   |    1 -
+ .../postProcessing/graphics/CMakeLists.txt         |    1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/applications/utilities/postProcessing/dataConversion/CMakeLists.txt b/applications/utilities/postProcessing/dataConversion/CMakeLists.txt
+index 94a95da..f124051 100644
+--- a/applications/utilities/postProcessing/dataConversion/CMakeLists.txt
++++ b/applications/utilities/postProcessing/dataConversion/CMakeLists.txt
+@@ -31,7 +31,6 @@
+ add_subdirectory(foamDataToFluent)
+ add_subdirectory(foamToEnsight)
+ add_subdirectory(foamToEnsightParts)
+-add_subdirectory(foamToFieldview9)
+ add_subdirectory(foamToGMV)
+ add_subdirectory(foamToVTK)
+ add_subdirectory(smapToFoam)
+diff --git a/applications/utilities/postProcessing/graphics/CMakeLists.txt b/applications/utilities/postProcessing/graphics/CMakeLists.txt
+index 1aab843..3ed6009 100644
+--- a/applications/utilities/postProcessing/graphics/CMakeLists.txt
++++ b/applications/utilities/postProcessing/graphics/CMakeLists.txt
+@@ -29,6 +29,5 @@
+ #-------------------------------------------------------------------------------
+ 
+ add_subdirectory(fieldview9Reader)
+-add_subdirectory(ensightFoamReader)
+ 
+ # ------------------------- vim: set sw=2 sts=2 et: --------------- end-of-file
+-- 
+1.7.9.5
+
