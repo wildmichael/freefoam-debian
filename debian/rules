@@ -1,114 +1,83 @@
 #!/usr/bin/make -f
 
 #export DH_VERBOSE=1
+export DH_OPTIONS
 
-# Injecting CPPFLAGS:
-DPKG_EXPORT_BUILDFLAGS = 1
-include /usr/share/dpkg/buildflags.mk
-CXXFLAGS+=$(CPPFLAGS) -fpermissive
-
-include /usr/share/cdbs/1/class/cmake.mk
-include /usr/share/cdbs/1/rules/debhelper.mk
-
- 
 export OMPI_MCA_plm_rsh_agent=/bin/false
 
 FF_SUBDIR=freefoam
+DEB_DIR := $(dir $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
+PKG_DIR := $(dir $(abspath $(DEB_DIR)))
+BUILD_DIR := $(PKG_DIR)/obj-$(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+# work around the fact that CMake ignores CPPFLAGS.
+# see http://wiki.debian.org/Hardening#Notes_for_packages_using_CMake.
+# compat=9 and dh(7) do this automagically on Debian sid, however Ubuntu still
+# needs this manual hack.
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+CFLAGS+=$(CPPFLAGS)
+CXXFLAGS+=$(CPPFLAGS)
 
 
-FF_CONFIG_THIRD_PARTY=					\
-	-DFOAM_BUILD_PRIVATE_METIS=OFF			\
-	-DFOAM_BUILD_PRIVATE_PARMETIS=OFF		\
-	-DFOAM_BUILD_PRIVATE_SCOTCH=OFF			\
-	-DFOAM_BUILD_PRIVATE_ZLIB=OFF
-
-FF_CONFIG_PACK=						\
-	-DCPACK_BINARY_DEB=OFF				\
-	-DCPACK_BINARY_NSIS=OFF				\
-	-DCPACK_BINARY_RPM=OFF				\
-	-DCPACK_BINARY_STGZ=OFF				\
-	-DCPACK_BINARY_TBZ2=OFF				\
-	-DCPACK_BINARY_TGZ=OFF				\
-	-DCPACK_BINARY_TZ=OFF				\
-	-DCPACK_SOURCE_TBZ2=OFF				\
-	-DCPACK_SOURCE_TGZ=OFF				\
-	-DCPACK_SOURCE_TZ=OFF				\
-	-DCPACK_SOURCE_ZIP=OFF				\
-
-FF_DOC=							\
-	-DFOAM_ENABLE_PDF_GUIDES=ON			\
-	-DFOAM_ENABLE_XHTML_GUIDES=ON			\
-	-DFOAM_ENABLE_XHTML_HELP=OFF			\
-	-DFOAM_ENABLE_MATHJAX=ON			\
-	-DFOAM_MATHJAX_USE_CDN=OFF                      \
-	-DFOAM_MATHJAX_URL=/usr/share/javascript/mathjax	\
-	-DFOAM_ENABLE_DOXYGEN_DOCS=ON			\
-	-DFOAM_ENABLE_MANPAGE_HELP=ON			\
-	-DFOAM_DOCS_FOR_SF=OFF				\
-
-FF_INSTALL=								\
-	-DFOAM_INSTALL_BIN_PATH=/usr/bin				\
-	-DFOAM_INSTALL_CMAKE_PATH=/usr/share/$(FF_SUBDIR)/CMake		\
-	-DFOAM_INSTALL_CONFIG_PATH=/etc/$(FF_SUBDIR)			\
-	-DFOAM_INSTALL_DATA_PATH=/usr/share/$(FF_SUBDIR)		\
-	-DFOAM_INSTALL_DOC_PATH=/usr/share/doc/$(FF_SUBDIR)		\
-	-DFOAM_INSTALL_HEADER_PATH=/usr/include/$(FF_SUBDIR)		\
-	-DFOAM_INSTALL_LIBEXEC_PATH=/usr/bin				\
-	-DFOAM_INSTALL_LIBRARY_PATH=/usr/lib/$(FF_SUBDIR)		\
-	-DFOAM_INSTALL_MAN_PATH=/usr/share/man				\
-	-DFOAM_INSTALL_PLUGIN_PATH=/usr/lib/$(FF_SUBDIR)/plugins0	\
-	-DFOAM_INSTALL_TUTORIALS_PATH=/usr/share/doc/$(FF_SUBDIR)	\
-
-DEB_CMAKE_EXTRA_FLAGS= 					\
-	-DFOAM_EXE_PREFIX=freefoam-			\
-	-DFOAM_ENABLE_METIS=OFF				\
-	-DFOAM_ENABLE_MGRIDGEN=OFF			\
-	-DFOAM_USE_MPI=ON				\
-	-DFOAM_DEFAULT_PSTREAM=mpi			\
-	-DFOAM_DOUBLE_PRECISION=ON			\
-	-DFOAM_ENABLE_PARMETIS=OFF			\
-	-DCMAKE_SKIP_RPATH=OFF				\
-	-DFOAM_ENABLE_CCMIO=OFF				\
-        -DBUILD_TESTING=OFF				\
-	-DFOAM_ENABLE_FULL_TUTORIAL_TEST=OFF		\
-	$(FF_CONFIG_THIRD_PARTY)			\
-	$(FF_DOC)					\
-	$(FF_INSTALL)
+# Catch-all rule
+%:
+	dh $@ -B$(BUILD_DIR) --parallel
 
 
+override_dh_auto_configure:
+	dh_auto_configure --                                                        \
+	  -DCMAKE_BUILD_TYPE=Release                                                \
+	  -DCMAKE_CXX_FLAGS_RELEASE="-DNDEBUG"                                      \
+	  -DCMAKE_C_FLAGS_RELEASE="-DNDEBUG"                                        \
+	                                                                            \
+	  -DFOAM_BUILD_PRIVATE_METIS=OFF                                            \
+	  -DFOAM_BUILD_PRIVATE_PARMETIS=OFF                                         \
+	  -DFOAM_BUILD_PRIVATE_SCOTCH=OFF                                           \
+	  -DFOAM_BUILD_PRIVATE_ZLIB=OFF                                             \
+	                                                                            \
+	  -DFOAM_ENABLE_PDF_GUIDES=ON                                               \
+	  -DFOAM_ENABLE_XHTML_GUIDES=ON                                             \
+	  -DFOAM_ENABLE_XHTML_HELP=OFF                                              \
+	  -DFOAM_ENABLE_MATHJAX=ON                                                  \
+	  -DFOAM_MATHJAX_USE_CDN=OFF                                                \
+	  -DFOAM_MATHJAX_URL=/usr/share/javascript/mathjax                          \
+	  -DFOAM_ENABLE_DOXYGEN_DOCS=ON                                             \
+	  -DFOAM_ENABLE_MANPAGE_HELP=ON                                             \
+	  -DFOAM_DOCS_FOR_SF=OFF                                                    \
+	                                                                            \
+	  -DFOAM_INSTALL_BIN_PATH=/usr/bin                                          \
+	  -DFOAM_INSTALL_CMAKE_PATH=/usr/share/$(FF_SUBDIR)/CMake                   \
+	  -DFOAM_INSTALL_CONFIG_PATH=/etc/$(FF_SUBDIR)                              \
+	  -DFOAM_INSTALL_DATA_PATH=/usr/share/$(FF_SUBDIR)                          \
+	  -DFOAM_INSTALL_DOC_PATH=/usr/share/doc/$(FF_SUBDIR)                       \
+	  -DFOAM_INSTALL_HEADER_PATH=/usr/include/$(FF_SUBDIR)                      \
+	  -DFOAM_INSTALL_LIBEXEC_PATH=/usr/bin                                      \
+	  -DFOAM_INSTALL_LIBRARY_PATH=/usr/lib/$(FF_SUBDIR)                         \
+	  -DFOAM_INSTALL_MAN_PATH=/usr/share/man                                    \
+	  -DFOAM_INSTALL_PLUGIN_PATH=/usr/lib/$(FF_SUBDIR)/plugins0                 \
+	  -DFOAM_INSTALL_TUTORIALS_PATH=/usr/share/doc/$(FF_SUBDIR)                 \
+	                                                                            \
+	  -DFOAM_EXE_PREFIX=freefoam-                                               \
+	  -DFOAM_ENABLE_METIS=OFF                                                   \
+	  -DFOAM_ENABLE_MGRIDGEN=OFF                                                \
+	  -DFOAM_USE_MPI=ON                                                         \
+	  -DFOAM_DEFAULT_PSTREAM=mpi                                                \
+	  -DFOAM_DOUBLE_PRECISION=ON                                                \
+	  -DFOAM_ENABLE_PARMETIS=OFF                                                \
+	  -DCMAKE_SKIP_RPATH=OFF                                                    \
+	  -DFOAM_ENABLE_CCMIO=OFF                                                   \
+	  -DBUILD_TESTING=OFF                                                       \
+	  -DFOAM_ENABLE_FULL_TUTORIAL_TEST=OFF                                      \
 
-DEB_DH_MAKESHLIBDEPS_ARGS_libfreefoam=-X/usr/lib/$(FF_SUBDIR)
+
+override_dh_auto_install:
+	dh_auto_install
+	rm -f $(CURDIR)/debian/tmp/usr/share/$(FF_SUBDIR)/data/templates/foamScript
+	rm -rf $(CURDIR)/debian/tmp/usr/share/doc/freefoam/tutorials/multiphase/interFoam/les/nozzleFlow2D/0/data
+	rm -f $(CURDIR)/debian/tmp/usr/share/doc/freefoam/API/jquery.js
 
 
-install/libfreefoam::
-	install -d $(CURDIR)/debian/libfreefoam/usr/lib/$(FF_SUBDIR)
-
-install/libfreefoam-dev::
-	install -d $(CURDIR)/debian/libfreefoam-dev/usr/include/$(FF_SUBDIR)
-	install -d $(CURDIR)/debian/libfreefoam-dev/usr/share/$(FF_SUBDIR)
-	rm $(CURDIR)/debian/tmp/usr/share/$(FF_SUBDIR)/data/templates/foamScript
-
-install/freefoam::
-	install -d $(CURDIR)/debian/freefoam/usr/bin
-	install -d $(CURDIR)/debian/freefoam/usr/share/man/man1
-	install -d $(CURDIR)/debian/freefoam/etc/freefoam
-	install -d $(CURDIR)/debian/freefoam/etc/bash_completion.d
-	cp $(CURDIR)/data/shellFunctions/bashCompletion/freefoam $(CURDIR)/debian/freefoam/etc/bash_completion.d/
-
-install/freefoam-user-doc::
-	install -d $(CURDIR)/debian/freefoam-user-doc/usr/share/doc/freefoam-user-doc/tutorials
-	rm $(CURDIR)/debian/tmp/usr/share/doc/freefoam/tutorials/multiphase/interFoam/les/nozzleFlow2D/0/data/Ubulk
-	rm $(CURDIR)/debian/tmp/usr/share/doc/freefoam/tutorials/multiphase/interFoam/les/nozzleFlow2D/0/data/ptrace
-	rmdir $(CURDIR)/debian/tmp/usr/share/doc/freefoam/tutorials/multiphase/interFoam/les/nozzleFlow2D/0/data
-
-install/freefoam-dev-doc::
-	rm $(CURDIR)/debian/tmp/usr/share/doc/freefoam/API/jquery.js
-
-binary-install/libfreefoam::
-	dh_pysupport -plibfreefoam
-
-binary-install/libfreefoam-dev::
-	dh_pysupport -plibfreefoam-dev
-
-binary-install/freefoam::
-	dh_pysupport -pfreefoam
+# keep dh_installchangelogs from trying to install doc/changes/ as a file
+override_dh_installchangelogs:
+	dh_installchangelogs -Xdoc/changes
