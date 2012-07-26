@@ -21,6 +21,14 @@ include /usr/share/dpkg/buildflags.mk
 CFLAGS+=$(CPPFLAGS)
 CXXFLAGS+=$(CPPFLAGS)
 
+# hardening flags, remove PIE flags - we'll add them later
+include /usr/share/hardening-includes/hardening.make
+CFLAGS+=$(filter-out $(HARDENING_DISABLE_PIE_CFLAGS_FILTER),$(HARDENING_CFLAGS))
+CXXFLAGS+=$(filter-out $(HARDENING_DISABLE_PIE_CFLAGS_FILTER),$(HARDENING_CFLAGS))
+LDFLAGS+=$(HARDENING_LDFLAGS)
+DEB_EXE_COMPILE_FLAGS:=$(filter $(HARDENING_DISABLE_PIE_CFLAGS_FILTER),$(HARDENING_CFLAGS))
+DEB_EXE_LINKER_FLAGS:=$(filter $(HARDENING_DISABLE_PIE_LDFLAGS_FILTER),$(HARDENING_LDFLAGS))
+
 
 # Catch-all rule
 %:
@@ -36,6 +44,8 @@ override_dh_auto_configure:
 	  -DCMAKE_BUILD_TYPE=Release                                                \
 	  -DCMAKE_CXX_FLAGS_RELEASE="-DNDEBUG"                                      \
 	  -DCMAKE_C_FLAGS_RELEASE="-DNDEBUG"                                        \
+	  -DDEB_EXE_COMPILE_FLAGS="$(DEB_EXE_COMPILE_FLAGS)"                        \
+	  -DDEB_EXE_LINKER_FLAGS="$(DEB_EXE_LINKER_FLAGS)"                          \
 	                                                                            \
 	  -DFOAM_BUILD_PRIVATE_METIS=OFF                                            \
 	  -DFOAM_BUILD_PRIVATE_PARMETIS=OFF                                         \

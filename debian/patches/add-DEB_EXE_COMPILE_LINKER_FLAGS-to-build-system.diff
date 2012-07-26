@@ -1,0 +1,35 @@
+From bf196e4cd53aa620444e2e9d2900d79b547c1a37 Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Thu, 26 Jul 2012 08:49:33 +0200
+Subject: [PATCH] Add DEB_EXE_{COMPILE,LINKER}_FLAGS to build system
+
+This is to allow for the PIE flags being used on the executables.
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ CMake/FOAMUtilities.cmake |    9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/CMake/FOAMUtilities.cmake b/CMake/FOAMUtilities.cmake
+index 26eb41b..1f5e57d 100644
+--- a/CMake/FOAMUtilities.cmake
++++ b/CMake/FOAMUtilities.cmake
+@@ -237,6 +237,15 @@ function(foam_add_executable name)
+   set_target_properties(${name} PROPERTIES
+     OUTPUT_NAME ${_fae_OUTPUT_NAME}
+     )
++  # set debian hardening flags
++  if(DEB_EXE_COMPILE_FLAGS)
++    set_target_properties(${name} PROPERTIES
++      COMPILE_FLAGS "${DEB_EXE_COMPILE_FLAGS}")
++  endif()
++  if(DEB_EXE_LINKER_FLAGS)
++    set_target_properties(${name} PROPERTIES
++      LINKER_FLAGS "${DEB_EXE_LINKER_FLAGS}")
++  endif()
+   # add to index
+   if(do_doc_index)
+     foam_add_executable_to_doc_index(${_fae_OUTPUT_NAME} ${_fae_DOC_SRC})
+-- 
+1.7.9.5
+
