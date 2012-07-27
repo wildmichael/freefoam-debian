@@ -1,0 +1,43 @@
+From aad97ace1c6144f64f751642c44ce60cef9066d6 Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Tue, 3 Jul 2012 13:52:39 +0200
+Subject: FIX: Correct output directory for freefoam-log
+Origin: http://repo.or.cz/w/freefoam.git?a=commit;h=aad97ace1c6144f64f751642c44ce60cef9066d6
+Applied-Upstream: 0.1.1
+Bug-Debian: #682932
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ bin/freefoam-log.py.in |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/bin/freefoam-log.py.in b/bin/freefoam-log.py.in
+index 9476d98..21c54d4 100755
+--- a/bin/freefoam-log.py.in
++++ b/bin/freefoam-log.py.in
+@@ -282,18 +282,19 @@ if listOnly:
+    echo('\n'.join(vars))
+    sys.exit(0)
+ 
++logsDir = os.path.join(caseDir, 'logs')
++
+ plog('Using:')
+ plog('  log      : %s'%logName)
+ plog('  database : %s'%dbName)
+-plog('  files to : %s/logs/'%caseDir)
++plog('  files to : %s'%logsDir)
+ plog('')
+ 
+-logsDir = os.path.join(caseDir, 'logs')
+ if not os.path.isdir(logsDir):
+    if os.path.exists(logsDir):
+       sys.stderr.write('Error: `%s` exists but is not a directory\n'%logsDir)
+       sys.exit(1)
+-   os.mkdir('logs')
++   os.mkdir(logsDir)
+ 
+ # loop over lines, extract data
+ splitRegex = re.compile(r'\s*Time\s*=\s*(?P<time>\S+)')
+-- 
+1.7.9.5
+
