@@ -1,0 +1,67 @@
+From 71a4abe02b972e10e8e232e85836b2e2252ee064 Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Sat, 21 Jul 2012 19:13:25 +0200
+Subject: FIX: Doxygen generated file names breakage
+Origin: http://repo.or.cz/w/freefoam.git?a=commit;h=71a4abe02b972e10e8e232e85836b2e2252ee064
+Applied-Upstream: 0.1.2
+Bug-Debian: #682934
+
+Doxygen versions newer than 1.5.7 have a new source file documentation naming
+scheme. Instead of using the suffix "-source.html" they use now "_source.html".
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ CMake/FOAMUse.cmake.in    |    3 +++
+ CMake/FOAMUtilities.cmake |    5 ++++-
+ CMakeLists.txt            |    5 +++++
+ 3 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/CMake/FOAMUse.cmake.in b/CMake/FOAMUse.cmake.in
+index 8976b90..c54865b 100644
+--- a/CMake/FOAMUse.cmake.in
++++ b/CMake/FOAMUse.cmake.in
+@@ -259,6 +259,9 @@
+ # DO NOT call this function after you called FOAM_WRITE_DOC_INDEX(), it won't
+ # have any effect!
+ #
++# If the Doxygen version is older than 1.5.8, you should set DOXYGEN_SOURCE_SEP
++# to "-", otherwise the output file names are guessed incorrectly.
++#
+ #  FOAM_WRITE_DOC_INDEX()
+ #
+ # Create the documentation index file. Call this function after all calls to
+diff --git a/CMake/FOAMUtilities.cmake b/CMake/FOAMUtilities.cmake
+index ba6cc0b..26eb41b 100644
+--- a/CMake/FOAMUtilities.cmake
++++ b/CMake/FOAMUtilities.cmake
+@@ -582,7 +582,10 @@ unset(__FOAM_ADD_EXECUTABLE_TO_DOC_INDEX_targets CACHE)
+ 
+ function(foam_add_executable_to_doc_index target source)
+   get_filename_component(f ${source} NAME_WE)
+-  set(files "\"${f}_8C.html\" \"${f}_8C-source.html\"")
++  if(NOT DEFINED DOXYGEN_SOURCE_SEP)
++    set(DOXYGEN_SOURCE_SEP _)
++  endif()
++  set(files "\"${f}_8C.html\" \"${f}_8C${DOXYGEN_SOURCE_SEP}source.html\"")
+   set(__FOAM_ADD_EXECUTABLE_TO_DOC_INDEX_targets
+     ${__FOAM_ADD_EXECUTABLE_TO_DOC_INDEX_targets} "${target} (${files})"
+     CACHE INTERNAL "Files to include in the documentation index"
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 88551db..e821cdb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -252,6 +252,11 @@ if(FOAM_ENABLE_DOXYGEN_DOCS)
+       "Versions newer than 1.6.3 and older than 1.7.2-20101106 "
+       "usually crash when processing the ${PROJECT_NAME} documentation.")
+   endif()
++  if(${DOXYGEN_VERSION_OUTPUT} VERSION_LESS 1.5.8)
++    set(DOXYGEN_SOURCE_SEP "-")
++  else()
++    set(DOXYGEN_SOURCE_SEP "_")
++  endif()
+   # ask user whether she prefers local or www docs
+   foam_option(FOAM_USE_LOCAL_DOXYGEN_DOCS "Use local API docs"
+     "Use the local API documentation instead of http://freefoam.sf.net/doc/API"
+-- 
+1.7.9.5
+

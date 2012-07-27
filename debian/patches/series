@@ -2,3 +2,5 @@ spelling.diff
 remove-dfsg-deleted-directories-from-build-system.diff
 update-for-removed-apps.diff
 missing-qualifications-of-template-dependent-names.diff
+doxygen-generated-file-names-breakage.diff
+fix-api-doc-location.diff

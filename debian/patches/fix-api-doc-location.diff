@@ -1,0 +1,27 @@
+From ece8577b5ff2fbb4a923b9262a4120772eba6ce5 Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Fri, 27 Jul 2012 10:23:14 +0200
+Subject: Change the API documentation location in the generated DoxyDocIndex file
+Bug-Debian: #682934
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ CMake/FOAMUtilities.cmake |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMake/FOAMUtilities.cmake b/CMake/FOAMUtilities.cmake
+index ba6cc0b..de1a812 100644
+--- a/CMake/FOAMUtilities.cmake
++++ b/CMake/FOAMUtilities.cmake
+@@ -622,7 +622,7 @@ object      docIndex;
+ }
+ // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+ 
+-docDir \"@FOAM_DOC_DIR@/API\";
++docDir \"/usr/share/doc/freefoam-dev-doc/api\";
+ 
+ docFiles {
+ ${tmp};
+-- 
+1.7.9.5
+
