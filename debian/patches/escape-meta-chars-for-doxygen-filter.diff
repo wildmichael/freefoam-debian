@@ -1,0 +1,33 @@
+From d4963d66fd9dbd93266bbef760ee5da61e061036 Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Fri, 27 Jul 2012 13:47:38 +0200
+Subject: Escape meta-characters before creating doc/Doxygen/filter.py
+Origin:
+ http://repo.or.cz/w/freefoam.git?a=commit;h=785eadd138dccf9948bedd0d1411ff7b70924fdd
+ http://repo.or.cz/w/freefoam.git?a=commit;h=9dd72bba9e963b3f4ca855c92d2a31f7cc542854
+Applied-Upstream: 0.1.3
+
+Otherwise regex meta-characters in path names (such as the +dfsg) trip up the
+regex matching.
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ CMake/FOAMUtilities.cmake |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMake/FOAMUtilities.cmake b/CMake/FOAMUtilities.cmake
+index ba6cc0b..9d077a4 100644
+--- a/CMake/FOAMUtilities.cmake
++++ b/CMake/FOAMUtilities.cmake
+@@ -979,7 +979,7 @@ function(foam_generate_doxygen)
+       get_property(target_dir GLOBAL PROPERTY FOAM_DOXYGEN_${name}_${type}_DIR)
+       set(nameVar "'${name}'")
+       set(doxyfilters
+-        "${doxyfilters}'${target_dir}/.*': ${${var}},\n")
++        "${doxyfilters}re.escape(r'${target_dir}')+r'/.*': ${${var}},\n")
+     endforeach()
+   endforeach()
+   set(doxyfilters "${doxyfilters}" PARENT_SCOPE)
+-- 
+1.7.9.5
+
