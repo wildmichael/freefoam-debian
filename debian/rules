@@ -54,9 +54,9 @@ FF_INSTALL=								\
 	-DFOAM_INSTALL_LIBEXEC_PATH=/usr/bin				\
 	-DFOAM_INSTALL_LIBRARY_PATH=/usr/lib/$(FF_SUBDIR)		\
 	-DFOAM_INSTALL_MAN_PATH=/usr/share/man				\
-	-DFOAM_INSTALL_PLUGIN_PATH=/usr/lib/$(FF_SUBDIR)/plugins0	\
+	-DFOAM_INSTALL_PLUGIN_PATH=/usr/lib/$(FF_SUBDIR)/plugins1	\
 	-DFOAM_INSTALL_TUTORIALS_PATH=/usr/share/doc/$(FF_SUBDIR)	\
-	-DFOAM_INSTALL_USERDFOAM_PATH=/usr/lib/$(FF_SUBDIR)/plugins/ensightReader
+	-DFOAM_INSTALL_USERDFOAM_PATH=/usr/lib/$(FF_SUBDIR)/plugins1/ensightReader
 
 DEB_CMAKE_EXTRA_FLAGS= 					\
 	-DFOAM_EXE_PREFIX=freefoam-			\
@@ -76,11 +76,11 @@ DEB_CMAKE_EXTRA_FLAGS= 					\
 
 
 
-DEB_DH_MAKESHLIBDEPS_ARGS_libfreefoam=-X/usr/lib/$(FF_SUBDIR)
+DEB_DH_MAKESHLIBDEPS_ARGS_libfreefoam1=-X/usr/lib/$(FF_SUBDIR)
 
 
-install/libfreefoam::
-	install -d $(CURDIR)/debian/libfreefoam/usr/lib/$(FF_SUBDIR)
+install/libfreefoam1::
+	install -d $(CURDIR)/debian/libfreefoam1/usr/lib/$(FF_SUBDIR)
 
 install/libfreefoam-dev::
 	install -d $(CURDIR)/debian/libfreefoam-dev/usr/include/$(FF_SUBDIR)
@@ -103,8 +103,8 @@ install/freefoam-user-doc::
 install/freefoam-dev-doc::
 	rm $(CURDIR)/debian/tmp/usr/share/doc/freefoam/API/jquery.js
 
-binary-install/libfreefoam::
-	dh_pysupport -plibfreefoam
+binary-install/libfreefoam1::
+	dh_pysupport -plibfreefoam1
 
 binary-install/libfreefoam-dev::
 	dh_pysupport -plibfreefoam-dev
