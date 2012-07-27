@@ -1,0 +1,1318 @@
+From 6ba7fe4ed4cf45de8edd362bea123acb89bfab82 Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Fri, 6 Jul 2012 10:47:33 +0200
+Subject: [PATCH] FIX: Missing qualifications of template-dependent names
+Origin: http://repo.or.cz/w/freefoam.git?a=commit;h=6ba7fe4ed4cf45de8edd362bea123acb89bfab82
+Applied-Upstream: 0.1.1
+Bug-Debian: 682927
+
+GCC-4.7 is more strict and requires this.
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ .../HashTables/HashPtrTable/HashPtrTable.C         |    4 ++--
+ .../HashTables/HashPtrTable/HashPtrTableIO.C       |    4 ++--
+ .../containers/HashTables/HashSet/HashSet.C        |   20 +++++++++----------
+ .../LinkedLists/accessTypes/ILList/ILList.C        |    6 +++---
+ .../LinkedLists/accessTypes/ILList/ILList.H        |    2 +-
+ .../LinkedLists/accessTypes/ILList/ILListIO.C      |    8 ++++----
+ .../LinkedLists/accessTypes/LPtrList/LPtrListIO.C  |    8 ++++----
+ .../DimensionedField/DimensionedField.C            |    2 +-
+ .../DimensionedField/DimensionedFieldIO.C          |    2 +-
+ .../GeometricField/GeometricBoundaryField.C        |   12 +++++------
+ .../basicSymmetry/basicSymmetryPointPatchField.C   |    2 +-
+ .../basic/mixed/mixedPointPatchField.C             |    2 +-
+ .../basic/value/valuePointPatchField.C             |    4 ++--
+ .../constraint/cyclic/cyclicPointPatchField.C      |    2 +-
+ .../processor/processorPointPatchField.C           |    2 +-
+ .../constraint/wedge/wedgePointPatchField.C        |    2 +-
+ .../fixedNormalSlipPointPatchField.C               |    2 +-
+ .../derived/global/globalPointPatchField.C         |    4 ++--
+ .../autoHexMesh/trackedParticle/ExactParticle.C    |    2 +-
+ .../TimeActivatedExplicitSourceList.C              |    2 +-
+ .../ddtSchemes/CoEulerDdtScheme/CoEulerDdtScheme.C |   13 ++++++++----
+ .../CrankNicholsonDdtScheme.C                      |   13 ++++++++----
+ .../ddtSchemes/EulerDdtScheme/EulerDdtScheme.C     |   13 ++++++++----
+ .../ddtSchemes/SLTSDdtScheme/SLTSDdtScheme.C       |   13 ++++++++----
+ .../backwardDdtScheme/backwardDdtScheme.C          |   13 ++++++++----
+ .../localEulerDdtScheme/localEulerDdtScheme.C      |   13 ++++++++----
+ .../limitedSurfaceInterpolationScheme.C            |    2 +-
+ .../multivariateSurfaceInterpolationScheme.H       |    2 +-
+ src/lagrangian/basic/Cloud/Cloud.C                 |    2 +-
+ .../dsmc/clouds/Templates/DsmcCloud_/DsmcCloud_.C  |    2 +-
+ .../Templates/KinematicParcel/KinematicParcel.C    |   15 +++++++++++++-
+ .../ReactingMultiphaseParcel.C                     |   21 ++++++++++++++++----
+ .../Templates/ReactingParcel_/ReactingParcel_.C    |   17 ++++++++++++++--
+ .../parcels/Templates/ThermoParcel/ThermoParcel.C  |   15 +++++++++++++-
+ src/sampling/sampledSet/writers/csv/csvSetWriter.C |    4 ++--
+ .../sampledSet/writers/gnuplot/gnuplotSetWriter.C  |    9 +++++++--
+ .../sampledSet/writers/jplot/jplotSetWriter.C      |    2 +-
+ src/sampling/sampledSet/writers/raw/rawSetWriter.C |    4 ++--
+ .../sampledSet/writers/xmgrace/xmgraceSetWriter.C  |    9 +++++++--
+ .../surfaceFormats/ac3d/AC3DsurfaceFormat.C        |    2 +-
+ src/surfMesh/surfaceFormats/nas/NASsurfaceFormat.C |    2 +-
+ src/surfMesh/surfaceFormats/obj/OBJsurfaceFormat.C |    4 ++--
+ src/surfMesh/surfaceFormats/off/OFFsurfaceFormat.C |    2 +-
+ .../surfaceFormats/smesh/SMESHsurfaceFormat.C      |    2 +-
+ .../surfaceFormats/starcd/STARCDsurfaceFormat.C    |    4 ++--
+ src/surfMesh/surfaceFormats/stl/STLsurfaceFormat.C |    4 ++--
+ src/surfMesh/surfaceFormats/tri/TRIsurfaceFormat.C |    2 +-
+ src/surfMesh/surfaceFormats/vtk/VTKsurfaceFormat.C |    2 +-
+ src/surfMesh/surfaceFormats/wrl/WRLsurfaceFormat.C |    2 +-
+ src/surfMesh/surfaceFormats/x3d/X3DsurfaceFormat.C |    2 +-
+ .../specie/reaction/Reactions_/Reaction/Reaction.C |    4 ++--
+ 51 files changed, 199 insertions(+), 107 deletions(-)
+
+diff --git a/src/OpenFOAM/containers/HashTables/HashPtrTable/HashPtrTable.C b/src/OpenFOAM/containers/HashTables/HashPtrTable/HashPtrTable.C
+index 7852298..4a595a8 100644
+--- a/src/OpenFOAM/containers/HashTables/HashPtrTable/HashPtrTable.C
++++ b/src/OpenFOAM/containers/HashTables/HashPtrTable/HashPtrTable.C
+@@ -47,7 +47,7 @@ Foam::HashPtrTable<T, Key, Hash>::HashPtrTable
+ {
+     for (const_iterator iter = ht.begin(); iter != ht.end(); ++iter)
+     {
+-        insert(iter.key(), new T(**iter));
++        this->insert(iter.key(), new T(**iter));
+     }
+ }
+ 
+@@ -133,7 +133,7 @@ void Foam::HashPtrTable<T, Key, Hash>::operator=
+ 
+     for (const_iterator iter = rhs.begin(); iter != rhs.end(); ++iter)
+     {
+-        insert(iter.key(), new T(**iter));
++        this->insert(iter.key(), new T(**iter));
+     }
+ }
+ 
+diff --git a/src/OpenFOAM/containers/HashTables/HashPtrTable/HashPtrTableIO.C b/src/OpenFOAM/containers/HashTables/HashPtrTable/HashPtrTableIO.C
+index 105b42a..9fceed4 100644
+--- a/src/OpenFOAM/containers/HashTables/HashPtrTable/HashPtrTableIO.C
++++ b/src/OpenFOAM/containers/HashTables/HashPtrTable/HashPtrTableIO.C
+@@ -64,7 +64,7 @@ void Foam::HashPtrTable<T, Key, Hash>::read(Istream& is, const INew& inewt)
+                 {
+                     Key key;
+                     is >> key;
+-                    insert(key, inewt(key, is).ptr());
++                    this->insert(key, inewt(key, is).ptr());
+ 
+                     is.fatalCheck
+                     (
+@@ -111,7 +111,7 @@ void Foam::HashPtrTable<T, Key, Hash>::read(Istream& is, const INew& inewt)
+             is.putBack(lastToken);
+             Key key;
+             is >> key;
+-            insert(key, inewt(key, is).ptr());
++            this->insert(key, inewt(key, is).ptr());
+ 
+             is.fatalCheck
+             (
+diff --git a/src/OpenFOAM/containers/HashTables/HashSet/HashSet.C b/src/OpenFOAM/containers/HashTables/HashSet/HashSet.C
+index 6fdd5a4..af4dbee 100644
+--- a/src/OpenFOAM/containers/HashTables/HashSet/HashSet.C
++++ b/src/OpenFOAM/containers/HashTables/HashSet/HashSet.C
+@@ -47,7 +47,7 @@ Foam::HashSet<Key, Hash>::HashSet
+         ++cit
+     )
+     {
+-        insert(cit.key());
++        this->insert(cit.key());
+     }
+ }
+ 
+@@ -57,7 +57,7 @@ Foam::HashSet<Key, Hash>::HashSet
+ template<class Key, class Hash>
+ inline bool Foam::HashSet<Key, Hash>::operator[](const Key& key) const
+ {
+-    return found(key);
++    return this->found(key);
+ }
+ 
+ 
+@@ -76,7 +76,7 @@ bool Foam::HashSet<Key, Hash>::operator==(const HashSet<Key, Hash>& rhs) const
+     // Are all rhs elements in lhs?
+     for (const_iterator iter = rhs.cbegin(); iter != rhs.cend(); ++iter)
+     {
+-        if (!found(iter.key()))
++        if (!this->found(iter.key()))
+         {
+             return false;
+         }
+@@ -89,7 +89,7 @@ bool Foam::HashSet<Key, Hash>::operator==(const HashSet<Key, Hash>& rhs) const
+ template<class Key, class Hash>
+ bool Foam::HashSet<Key, Hash>::operator!=(const HashSet<Key, Hash>& rhs) const
+ {
+-    return !(operator==(rhs));
++    return !(this->operator==(rhs));
+ }
+ 
+ 
+@@ -99,7 +99,7 @@ void Foam::HashSet<Key, Hash>::operator|=(const HashSet<Key, Hash>& rhs)
+     // Add rhs elements into lhs
+     for (const_iterator iter = rhs.cbegin(); iter != rhs.cend(); ++iter)
+     {
+-        insert(iter.key());
++        this->insert(iter.key());
+     }
+ }
+ 
+@@ -112,7 +112,7 @@ void Foam::HashSet<Key, Hash>::operator&=(const HashSet<Key, Hash>& rhs)
+     {
+         if (!rhs.found(iter.key()))
+         {
+-            erase(iter);
++            this->erase(iter);
+         }
+     }
+ }
+@@ -124,13 +124,13 @@ void Foam::HashSet<Key, Hash>::operator^=(const HashSet<Key, Hash>& rhs)
+     // Add missed rhs elements, remove duplicate elements
+     for (const_iterator iter = rhs.cbegin(); iter != rhs.cend(); ++iter)
+     {
+-        if (found(iter.key()))
++        if (this->found(iter.key()))
+         {
+-            erase(iter.key());
++            this->erase(iter.key());
+         }
+         else
+         {
+-            insert(iter.key());
++            this->insert(iter.key());
+         }
+     }
+ }
+@@ -143,7 +143,7 @@ void Foam::HashSet<Key, Hash>::operator-=(const HashSet<Key, Hash>& rhs)
+     // Remove rhs elements from lhs
+     for (const_iterator iter = rhs.cbegin(); iter != rhs.cend(); ++iter)
+     {
+-        erase(iter.key());
++        this->erase(iter.key());
+     }
+ }
+ 
+diff --git a/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILList.C b/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILList.C
+index 3d6dbfb..91bb69e 100644
+--- a/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILList.C
++++ b/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILList.C
+@@ -39,7 +39,7 @@ Foam::ILList<LListBase, T>::ILList(const ILList<LListBase, T>& lst)
+         ++iter
+     )
+     {
+-        append(iter().clone().ptr());
++        this->append(iter().clone().ptr());
+     }
+ }
+ 
+@@ -62,7 +62,7 @@ Foam::ILList<LListBase, T>::ILList
+         ++iter
+     )
+     {
+-        append(iter().clone(cloneArg).ptr());
++        this->append(iter().clone(cloneArg).ptr());
+     }
+ }
+ #endif
+@@ -145,7 +145,7 @@ void Foam::ILList<LListBase, T>::operator=(const ILList<LListBase, T>& lst)
+         ++iter
+     )
+     {
+-        append(iter().clone().ptr());
++        this->append(iter().clone().ptr());
+     }
+ }
+ 
+diff --git a/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILList.H b/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILList.H
+index 2dd64b7..35700c1 100644
+--- a/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILList.H
++++ b/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILList.H
+@@ -108,7 +108,7 @@ public:
+                 ++iter
+             )
+             {
+-                append(iter().clone(cloneArg).ptr());
++                this->append(iter().clone(cloneArg).ptr());
+             }
+         }
+         #else
+diff --git a/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILListIO.C b/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILListIO.C
+index 8557c05..31737fa 100644
+--- a/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILListIO.C
++++ b/src/OpenFOAM/containers/LinkedLists/accessTypes/ILList/ILListIO.C
+@@ -57,7 +57,7 @@ void Foam::ILList<LListBase, T>::read(Istream& is, const INew& iNew)
+             {
+                 for (label i=0; i<s; i++)
+                 {
+-                    append(iNew(is).ptr());
++                    this->append(iNew(is).ptr());
+ 
+                     is.fatalCheck
+                     (
+@@ -69,7 +69,7 @@ void Foam::ILList<LListBase, T>::read(Istream& is, const INew& iNew)
+             else
+             {
+                 T* tPtr = iNew(is).ptr();
+-                append(tPtr);
++                this->append(tPtr);
+ 
+                 is.fatalCheck
+                 (
+@@ -79,7 +79,7 @@ void Foam::ILList<LListBase, T>::read(Istream& is, const INew& iNew)
+ 
+                 for (label i=1; i<s; i++)
+                 {
+-                    append(new T(*tPtr));
++                    this->append(new T(*tPtr));
+                 }
+             }
+         }
+@@ -111,7 +111,7 @@ void Foam::ILList<LListBase, T>::read(Istream& is, const INew& iNew)
+         )
+         {
+             is.putBack(lastToken);
+-            append(iNew(is).ptr());
++            this->append(iNew(is).ptr());
+ 
+             is >> lastToken;
+             is.fatalCheck("operator>>(Istream&, ILList<LListBase, T>&)");
+diff --git a/src/OpenFOAM/containers/LinkedLists/accessTypes/LPtrList/LPtrListIO.C b/src/OpenFOAM/containers/LinkedLists/accessTypes/LPtrList/LPtrListIO.C
+index 3dbe82b..305c48d 100644
+--- a/src/OpenFOAM/containers/LinkedLists/accessTypes/LPtrList/LPtrListIO.C
++++ b/src/OpenFOAM/containers/LinkedLists/accessTypes/LPtrList/LPtrListIO.C
+@@ -60,7 +60,7 @@ void Foam::LPtrList<LListBase, T>::read(Istream& is, const INew& iNew)
+             {
+                 for (label i=0; i<s; i++)
+                 {
+-                    append(iNew(is).ptr());
++                    this->append(iNew(is).ptr());
+ 
+                     is.fatalCheck
+                     (
+@@ -72,7 +72,7 @@ void Foam::LPtrList<LListBase, T>::read(Istream& is, const INew& iNew)
+             else
+             {
+                 T* tPtr = iNew(is).ptr();
+-                append(tPtr);
++                this->append(tPtr);
+ 
+                 is.fatalCheck
+                 (
+@@ -82,7 +82,7 @@ void Foam::LPtrList<LListBase, T>::read(Istream& is, const INew& iNew)
+ 
+                 for (label i=1; i<s; i++)
+                 {
+-                    append(tPtr->clone().ptr());
++                    this->append(tPtr->clone().ptr());
+                 }
+             }
+         }
+@@ -114,7 +114,7 @@ void Foam::LPtrList<LListBase, T>::read(Istream& is, const INew& iNew)
+         )
+         {
+             is.putBack(lastToken);
+-            append(iNew(is).ptr());
++            this->append(iNew(is).ptr());
+ 
+             is >> lastToken;
+             is.fatalCheck
+diff --git a/src/OpenFOAM/fields/DimensionedFields/DimensionedField/DimensionedField.C b/src/OpenFOAM/fields/DimensionedFields/DimensionedField/DimensionedField.C
+index b9a010b..d33f058 100644
+--- a/src/OpenFOAM/fields/DimensionedFields/DimensionedField/DimensionedField.C
++++ b/src/OpenFOAM/fields/DimensionedFields/DimensionedField/DimensionedField.C
+@@ -447,7 +447,7 @@ void DimensionedField<Type, GeoMesh>::operator=
+     checkField(*this, df, "=");
+ 
+     dimensions_ = df.dimensions();
+-    transfer(const_cast<DimensionedField<Type, GeoMesh>&>(df));
++    this->transfer(const_cast<DimensionedField<Type, GeoMesh>&>(df));
+     tdf.clear();
+ }
+ 
+diff --git a/src/OpenFOAM/fields/DimensionedFields/DimensionedField/DimensionedFieldIO.C b/src/OpenFOAM/fields/DimensionedFields/DimensionedField/DimensionedFieldIO.C
+index 43d716b..c6798c4 100644
+--- a/src/OpenFOAM/fields/DimensionedFields/DimensionedField/DimensionedFieldIO.C
++++ b/src/OpenFOAM/fields/DimensionedFields/DimensionedField/DimensionedFieldIO.C
+@@ -43,7 +43,7 @@ void DimensionedField<Type, GeoMesh>::readField
+     dimensions_.reset(dimensionSet(fieldDict.lookup("dimensions")));
+ 
+     Field<Type> f(fieldDictEntry, fieldDict, GeoMesh::size(mesh_));
+-    transfer(f);
++    this->transfer(f);
+ }
+ 
+ 
+diff --git a/src/OpenFOAM/fields/GeometricFields/GeometricField/GeometricBoundaryField.C b/src/OpenFOAM/fields/GeometricFields/GeometricField/GeometricBoundaryField.C
+index 674d9d7..8f81b79 100644
+--- a/src/OpenFOAM/fields/GeometricFields/GeometricField/GeometricBoundaryField.C
++++ b/src/OpenFOAM/fields/GeometricFields/GeometricField/GeometricBoundaryField.C
+@@ -52,7 +52,7 @@ GeometricBoundaryField
+ 
+     forAll(bmesh_, patchi)
+     {
+-        set
++        this->set
+         (
+             patchi,
+             PatchField<Type>::New
+@@ -104,7 +104,7 @@ GeometricBoundaryField
+ 
+     forAll(bmesh_, patchi)
+     {
+-        set
++        this->set
+         (
+             patchi,
+             PatchField<Type>::New
+@@ -141,7 +141,7 @@ GeometricBoundaryField
+ 
+     forAll(bmesh_, patchi)
+     {
+-        set(patchi, ptfl[patchi].clone(field));
++        this->set(patchi, ptfl[patchi].clone(field));
+     }
+ }
+ 
+@@ -169,7 +169,7 @@ GeometricBoundaryField
+ 
+     forAll(bmesh_, patchi)
+     {
+-        set(patchi, btf[patchi].clone(field));
++        this->set(patchi, btf[patchi].clone(field));
+     }
+ }
+ 
+@@ -226,7 +226,7 @@ GeometricBoundaryField
+     {
+         if (bmesh_[patchi].type() != emptyPolyPatch::typeName)
+         {
+-            set
++            this->set
+             (
+                 patchi,
+                 PatchField<Type>::New
+@@ -239,7 +239,7 @@ GeometricBoundaryField
+         }
+         else
+         {
+-            set
++            this->set
+             (
+                 patchi,
+                 PatchField<Type>::New
+diff --git a/src/OpenFOAM/fields/pointPatchFields/basic/basicSymmetry/basicSymmetryPointPatchField.C b/src/OpenFOAM/fields/pointPatchFields/basic/basicSymmetry/basicSymmetryPointPatchField.C
+index 53c2eaa..27d7fa4 100644
+--- a/src/OpenFOAM/fields/pointPatchFields/basic/basicSymmetry/basicSymmetryPointPatchField.C
++++ b/src/OpenFOAM/fields/pointPatchFields/basic/basicSymmetry/basicSymmetryPointPatchField.C
+@@ -93,7 +93,7 @@ void basicSymmetryPointPatchField<Type>::evaluate(const Pstream::commsTypes)
+     // Get internal field to insert values into
+     Field<Type>& iF = const_cast<Field<Type>&>(this->internalField());
+ 
+-    setInInternalField(iF, tvalues());
++    this->setInInternalField(iF, tvalues());
+ }
+ 
+ 
+diff --git a/src/OpenFOAM/fields/pointPatchFields/basic/mixed/mixedPointPatchField.C b/src/OpenFOAM/fields/pointPatchFields/basic/mixed/mixedPointPatchField.C
+index fd960cf..077437d 100644
+--- a/src/OpenFOAM/fields/pointPatchFields/basic/mixed/mixedPointPatchField.C
++++ b/src/OpenFOAM/fields/pointPatchFields/basic/mixed/mixedPointPatchField.C
+@@ -165,7 +165,7 @@ void mixedPointPatchField<Type>::evaluate(const Pstream::commsTypes)
+     // Get internal field to insert values into
+     Field<Type>& iF = const_cast<Field<Type>&>(this->internalField());
+ 
+-    setInInternalField(iF, *this);
++    this->setInInternalField(iF, *this);
+ }
+ 
+ 
+diff --git a/src/OpenFOAM/fields/pointPatchFields/basic/value/valuePointPatchField.C b/src/OpenFOAM/fields/pointPatchFields/basic/value/valuePointPatchField.C
+index de16506..debf2ee 100644
+--- a/src/OpenFOAM/fields/pointPatchFields/basic/value/valuePointPatchField.C
++++ b/src/OpenFOAM/fields/pointPatchFields/basic/value/valuePointPatchField.C
+@@ -171,7 +171,7 @@ void valuePointPatchField<Type>::updateCoeffs()
+     // Get internal field to insert values into
+     Field<Type>& iF = const_cast<Field<Type>&>(this->internalField());
+ 
+-    setInInternalField(iF, *this);
++    this->setInInternalField(iF, *this);
+ 
+     pointPatchField<Type>::updateCoeffs();
+ }
+@@ -183,7 +183,7 @@ void valuePointPatchField<Type>::evaluate(const Pstream::commsTypes)
+     // Get internal field to insert values into
+     Field<Type>& iF = const_cast<Field<Type>&>(this->internalField());
+ 
+-    setInInternalField(iF, *this);
++    this->setInInternalField(iF, *this);
+ 
+     pointPatchField<Type>::evaluate();
+ }
+diff --git a/src/OpenFOAM/fields/pointPatchFields/constraint/cyclic/cyclicPointPatchField.C b/src/OpenFOAM/fields/pointPatchFields/constraint/cyclic/cyclicPointPatchField.C
+index 162213c..83197c4 100644
+--- a/src/OpenFOAM/fields/pointPatchFields/constraint/cyclic/cyclicPointPatchField.C
++++ b/src/OpenFOAM/fields/pointPatchFields/constraint/cyclic/cyclicPointPatchField.C
+@@ -144,7 +144,7 @@ void cyclicPointPatchField<Type>::swapAdd(Field<Type>& pField) const
+         }
+     }
+ 
+-    addToInternalField(pField, pf);
++    this->addToInternalField(pField, pf);
+ }
+ 
+ 
+diff --git a/src/OpenFOAM/fields/pointPatchFields/constraint/processor/processorPointPatchField.C b/src/OpenFOAM/fields/pointPatchFields/constraint/processor/processorPointPatchField.C
+index d358fde..3c55602 100644
+--- a/src/OpenFOAM/fields/pointPatchFields/constraint/processor/processorPointPatchField.C
++++ b/src/OpenFOAM/fields/pointPatchFields/constraint/processor/processorPointPatchField.C
+@@ -154,7 +154,7 @@ void processorPointPatchField<Type>::swapAdd(Field<Type>& pField) const
+             }
+         }
+ 
+-        addToInternalField(pField, pnf);
++        this->addToInternalField(pField, pnf);
+     }
+ }
+ 
+diff --git a/src/OpenFOAM/fields/pointPatchFields/constraint/wedge/wedgePointPatchField.C b/src/OpenFOAM/fields/pointPatchFields/constraint/wedge/wedgePointPatchField.C
+index 176cbf5..c4d7c73 100644
+--- a/src/OpenFOAM/fields/pointPatchFields/constraint/wedge/wedgePointPatchField.C
++++ b/src/OpenFOAM/fields/pointPatchFields/constraint/wedge/wedgePointPatchField.C
+@@ -129,7 +129,7 @@ void wedgePointPatchField<Type>::evaluate(const Pstream::commsTypes)
+     // Get internal field to insert values into
+     Field<Type>& iF = const_cast<Field<Type>&>(this->internalField());
+ 
+-    setInInternalField(iF, tvalues());
++    this->setInInternalField(iF, tvalues());
+ }
+ 
+ 
+diff --git a/src/OpenFOAM/fields/pointPatchFields/derived/fixedNormalSlip/fixedNormalSlipPointPatchField.C b/src/OpenFOAM/fields/pointPatchFields/derived/fixedNormalSlip/fixedNormalSlipPointPatchField.C
+index 196ed0b..72f526e 100644
+--- a/src/OpenFOAM/fields/pointPatchFields/derived/fixedNormalSlip/fixedNormalSlipPointPatchField.C
++++ b/src/OpenFOAM/fields/pointPatchFields/derived/fixedNormalSlip/fixedNormalSlipPointPatchField.C
+@@ -94,7 +94,7 @@ void fixedNormalSlipPointPatchField<Type>::evaluate(const Pstream::commsTypes)
+     // Get internal field to insert values into
+     Field<Type>& iF = const_cast<Field<Type>&>(this->internalField());
+ 
+-    setInInternalField(iF, tvalues());
++    this->setInInternalField(iF, tvalues());
+ }
+ 
+ 
+diff --git a/src/OpenFOAM/fields/pointPatchFields/derived/global/globalPointPatchField.C b/src/OpenFOAM/fields/pointPatchFields/derived/global/globalPointPatchField.C
+index 5acf62b..fb6c1c8 100644
+--- a/src/OpenFOAM/fields/pointPatchFields/derived/global/globalPointPatchField.C
++++ b/src/OpenFOAM/fields/pointPatchFields/derived/global/globalPointPatchField.C
+@@ -134,7 +134,7 @@ void globalPointPatchField<Type>::swapAdd(Field<Type>& pField) const
+     // Create the global list and insert local values
+     if (globalPointPatch_.globalPointSize() > 0)
+     {
+-        Field<Type> lpf = patchInternalField(pField);
++        Field<Type> lpf = this->patchInternalField(pField);
+         const labelList& addr = globalPointPatch_.sharedPointAddr();
+ 
+         Field<Type> gpf
+@@ -156,7 +156,7 @@ void globalPointPatchField<Type>::swapAdd(Field<Type>& pField) const
+             lpf[i] = gpf[addr[i]];
+         }
+ 
+-        setInInternalField(pField, lpf);
++        this->setInInternalField(pField, lpf);
+     }
+ }
+ 
+diff --git a/src/autoMesh/autoHexMesh/trackedParticle/ExactParticle.C b/src/autoMesh/autoHexMesh/trackedParticle/ExactParticle.C
+index 3bf7555..06edb7d 100644
+--- a/src/autoMesh/autoHexMesh/trackedParticle/ExactParticle.C
++++ b/src/autoMesh/autoHexMesh/trackedParticle/ExactParticle.C
+@@ -164,7 +164,7 @@ Foam::scalar Foam::ExactParticle<ParticleType>::trackToFace
+             this->position_ = endPosition;
+         }
+ 
+-        label patchi = patch(this->facei_);
++        label patchi = this->patch(this->facei_);
+         const polyPatch& patch = mesh.boundaryMesh()[patchi];
+ 
+         if (isA<wedgePolyPatch>(patch))
+diff --git a/src/finiteVolume/cfdTools/general/fieldSources/timeActivatedExplicitSource/TimeActivatedExplicitSourceList.C b/src/finiteVolume/cfdTools/general/fieldSources/timeActivatedExplicitSource/TimeActivatedExplicitSourceList.C
+index 8b73e32..8c92c82 100644
+--- a/src/finiteVolume/cfdTools/general/fieldSources/timeActivatedExplicitSource/TimeActivatedExplicitSourceList.C
++++ b/src/finiteVolume/cfdTools/general/fieldSources/timeActivatedExplicitSource/TimeActivatedExplicitSourceList.C
+@@ -175,7 +175,7 @@ bool Foam::TimeActivatedExplicitSourceList<Type>::readData(Istream& is)
+         typename TimeActivatedExplicitSource<Type>::iNew(mesh_, fieldNames_)
+     );
+ 
+-    transfer(newSources);
++    this->transfer(newSources);
+ 
+     return is.good();
+ }
+diff --git a/src/finiteVolume/finiteVolume/ddtSchemes/CoEulerDdtScheme/CoEulerDdtScheme.C b/src/finiteVolume/finiteVolume/ddtSchemes/CoEulerDdtScheme/CoEulerDdtScheme.C
+index 3b2ceac..76cb4e4 100644
+--- a/src/finiteVolume/finiteVolume/ddtSchemes/CoEulerDdtScheme/CoEulerDdtScheme.C
++++ b/src/finiteVolume/finiteVolume/ddtSchemes/CoEulerDdtScheme/CoEulerDdtScheme.C
+@@ -517,7 +517,7 @@ CoEulerDdtScheme<Type>::fvcDdtPhiCorr
+             new fluxFieldType
+             (
+                 ddtIOobject,
+-                fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())*
++                this->fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())*
+                 (
+                     fvc::interpolate(rDeltaT*rA)*phi.oldTime()
+                   - (fvc::interpolate(rDeltaT*rA*U.oldTime()) & mesh().Sf())
+@@ -578,7 +578,7 @@ CoEulerDdtScheme<Type>::fvcDdtPhiCorr
+                 new fluxFieldType
+                 (
+                     ddtIOobject,
+-                    fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())
++                    this->fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())
+                    *(
+                         fvc::interpolate(rDeltaT*rA*rho.oldTime())*phi.oldTime()
+                       - (fvc::interpolate(rDeltaT*rA*rho.oldTime()*U.oldTime())
+@@ -598,7 +598,7 @@ CoEulerDdtScheme<Type>::fvcDdtPhiCorr
+                 new fluxFieldType
+                 (
+                     ddtIOobject,
+-                    fvcDdtPhiCoeff
++                    this->fvcDdtPhiCoeff
+                     (
+                         U.oldTime(),
+                         phi.oldTime()/fvc::interpolate(rho.oldTime())
+@@ -627,7 +627,12 @@ CoEulerDdtScheme<Type>::fvcDdtPhiCorr
+                 new fluxFieldType
+                 (
+                     ddtIOobject,
+-                    fvcDdtPhiCoeff(rho.oldTime(), U.oldTime(), phi.oldTime())
++                    this->fvcDdtPhiCoeff
++                    (
++                        rho.oldTime(),
++                        U.oldTime(),
++                        phi.oldTime()
++                    )
+                    *(
+                         fvc::interpolate(rDeltaT*rA)*phi.oldTime()
+                       - (
+diff --git a/src/finiteVolume/finiteVolume/ddtSchemes/CrankNicholsonDdtScheme/CrankNicholsonDdtScheme.C b/src/finiteVolume/finiteVolume/ddtSchemes/CrankNicholsonDdtScheme/CrankNicholsonDdtScheme.C
+index 296f78d..64f5031 100644
+--- a/src/finiteVolume/finiteVolume/ddtSchemes/CrankNicholsonDdtScheme/CrankNicholsonDdtScheme.C
++++ b/src/finiteVolume/finiteVolume/ddtSchemes/CrankNicholsonDdtScheme/CrankNicholsonDdtScheme.C
+@@ -946,7 +946,7 @@ CrankNicholsonDdtScheme<Type>::fvcDdtPhiCorr
+             new fluxFieldType
+             (
+                 ddtIOobject,
+-                fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())
++                this->fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())
+                *fvc::interpolate(rA)
+                *(
+                     (rDtCoef*phi.oldTime() + offCentre_(dphidt0()))
+@@ -1045,7 +1045,7 @@ CrankNicholsonDdtScheme<Type>::fvcDdtPhiCorr
+                 new fluxFieldType
+                 (
+                     ddtIOobject,
+-                    fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())*
++                    this->fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())*
+                     (
+                         fvc::interpolate(rA*rho.oldTime())
+                        *(rDtCoef*phi.oldTime() + offCentre_(dphidt0()))
+@@ -1090,7 +1090,7 @@ CrankNicholsonDdtScheme<Type>::fvcDdtPhiCorr
+                 new fluxFieldType
+                 (
+                     ddtIOobject,
+-                    fvcDdtPhiCoeff
++                    this->fvcDdtPhiCoeff
+                     (
+                         U.oldTime(),
+                         phi.oldTime()/fvc::interpolate(rho.oldTime())
+@@ -1139,8 +1139,13 @@ CrankNicholsonDdtScheme<Type>::fvcDdtPhiCorr
+                 new fluxFieldType
+                 (
+                     ddtIOobject,
+-                    fvcDdtPhiCoeff(rho.oldTime(), U.oldTime(), phi.oldTime())*
++                    this->fvcDdtPhiCoeff
+                     (
++                        rho.oldTime(),
++                        U.oldTime(),
++                        phi.oldTime()
++                    )
++                   *(
+                         fvc::interpolate(rA)
+                        *(rDtCoef*phi.oldTime() + offCentre_(dphidt0()))
+                       - (
+diff --git a/src/finiteVolume/finiteVolume/ddtSchemes/EulerDdtScheme/EulerDdtScheme.C b/src/finiteVolume/finiteVolume/ddtSchemes/EulerDdtScheme/EulerDdtScheme.C
+index 280d3dc..4964b27 100644
+--- a/src/finiteVolume/finiteVolume/ddtSchemes/EulerDdtScheme/EulerDdtScheme.C
++++ b/src/finiteVolume/finiteVolume/ddtSchemes/EulerDdtScheme/EulerDdtScheme.C
+@@ -394,7 +394,7 @@ EulerDdtScheme<Type>::fvcDdtPhiCorr
+         new fluxFieldType
+         (
+             ddtIOobject,
+-            fvcDdtPhiCoeff(U.oldTime(), phiAbs.oldTime(), phiCorr())
++            this->fvcDdtPhiCoeff(U.oldTime(), phiAbs.oldTime(), phiCorr())
+            *fvc::interpolate(rDeltaT*rA)*phiCorr
+         )
+     );
+@@ -436,7 +436,7 @@ EulerDdtScheme<Type>::fvcDdtPhiCorr
+             (
+                 ddtIOobject,
+                 rDeltaT
+-               *fvcDdtPhiCoeff(U.oldTime(), phiAbs.oldTime())
++               *this->fvcDdtPhiCoeff(U.oldTime(), phiAbs.oldTime())
+                *(
+                    fvc::interpolate(rA*rho.oldTime())*phiAbs.oldTime()
+                  - (fvc::interpolate(rA*rho.oldTime()*U.oldTime())
+@@ -457,7 +457,7 @@ EulerDdtScheme<Type>::fvcDdtPhiCorr
+             (
+                 ddtIOobject,
+                 rDeltaT
+-               *fvcDdtPhiCoeff
++               *this->fvcDdtPhiCoeff
+                 (
+                     U.oldTime(),
+                     phiAbs.oldTime()/fvc::interpolate(rho.oldTime())
+@@ -487,7 +487,12 @@ EulerDdtScheme<Type>::fvcDdtPhiCorr
+             (
+                 ddtIOobject,
+                 rDeltaT
+-               *fvcDdtPhiCoeff(rho.oldTime(), U.oldTime(), phiAbs.oldTime())
++               *this->fvcDdtPhiCoeff
++                (
++                   rho.oldTime(),
++                   U.oldTime(),
++                   phiAbs.oldTime()
++                )
+                *(
+                    fvc::interpolate(rA)*phiAbs.oldTime()
+                  - (fvc::interpolate(rA*U.oldTime()) & mesh().Sf())
+diff --git a/src/finiteVolume/finiteVolume/ddtSchemes/SLTSDdtScheme/SLTSDdtScheme.C b/src/finiteVolume/finiteVolume/ddtSchemes/SLTSDdtScheme/SLTSDdtScheme.C
+index c83c4a4..7e826de 100644
+--- a/src/finiteVolume/finiteVolume/ddtSchemes/SLTSDdtScheme/SLTSDdtScheme.C
++++ b/src/finiteVolume/finiteVolume/ddtSchemes/SLTSDdtScheme/SLTSDdtScheme.C
+@@ -519,7 +519,7 @@ SLTSDdtScheme<Type>::fvcDdtPhiCorr
+             new fluxFieldType
+             (
+                 ddtIOobject,
+-                fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())*
++                this->fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())*
+                 (
+                     fvc::interpolate(rDeltaT*rA)*phi.oldTime()
+                   - (fvc::interpolate(rDeltaT*rA*U.oldTime()) & mesh().Sf())
+@@ -580,7 +580,7 @@ SLTSDdtScheme<Type>::fvcDdtPhiCorr
+                 new fluxFieldType
+                 (
+                     ddtIOobject,
+-                    fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())
++                    this->fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())
+                    *(
+                         fvc::interpolate(rDeltaT*rA*rho.oldTime())*phi.oldTime()
+                       - (fvc::interpolate(rDeltaT*rA*rho.oldTime()*U.oldTime())
+@@ -600,7 +600,7 @@ SLTSDdtScheme<Type>::fvcDdtPhiCorr
+                 new fluxFieldType
+                 (
+                     ddtIOobject,
+-                    fvcDdtPhiCoeff
++                    this->fvcDdtPhiCoeff
+                     (
+                         U.oldTime(),
+                         phi.oldTime()/fvc::interpolate(rho.oldTime())
+@@ -629,7 +629,12 @@ SLTSDdtScheme<Type>::fvcDdtPhiCorr
+                 new fluxFieldType
+                 (
+                     ddtIOobject,
+-                    fvcDdtPhiCoeff(rho.oldTime(), U.oldTime(), phi.oldTime())
++                    this->fvcDdtPhiCoeff
++                    (
++                        rho.oldTime(),
++                        U.oldTime(),
++                        phi.oldTime()
++                    )
+                    *(
+                         fvc::interpolate(rDeltaT*rA)*phi.oldTime()
+                       - (
+diff --git a/src/finiteVolume/finiteVolume/ddtSchemes/backwardDdtScheme/backwardDdtScheme.C b/src/finiteVolume/finiteVolume/ddtSchemes/backwardDdtScheme/backwardDdtScheme.C
+index d80b697..33fb7de 100644
+--- a/src/finiteVolume/finiteVolume/ddtSchemes/backwardDdtScheme/backwardDdtScheme.C
++++ b/src/finiteVolume/finiteVolume/ddtSchemes/backwardDdtScheme/backwardDdtScheme.C
+@@ -542,7 +542,7 @@ backwardDdtScheme<Type>::fvcDdtPhiCorr
+         new fluxFieldType
+         (
+             ddtIOobject,
+-            rDeltaT*fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())
++            rDeltaT*this->fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())
+            *(
+                 fvc::interpolate(rA)
+                *(
+@@ -606,7 +606,7 @@ backwardDdtScheme<Type>::fvcDdtPhiCorr
+             new fluxFieldType
+             (
+                 ddtIOobject,
+-                rDeltaT*fvcDdtPhiCoeff(U.oldTime(), phiAbs.oldTime())
++                rDeltaT*this->fvcDdtPhiCoeff(U.oldTime(), phiAbs.oldTime())
+                *(
+                     coefft0*fvc::interpolate(rA*rho.oldTime())
+                    *phiAbs.oldTime()
+@@ -639,7 +639,7 @@ backwardDdtScheme<Type>::fvcDdtPhiCorr
+             (
+                 ddtIOobject,
+                 rDeltaT
+-               *fvcDdtPhiCoeff
++               *this->fvcDdtPhiCoeff
+                 (
+                     U.oldTime(),
+                     phiAbs.oldTime()/fvc::interpolate(rho.oldTime())
+@@ -678,7 +678,12 @@ backwardDdtScheme<Type>::fvcDdtPhiCorr
+             (
+                 ddtIOobject,
+                 rDeltaT
+-               *fvcDdtPhiCoeff(rho.oldTime(), U.oldTime(), phiAbs.oldTime())
++               *this->fvcDdtPhiCoeff
++                (
++                    rho.oldTime(),
++                    U.oldTime(),
++                    phiAbs.oldTime()
++                )
+                *(
+                     fvc::interpolate(rA)
+                    *(
+diff --git a/src/finiteVolume/finiteVolume/ddtSchemes/localEulerDdtScheme/localEulerDdtScheme.C b/src/finiteVolume/finiteVolume/ddtSchemes/localEulerDdtScheme/localEulerDdtScheme.C
+index d84d5e9..7071b21 100644
+--- a/src/finiteVolume/finiteVolume/ddtSchemes/localEulerDdtScheme/localEulerDdtScheme.C
++++ b/src/finiteVolume/finiteVolume/ddtSchemes/localEulerDdtScheme/localEulerDdtScheme.C
+@@ -416,7 +416,7 @@ localEulerDdtScheme<Type>::fvcDdtPhiCorr
+             new fluxFieldType
+             (
+                 ddtIOobject,
+-                fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())*
++                this->fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())*
+                 (
+                     fvc::interpolate(rDeltaT*rA)*phi.oldTime()
+                   - (fvc::interpolate(rDeltaT*rA*U.oldTime()) & mesh().Sf())
+@@ -482,7 +482,7 @@ localEulerDdtScheme<Type>::fvcDdtPhiCorr
+ //                       - (min(rDeltaT)/fvc::interpolate(rDeltaT))
+ //                        *(scalar(1) - fvcDdtPhiCoeff(U.oldTime(), phi.oldTime()))
+ //                     )
+-                    fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())
++                    this->fvcDdtPhiCoeff(U.oldTime(), phi.oldTime())
+                     //0.95
+                    *(
+                         fvc::interpolate(rDeltaT*rA*rho.oldTime())*phi.oldTime()
+@@ -503,7 +503,7 @@ localEulerDdtScheme<Type>::fvcDdtPhiCorr
+                 new fluxFieldType
+                 (
+                     ddtIOobject,
+-                    fvcDdtPhiCoeff
++                    this->fvcDdtPhiCoeff
+                     (
+                         U.oldTime(),
+                         phi.oldTime()/fvc::interpolate(rho.oldTime())
+@@ -532,7 +532,12 @@ localEulerDdtScheme<Type>::fvcDdtPhiCorr
+                 new fluxFieldType
+                 (
+                     ddtIOobject,
+-                    fvcDdtPhiCoeff(rho.oldTime(), U.oldTime(), phi.oldTime())
++                    this->fvcDdtPhiCoeff
++                    (
++                        rho.oldTime(),
++                        U.oldTime(),
++                        phi.oldTime()
++                    )
+                    *(
+                         fvc::interpolate(rDeltaT*rA)*phi.oldTime()
+                       - (
+diff --git a/src/finiteVolume/interpolation/surfaceInterpolation/limitedSchemes/limitedSurfaceInterpolationScheme/limitedSurfaceInterpolationScheme.C b/src/finiteVolume/interpolation/surfaceInterpolation/limitedSchemes/limitedSurfaceInterpolationScheme/limitedSurfaceInterpolationScheme.C
+index 9eff3ed..becb30b 100644
+--- a/src/finiteVolume/interpolation/surfaceInterpolation/limitedSchemes/limitedSurfaceInterpolationScheme/limitedSurfaceInterpolationScheme.C
++++ b/src/finiteVolume/interpolation/surfaceInterpolation/limitedSchemes/limitedSurfaceInterpolationScheme/limitedSurfaceInterpolationScheme.C
+@@ -215,7 +215,7 @@ limitedSurfaceInterpolationScheme<Type>::flux
+     const GeometricField<Type, fvPatchField, volMesh>& phi
+ ) const
+ {
+-    return faceFlux_*interpolate(phi);
++    return faceFlux_*this->interpolate(phi);
+ }
+ 
+ 
+diff --git a/src/finiteVolume/interpolation/surfaceInterpolation/multivariateSchemes/multivariateSurfaceInterpolationScheme/multivariateSurfaceInterpolationScheme.H b/src/finiteVolume/interpolation/surfaceInterpolation/multivariateSchemes/multivariateSurfaceInterpolationScheme/multivariateSurfaceInterpolationScheme.H
+index f6c2962..cf13e5d 100644
+--- a/src/finiteVolume/interpolation/surfaceInterpolation/multivariateSchemes/multivariateSurfaceInterpolationScheme/multivariateSurfaceInterpolationScheme.H
++++ b/src/finiteVolume/interpolation/surfaceInterpolation/multivariateSchemes/multivariateSurfaceInterpolationScheme/multivariateSurfaceInterpolationScheme.H
+@@ -67,7 +67,7 @@ public:
+ 
+         void add(const GeometricField<Type, fvPatchField, volMesh>& f)
+         {
+-            insert(f.name(), &f);
++            this->insert(f.name(), &f);
+         }
+     };
+ 
+diff --git a/src/lagrangian/basic/Cloud/Cloud.C b/src/lagrangian/basic/Cloud/Cloud.C
+index bce1a85..f917fae 100644
+--- a/src/lagrangian/basic/Cloud/Cloud.C
++++ b/src/lagrangian/basic/Cloud/Cloud.C
+@@ -86,7 +86,7 @@ Foam::label Foam::Cloud<ParticleType>::getNewParticleID() const
+ template<class ParticleType>
+ void Foam::Cloud<ParticleType>::addParticle(ParticleType* pPtr)
+ {
+-    append(pPtr);
++    this->append(pPtr);
+ }
+ 
+ 
+diff --git a/src/lagrangian/dsmc/clouds/Templates/DsmcCloud_/DsmcCloud_.C b/src/lagrangian/dsmc/clouds/Templates/DsmcCloud_/DsmcCloud_.C
+index aab7413..308f761 100644
+--- a/src/lagrangian/dsmc/clouds/Templates/DsmcCloud_/DsmcCloud_.C
++++ b/src/lagrangian/dsmc/clouds/Templates/DsmcCloud_/DsmcCloud_.C
+@@ -590,7 +590,7 @@ void Foam::DsmcCloud<ParcelType>::addNewParcel
+         typeId
+     );
+ 
+-    addParticle(pPtr);
++    this->addParticle(pPtr);
+ }
+ 
+ 
+diff --git a/src/lagrangian/intermediate/parcels/Templates/KinematicParcel/KinematicParcel.C b/src/lagrangian/intermediate/parcels/Templates/KinematicParcel/KinematicParcel.C
+index d0de92a..e55b5e2 100644
+--- a/src/lagrangian/intermediate/parcels/Templates/KinematicParcel/KinematicParcel.C
++++ b/src/lagrangian/intermediate/parcels/Templates/KinematicParcel/KinematicParcel.C
+@@ -119,7 +119,20 @@ void Foam::KinematicParcel<ParcelType>::calc
+ 
+     // Calculate new particle velocity
+     vector U1 =
+-        calcVelocity(td, dt, cellI, Re, muc_, d0, U0, rho0, mass0, Su, dUTrans);
++        this->calcVelocity
++        (
++            td,
++            dt,
++            cellI,
++            Re,
++            muc_,
++            d0,
++            U0,
++            rho0,
++            mass0,
++            Su,
++            dUTrans
++        );
+ 
+ 
+     // Accumulate carrier phase source terms
+diff --git a/src/lagrangian/intermediate/parcels/Templates/ReactingMultiphaseParcel/ReactingMultiphaseParcel.C b/src/lagrangian/intermediate/parcels/Templates/ReactingMultiphaseParcel/ReactingMultiphaseParcel.C
+index 05ecb38..e0d6aad 100644
+--- a/src/lagrangian/intermediate/parcels/Templates/ReactingMultiphaseParcel/ReactingMultiphaseParcel.C
++++ b/src/lagrangian/intermediate/parcels/Templates/ReactingMultiphaseParcel/ReactingMultiphaseParcel.C
+@@ -248,7 +248,7 @@ void Foam::ReactingMultiphaseParcel<ParcelType>::calc
+     scalarField Cs(td.cloud().mcCarrierThermo().species().size(), 0.0);
+ 
+     // Calc mass and enthalpy transfer due to phase change
+-    calcPhaseChange
++    this->calcPhaseChange
+     (
+         td,
+         dt,
+@@ -298,7 +298,7 @@ void Foam::ReactingMultiphaseParcel<ParcelType>::calc
+     );
+ 
+     // Correct surface values due to emitted species
+-    correctSurfaceValues(td, cellI, Ts, Cs, rhos, mus, Pr, kappa);
++    this->correctSurfaceValues(td, cellI, Ts, Cs, rhos, mus, Pr, kappa);
+ 
+ 
+     // Surface reactions
+@@ -355,7 +355,7 @@ void Foam::ReactingMultiphaseParcel<ParcelType>::calc
+ 
+     // Calculate new particle temperature
+     scalar T1 =
+-        calcHeatTransfer
++        this->calcHeatTransfer
+         (
+             td,
+             dt,
+@@ -378,7 +378,20 @@ void Foam::ReactingMultiphaseParcel<ParcelType>::calc
+ 
+     // Calculate new particle velocity
+     vector U1 =
+-        calcVelocity(td, dt, cellI, Re, mus, d0, U0, rho0, mass0, Su, dUTrans);
++        this->calcVelocity
++        (
++            td,
++            dt,
++            cellI,
++            Re,
++            mus,
++            d0,
++            U0,
++            rho0,
++            mass0,
++            Su,
++            dUTrans
++        );
+ 
+     dUTrans += 0.5*(mass0 - mass1)*(U0 + U1);
+ 
+diff --git a/src/lagrangian/intermediate/parcels/Templates/ReactingParcel_/ReactingParcel_.C b/src/lagrangian/intermediate/parcels/Templates/ReactingParcel_/ReactingParcel_.C
+index 77b86f6..4799e36 100644
+--- a/src/lagrangian/intermediate/parcels/Templates/ReactingParcel_/ReactingParcel_.C
++++ b/src/lagrangian/intermediate/parcels/Templates/ReactingParcel_/ReactingParcel_.C
+@@ -301,7 +301,7 @@ void Foam::ReactingParcel<ParcelType>::calc
+ 
+     // Calculate new particle temperature
+     scalar T1 =
+-        calcHeatTransfer
++        this->calcHeatTransfer
+         (
+             td,
+             dt,
+@@ -324,7 +324,20 @@ void Foam::ReactingParcel<ParcelType>::calc
+ 
+     // Calculate new particle velocity
+     vector U1 =
+-        calcVelocity(td, dt, cellI, Re, mus, d0, U0, rho0, mass0, Su, dUTrans);
++        this->calcVelocity
++        (
++            td,
++            dt,
++            cellI,
++            Re,
++            mus,
++            d0,
++            U0,
++            rho0,
++            mass0,
++            Su,
++            dUTrans
++        );
+ 
+     dUTrans += 0.5*(mass0 - mass1)*(U0 + U1);
+ 
+diff --git a/src/lagrangian/intermediate/parcels/Templates/ThermoParcel/ThermoParcel.C b/src/lagrangian/intermediate/parcels/Templates/ThermoParcel/ThermoParcel.C
+index 659224a..b724cdb 100644
+--- a/src/lagrangian/intermediate/parcels/Templates/ThermoParcel/ThermoParcel.C
++++ b/src/lagrangian/intermediate/parcels/Templates/ThermoParcel/ThermoParcel.C
+@@ -180,7 +180,20 @@ void Foam::ThermoParcel<ParcelType>::calc
+ 
+     // Calculate new particle velocity
+     vector U1 =
+-        calcVelocity(td, dt, cellI, Re, mus, d0, U0, rho0, mass0, Su, dUTrans);
++        this->calcVelocity
++        (
++            td,
++            dt,
++            cellI,
++            Re,
++            mus,
++            d0,
++            U0,
++            rho0,
++            mass0,
++            Su,
++            dUTrans
++        );
+ 
+ 
+     //  Accumulate carrier phase source terms
+diff --git a/src/sampling/sampledSet/writers/csv/csvSetWriter.C b/src/sampling/sampledSet/writers/csv/csvSetWriter.C
+index a93dda8..c51179d 100644
+--- a/src/sampling/sampledSet/writers/csv/csvSetWriter.C
++++ b/src/sampling/sampledSet/writers/csv/csvSetWriter.C
+@@ -76,7 +76,7 @@ void Foam::csvSetWriter<Type>::write
+         columns[i] = valueSets[i];
+     }
+ 
+-    writeTable(points, columns, os);
++    this->writeTable(points, columns, os);
+ }
+ 
+ 
+@@ -110,7 +110,7 @@ void Foam::csvSetWriter<Type>::write
+             columns[i] = &valueSets[i][trackI];
+         }
+ 
+-        writeTable(points[trackI], columns, os);
++        this->writeTable(points[trackI], columns, os);
+         os  << nl << nl;
+     }
+ }
+diff --git a/src/sampling/sampledSet/writers/gnuplot/gnuplotSetWriter.C b/src/sampling/sampledSet/writers/gnuplot/gnuplotSetWriter.C
+index e7910c0..1816fba 100644
+--- a/src/sampling/sampledSet/writers/gnuplot/gnuplotSetWriter.C
++++ b/src/sampling/sampledSet/writers/gnuplot/gnuplotSetWriter.C
+@@ -86,7 +86,7 @@ void Foam::gnuplotSetWriter<Type>::write
+ 
+     forAll(valueSets, i)
+     {
+-        writeTable(points, *valueSets[i], os);
++        this->writeTable(points, *valueSets[i], os);
+         os  << "e" << nl;
+     }
+ }
+@@ -131,7 +131,12 @@ void Foam::gnuplotSetWriter<Type>::write
+ 
+             forAll(valueSets, i)
+             {
+-                writeTable(trackPoints[trackI], valueSets[i][trackI], os);
++                this->writeTable
++                (
++                    trackPoints[trackI],
++                    valueSets[i][trackI],
++                    os
++                );
+                 os  << "e" << nl;
+             }
+         }
+diff --git a/src/sampling/sampledSet/writers/jplot/jplotSetWriter.C b/src/sampling/sampledSet/writers/jplot/jplotSetWriter.C
+index 5015421..e8df52e 100644
+--- a/src/sampling/sampledSet/writers/jplot/jplotSetWriter.C
++++ b/src/sampling/sampledSet/writers/jplot/jplotSetWriter.C
+@@ -96,7 +96,7 @@ void Foam::jplotSetWriter<Type>::write
+         columns[i] = valueSets[i];
+     }
+ 
+-    writeTable(points, columns, os);
++    this->writeTable(points, columns, os);
+ }
+ 
+ 
+diff --git a/src/sampling/sampledSet/writers/raw/rawSetWriter.C b/src/sampling/sampledSet/writers/raw/rawSetWriter.C
+index e1de487..efc6405 100644
+--- a/src/sampling/sampledSet/writers/raw/rawSetWriter.C
++++ b/src/sampling/sampledSet/writers/raw/rawSetWriter.C
+@@ -74,7 +74,7 @@ void Foam::rawSetWriter<Type>::write
+         columns[i] = valueSets[i];
+     }
+ 
+-    writeTable(points, columns, os);
++    this->writeTable(points, columns, os);
+ }
+ 
+ 
+@@ -106,7 +106,7 @@ void Foam::rawSetWriter<Type>::write
+             columns[i] = &valueSets[i][trackI];
+         }
+ 
+-        writeTable(points[trackI], columns, os);
++        this->writeTable(points[trackI], columns, os);
+         os  << nl << nl;
+     }
+ }
+diff --git a/src/sampling/sampledSet/writers/xmgrace/xmgraceSetWriter.C b/src/sampling/sampledSet/writers/xmgrace/xmgraceSetWriter.C
+index 8dfa7d2..b45c05c 100644
+--- a/src/sampling/sampledSet/writers/xmgrace/xmgraceSetWriter.C
++++ b/src/sampling/sampledSet/writers/xmgrace/xmgraceSetWriter.C
+@@ -78,7 +78,7 @@ void Foam::xmgraceSetWriter<Type>::write
+             << valueSetNames[i] << '"' << nl
+             << "@target G0.S" << i << nl;
+ 
+-        writeTable(points, *valueSets[i], os);
++        this->writeTable(points, *valueSets[i], os);
+ 
+         os  << '&' << nl;
+     }
+@@ -119,7 +119,12 @@ void Foam::xmgraceSetWriter<Type>::write
+                 os  << "@    s" << sI << " legend " << '"'
+                     << valueSetNames[i] << "_track" << i << '"' << nl
+                     << "@target G0.S" << sI << nl;
+-                writeTable(trackPoints[trackI], valueSets[i][trackI], os);
++                this->writeTable
++                (
++                    trackPoints[trackI],
++                    valueSets[i][trackI],
++                    os
++                );
+                 os  << '&' << nl;
+ 
+                 sI++;
+diff --git a/src/surfMesh/surfaceFormats/ac3d/AC3DsurfaceFormat.C b/src/surfMesh/surfaceFormats/ac3d/AC3DsurfaceFormat.C
+index 9547096..201ff1b 100644
+--- a/src/surfMesh/surfaceFormats/ac3d/AC3DsurfaceFormat.C
++++ b/src/surfMesh/surfaceFormats/ac3d/AC3DsurfaceFormat.C
+@@ -286,7 +286,7 @@ void Foam::fileFormats::AC3DsurfaceFormat<Face>::write
+     (
+         surf.surfZones().size()
+       ? surf.surfZones()
+-      : oneZone(faceLst)
++      : AC3DsurfaceFormat::oneZone(faceLst)
+     );
+ 
+     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);
+diff --git a/src/surfMesh/surfaceFormats/nas/NASsurfaceFormat.C b/src/surfMesh/surfaceFormats/nas/NASsurfaceFormat.C
+index 04cd303..5ee8150 100644
+--- a/src/surfMesh/surfaceFormats/nas/NASsurfaceFormat.C
++++ b/src/surfMesh/surfaceFormats/nas/NASsurfaceFormat.C
+@@ -379,7 +379,7 @@ bool Foam::fileFormats::NASsurfaceFormat<Face>::read
+         }
+     }
+ 
+-    sortFacesAndStore(dynFaces.xfer(), dynZones.xfer(), sorted);
++    this->sortFacesAndStore(dynFaces.xfer(), dynZones.xfer(), sorted);
+ 
+     // add zones, culling empty ones
+     this->addZones(dynSizes, names, true);
+diff --git a/src/surfMesh/surfaceFormats/obj/OBJsurfaceFormat.C b/src/surfMesh/surfaceFormats/obj/OBJsurfaceFormat.C
+index 9577ff1..eee329c 100644
+--- a/src/surfMesh/surfaceFormats/obj/OBJsurfaceFormat.C
++++ b/src/surfMesh/surfaceFormats/obj/OBJsurfaceFormat.C
+@@ -202,7 +202,7 @@ bool Foam::fileFormats::OBJsurfaceFormat<Face>::read
+     // transfer to normal lists
+     this->storedPoints().transfer(dynPoints);
+ 
+-    sortFacesAndStore(dynFaces.xfer(), dynZones.xfer(), sorted);
++    this->sortFacesAndStore(dynFaces.xfer(), dynZones.xfer(), sorted);
+ 
+     // add zones, culling empty ones
+     this->addZones(dynSizes, dynNames, true);
+@@ -226,7 +226,7 @@ void Foam::fileFormats::OBJsurfaceFormat<Face>::write
+     (
+         surf.surfZones().size() > 1
+       ? surf.surfZones()
+-      : oneZone(faceLst, "")
++      : OBJsurfaceFormat::oneZone(faceLst, "")
+     );
+ 
+     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);
+diff --git a/src/surfMesh/surfaceFormats/off/OFFsurfaceFormat.C b/src/surfMesh/surfaceFormats/off/OFFsurfaceFormat.C
+index 8c19c67..a43a780 100644
+--- a/src/surfMesh/surfaceFormats/off/OFFsurfaceFormat.C
++++ b/src/surfMesh/surfaceFormats/off/OFFsurfaceFormat.C
+@@ -141,7 +141,7 @@ bool Foam::fileFormats::OFFsurfaceFormat<Face>::read
+     }
+ 
+     // transfer to normal lists, no zone information
+-    reset(pointLst.xfer(), dynFaces.xfer(), Xfer<surfZoneList>());
++    this->reset(pointLst.xfer(), dynFaces.xfer(), Xfer<surfZoneList>());
+ 
+     return true;
+ }
+diff --git a/src/surfMesh/surfaceFormats/smesh/SMESHsurfaceFormat.C b/src/surfMesh/surfaceFormats/smesh/SMESHsurfaceFormat.C
+index 2e42db6..74d6289 100644
+--- a/src/surfMesh/surfaceFormats/smesh/SMESHsurfaceFormat.C
++++ b/src/surfMesh/surfaceFormats/smesh/SMESHsurfaceFormat.C
+@@ -53,7 +53,7 @@ void Foam::fileFormats::SMESHsurfaceFormat<Face>::write
+     (
+         surf.surfZones().size() > 1
+       ? surf.surfZones()
+-      : oneZone(faceLst)
++      : SMESHsurfaceFormat::oneZone(faceLst)
+     );
+ 
+     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);
+diff --git a/src/surfMesh/surfaceFormats/starcd/STARCDsurfaceFormat.C b/src/surfMesh/surfaceFormats/starcd/STARCDsurfaceFormat.C
+index 6e90d4b..6389304 100644
+--- a/src/surfMesh/surfaceFormats/starcd/STARCDsurfaceFormat.C
++++ b/src/surfMesh/surfaceFormats/starcd/STARCDsurfaceFormat.C
+@@ -207,7 +207,7 @@ bool Foam::fileFormats::STARCDsurfaceFormat<Face>::read
+     }
+     mapPointId.clear();
+ 
+-    sortFacesAndStore(dynFaces.xfer(), dynZones.xfer(), sorted);
++    this->sortFacesAndStore(dynFaces.xfer(), dynZones.xfer(), sorted);
+ 
+     // add zones, culling empty ones
+     this->addZones(dynSizes, dynNames, true);
+@@ -230,7 +230,7 @@ void Foam::fileFormats::STARCDsurfaceFormat<Face>::write
+     (
+         surf.surfZones().size() > 1
+       ? surf.surfZones()
+-      : oneZone(faceLst)
++      : STARCDsurfaceFormat::oneZone(faceLst)
+     );
+ 
+     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);
+diff --git a/src/surfMesh/surfaceFormats/stl/STLsurfaceFormat.C b/src/surfMesh/surfaceFormats/stl/STLsurfaceFormat.C
+index 19374e3..1bcf22c 100644
+--- a/src/surfMesh/surfaceFormats/stl/STLsurfaceFormat.C
++++ b/src/surfMesh/surfaceFormats/stl/STLsurfaceFormat.C
+@@ -214,7 +214,7 @@ void Foam::fileFormats::STLsurfaceFormat<Face>::writeAscii
+     (
+         surf.surfZones().size() > 1
+       ? surf.surfZones()
+-      : oneZone(faceLst)
++      : STLsurfaceFormat::oneZone(faceLst)
+     );
+ 
+     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);
+@@ -275,7 +275,7 @@ void Foam::fileFormats::STLsurfaceFormat<Face>::writeBinary
+     (
+         surf.surfZones().size() > 1
+       ? surf.surfZones()
+-      : oneZone(faceLst)
++      : STLsurfaceFormat::oneZone(faceLst)
+     );
+ 
+     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);
+diff --git a/src/surfMesh/surfaceFormats/tri/TRIsurfaceFormat.C b/src/surfMesh/surfaceFormats/tri/TRIsurfaceFormat.C
+index be964af..a882fde 100644
+--- a/src/surfMesh/surfaceFormats/tri/TRIsurfaceFormat.C
++++ b/src/surfMesh/surfaceFormats/tri/TRIsurfaceFormat.C
+@@ -140,7 +140,7 @@ void Foam::fileFormats::TRIsurfaceFormat<Face>::write
+     (
+         surf.surfZones().size() > 1
+       ? surf.surfZones()
+-      : oneZone(faceLst)
++      : TRIsurfaceFormat::oneZone(faceLst)
+     );
+ 
+     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);
+diff --git a/src/surfMesh/surfaceFormats/vtk/VTKsurfaceFormat.C b/src/surfMesh/surfaceFormats/vtk/VTKsurfaceFormat.C
+index 7203790..a1208a8 100644
+--- a/src/surfMesh/surfaceFormats/vtk/VTKsurfaceFormat.C
++++ b/src/surfMesh/surfaceFormats/vtk/VTKsurfaceFormat.C
+@@ -71,7 +71,7 @@ void Foam::fileFormats::VTKsurfaceFormat<Face>::write
+     (
+         surf.surfZones().size() > 1
+       ? surf.surfZones()
+-      : oneZone(faceLst)
++      : VTKsurfaceFormat::oneZone(faceLst)
+     );
+ 
+     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);
+diff --git a/src/surfMesh/surfaceFormats/wrl/WRLsurfaceFormat.C b/src/surfMesh/surfaceFormats/wrl/WRLsurfaceFormat.C
+index 86d5551..ad031b8 100644
+--- a/src/surfMesh/surfaceFormats/wrl/WRLsurfaceFormat.C
++++ b/src/surfMesh/surfaceFormats/wrl/WRLsurfaceFormat.C
+@@ -54,7 +54,7 @@ void Foam::fileFormats::WRLsurfaceFormat<Face>::write
+     (
+         surf.surfZones().size() > 1
+       ? surf.surfZones()
+-      : oneZone(faceLst, "")
++      : WRLsurfaceFormat::oneZone(faceLst, "")
+     );
+ 
+     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);
+diff --git a/src/surfMesh/surfaceFormats/x3d/X3DsurfaceFormat.C b/src/surfMesh/surfaceFormats/x3d/X3DsurfaceFormat.C
+index 7cb5e3b..ed48976 100644
+--- a/src/surfMesh/surfaceFormats/x3d/X3DsurfaceFormat.C
++++ b/src/surfMesh/surfaceFormats/x3d/X3DsurfaceFormat.C
+@@ -56,7 +56,7 @@ void Foam::fileFormats::X3DsurfaceFormat<Face>::write
+     (
+         surf.surfZones().size() > 1
+       ? surf.surfZones()
+-      : oneZone(faceLst, "")
++      : X3DsurfaceFormat::oneZone(faceLst, "")
+     );
+ 
+     const bool useFaceMap = (surf.useFaceMap() && zones.size() > 1);
+diff --git a/src/thermophysicalModels/specie/reaction/Reactions_/Reaction/Reaction.C b/src/thermophysicalModels/specie/reaction/Reactions_/Reaction/Reaction.C
+index f9bc336..d2658d4 100644
+--- a/src/thermophysicalModels/specie/reaction/Reactions_/Reaction/Reaction.C
++++ b/src/thermophysicalModels/specie/reaction/Reactions_/Reaction/Reaction.C
+@@ -50,7 +50,7 @@ void Reaction<ReactionThermo>::setThermo
+ 
+     for (label i=1; i<rhs_.size(); i++)
+     {
+-        operator+=
++        this->operator+=
+         (
+             rhs_[i].stoichCoeff*(*thermoDatabase[species_[rhs_[i].index]])
+         );
+@@ -58,7 +58,7 @@ void Reaction<ReactionThermo>::setThermo
+ 
+     for (label i=0; i<lhs_.size(); i++)
+     {
+-        operator-=
++        this->operator-=
+         (
+             lhs_[i].stoichCoeff*(*thermoDatabase[species_[lhs_[i].index]])
+         );
+-- 
+1.7.9.5
+
