@@ -4,3 +4,4 @@ update-for-removed-apps.diff
 missing-qualifications-of-template-dependent-names.diff
 doxygen-generated-file-names-breakage.diff
 fix-api-doc-location.diff
+handle-truncated-logs-in-freefoam-log.diff

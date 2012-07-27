@@ -1,0 +1,29 @@
+From 12af016309fc4828035e16290bc128955507ed43 Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Tue, 13 Mar 2012 17:24:22 +0100
+Subject: FIX: Handle truncated logs in freefoam-log
+Origin: http://repo.or.cz/w/freefoam.git?a=commit;h=12af016309fc4828035e16290bc128955507ed43
+Applied-Upstream: 0.1.1
+Bug-Debian: #682931
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ bin/freefoam-log.py.in |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/bin/freefoam-log.py.in b/bin/freefoam-log.py.in
+index 325dcf5..07d18e2 100755
+--- a/bin/freefoam-log.py.in
++++ b/bin/freefoam-log.py.in
+@@ -323,7 +323,7 @@ tLen = max(map(len, time))
+ for n, v in data.items():
+    for i in xrange(len(v)):
+       f = open(os.path.join(logsDir, '%s_%d'%(n, i)), 'wt')
+-      for j in xrange(len(time)):
++      for j in range(min(len(time), len(v[i]))):
+          if not noTime:
+             f.write(('%-'+str(tLen)+'s  ')%time[j])
+          f.write('%s\n'%v[i][j])
+-- 
+1.7.9.5
+
