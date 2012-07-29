@@ -85,7 +85,7 @@ install/libfreefoam1::
 install/libfreefoam-dev::
 	install -d $(CURDIR)/debian/libfreefoam-dev/usr/include/$(FF_SUBDIR)
 	install -d $(CURDIR)/debian/libfreefoam-dev/usr/share/$(FF_SUBDIR)
-	rm $(CURDIR)/debian/tmp/usr/share/$(FF_SUBDIR)/data/templates/foamScript
+	rm $(CURDIR)/debian/tmp/usr/share/$(FF_SUBDIR)/templates/foamScript
 
 install/freefoam::
 	install -d $(CURDIR)/debian/freefoam/usr/bin

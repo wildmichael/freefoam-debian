@@ -1,0 +1,52 @@
+From 97511926f09c0fe720ed61bb1ced5acfd38c73bb Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Tue, 17 Jul 2012 11:14:51 +0200
+Subject: Fix installation dirs for template files
+Origin: http://repo.or.cz/w/freefoam.git?a=commit;h=97511926f09c0fe720ed61bb1ced5acfd38c73bb
+Bug-Debian: #683175
+
+Removed hunks not related to #683175.
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ data/CMakeLists.txt          |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+index 9d65235..8e8ba53 100644
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -32,7 +32,11 @@
+ foam_configure_files(installDataFiles
+   DESTDIR data
+   COPYONLY
+-  foamLog.db
++  foamLog.db)
++
++foam_configure_files(installTemplateFiles
++  DESTDIR data
++  COPYONLY
+   templates/foamAppTemplate.C
+   templates/foamCommentStyles
+   templates/foamScript
+@@ -47,11 +51,16 @@ foam_configure_files(installDataFiles
+   )
+ 
+ # install the data files
+-foam_install_configured_files(FILES
++install(FILES
+   ${installDataFiles}
+   DESTINATION ${FOAM_INSTALL_DATA_PATH}
+   COMPONENT data
+   )
++install(FILES
++  ${installTemplateFiles}
++  DESTINATION ${FOAM_INSTALL_DATA_PATH}/templates
++  COMPONENT data
++  )
+ 
+ add_subdirectory(asciidoc)
+ add_subdirectory(utilities)
+-- 
+1.7.9.5
+
