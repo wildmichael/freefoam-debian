@@ -1,0 +1,278 @@
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Wed, 18 Jul 2012 17:11:19 +0200
+Subject: Update docs, tutorials and completers after removal of non-free files
+Origin: http://freefoam.git.sourceforge.net/git/gitweb.cgi?p=freefoam/freefoam;a=commit;h=e0b68f807b327925bbd96031695d6867cf48b218
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ INSTALL                                           |    4 +-
+ data/shellFunctions/bashCompletion/freefoam       |    2 +-
+ data/shellFunctions/zshCompletion/_freefoam       |    8 +--
+ doc/UserGuide/applications/utilities.txt          |    6 --
+ doc/UserGuide/files.cmake                         |    1 -
+ doc/UserGuide/postProcessing/ensight.txt          |   74 +--------------------
+ doc/UserGuide/postProcessing/fieldview.txt        |   26 --------
+ doc/UserGuide/postProcessing/index.txt            |    5 +-
+ tutorials/basic/laplacianFoam/flange/Allrun.py.in |    2 -
+ 9 files changed, 6 insertions(+), 122 deletions(-)
+ delete mode 100644 doc/UserGuide/postProcessing/fieldview.txt
+
+diff --git a/INSTALL b/INSTALL
+index d3cce22..96374ef 100644
+--- a/INSTALL
++++ b/INSTALL
+@@ -146,7 +146,7 @@ $ ccmake $HOME/Source/freefoam-{fullver}
+   * For more fine-grained control over what gets installed where, adjust
+     +FOAM_INSTALL_<XXX>_PATH+, where +<XXX>+ is one of +BIN+, +CMAKE+,
+     +CONFIG+, +DATA+, +DOC+, +FRAMEWORK+, +HEADER+, +LIBEXEC+, +LIBRARY+,
+-    +MAN+, +PLUGIN+, +PYTHON+, +TUTORIALS+ and +USERDFOAM+. Refer to the
++    +MAN+, +PLUGIN+, +PYTHON+ and +TUTORIALS+. Refer to the
+     glossary for the detailed meaning of each of these variables. Paths
+     not starting with a slash ('/') will be relative to +CMAKE_INSTALL_PREFIX+.
+     If you include a leading slash, the paths are absolute.
+@@ -518,8 +518,6 @@ and cannot take any responsibility for your actions.
+   Installation base-path of plugins.
+ +FOAM_INSTALL_PYTHON_PATH+::
+   Installation path for Python modules.
+-+FOAM_INSTALL_USERDFOAM_PATH+::
+-  Installation path of the Ensight plug-in.
+ +FOAM_INSTALL_TUTORIALS_PATH+::
+   Installation path of the tutorials.
+ +FOAM_USE_FOP+::
+diff --git a/data/shellFunctions/bashCompletion/freefoam b/data/shellFunctions/bashCompletion/freefoam
+index 4f6e143..7c77ecb 100755
+--- a/data/shellFunctions/bashCompletion/freefoam
++++ b/data/shellFunctions/bashCompletion/freefoam
+@@ -71,7 +71,7 @@ _freefoam_all() {
+       'expandDictionary' 'extrude2DMesh' 'extrudeMesh' 'faceSet' 'flattenMesh'\
+       'flowType' 'fluent3DMeshToFoam' 'fluentMeshToFoam' 'foamDataToFluent'   \
+       'foamMeshToFluent' 'foamToEnsight' 'foamToEnsightParts'                 \
+-      'foamToFieldview9' 'foamToGMV' 'foamToStarMesh' 'foamToVTK'             \
++      'foamToGMV' 'foamToStarMesh' 'foamToVTK'                                \
+       'formatConvert' 'gambitToFoam' 'gmshToFoam' 'graphExecTime' 'graphResKE'\
+       'graphResUVWP' 'icoErrorEstimate' 'icoMomentError' 'ideasUnvToFoam'     \
+       'IFCLookUpTableGen' 'infoExec' 'insideCells' 'job' 'kivaToFoam'         \
+diff --git a/data/shellFunctions/zshCompletion/_freefoam b/data/shellFunctions/zshCompletion/_freefoam
+index a3f1f16..f8f3169 100644
+--- a/data/shellFunctions/zshCompletion/_freefoam
++++ b/data/shellFunctions/zshCompletion/_freefoam
+@@ -77,7 +77,7 @@ utils=(                                                                    \
+    'expandDictionary' 'extrude2DMesh' 'extrudeMesh' 'faceSet' 'flattenMesh'\
+    'flowType' 'fluent3DMeshToFoam' 'fluentMeshToFoam' 'foamDataToFluent'   \
+    'foamMeshToFluent' 'foamToEnsight' 'foamToEnsightParts'                 \
+-   'foamToFieldview9' 'foamToGMV' 'foamToStarMesh' 'foamToVTK'             \
++   'foamToGMV' 'foamToStarMesh' 'foamToVTK'                                \
+    'formatConvert' 'gambitToFoam' 'gmshToFoam' 'graphExecTime' 'graphResKE'\
+    'graphResUVWP' 'icoErrorEstimate' 'icoMomentError' 'ideasUnvToFoam'     \
+    'IFCLookUpTableGen' 'infoExec' 'insideCells' 'job' 'kivaToFoam'         \
+@@ -841,12 +841,6 @@ _freefoam-writeMeshObj() {
+    $_freefoam_cellSet_opt[@] $_freefoam_faceSet_opt[@] $_freefoam_all_time_opt[@] $_freefoam_common_opt[@]
+ }
+ 
+-(( $+functions[_freefoam-foamToFieldview9] )) ||
+-_freefoam-foamToFieldview9() {
+-   _arguments -S '-noWall[do not export the walls]' \
+-   $_freefoam_all_time_opt[@] $_freefoam_case_opt[@] $_freefoam_std_opt[@]
+-}
+-
+ # apps taking -dict, all time and common options.
+ _freefoam-common_time_dict_apps() {
+    _arguments -S \
+diff --git a/doc/UserGuide/applications/utilities.txt b/doc/UserGuide/applications/utilities.txt
+index 50490f2..3330c4f 100644
+--- a/doc/UserGuide/applications/utilities.txt
++++ b/doc/UserGuide/applications/utilities.txt
+@@ -194,9 +194,6 @@ cells in relation to surface
+ split cells with flat faces
+ 
+ 2+h| Post-processing graphics
+-| `ensightFoamReader`(((`ensightFoamReader` utility)))
+-(((utility,`ensightFoamReader`))) | 'EnSight' library module to read {project}
+-data directly without translation
+ | `fieldview9Reader`(((`fieldview9Reader` utility)))
+ (((utility,`fieldview9Reader`))) | Reader module for 'Fieldview' 9 to read
+ {project} mesh and data
+@@ -209,9 +206,6 @@ Translates {project} data to 'EnSight' format
+ | `foamToEnsightParts`(((`foamToEnsightParts` utility)))
+ (((utility,`foamToEnsightParts`))) | Translates {project} data to 'Ensight'
+ format. An Ensight part is created for each `cellZone` and patch
+-| `foamToFieldview9`(((`foamToFieldview9` utility)))
+-(((utility,`foamToFieldview9`))) | Write out the {project} mesh in Version 3.0
+-'Fieldview'-UNS format (binary)
+ | `foamToGMV`(((`foamToGMV` utility)))(((utility,`foamToGMV`))) | Translates
+ foam output to 'GMV' readable files
+ | `foamToVTK`(((`foamToVTK` utility)))(((utility,`foamToVTK`))) | Legacy 'VTK'
+diff --git a/doc/UserGuide/files.cmake b/doc/UserGuide/files.cmake
+index 4efe7a3..d5117b8 100644
+--- a/doc/UserGuide/files.cmake
++++ b/doc/UserGuide/files.cmake
+@@ -62,7 +62,6 @@ set(ASCIIDOC_SRCS
+   postProcessing/index.txt
+   postProcessing/para.txt
+   postProcessing/fluent.txt
+-  postProcessing/fieldview.txt
+   postProcessing/ensight.txt
+   postProcessing/sample.txt
+   postProcessing/monitoring.txt
+diff --git a/doc/UserGuide/postProcessing/ensight.txt b/doc/UserGuide/postProcessing/ensight.txt
+index 5e441ee..4a921f1 100644
+--- a/doc/UserGuide/postProcessing/ensight.txt
++++ b/doc/UserGuide/postProcessing/ensight.txt
+@@ -1,12 +1,8 @@
+ === Post-processing with 'EnSight'
+ 
+ {project} offers the capability for post-processing {project} cases with
+-'EnSight', with a choice of 2 options:
+-
+-- converting the {project} data to 'EnSight' format with the `foamToEnsight`
+-  utility;
+-- reading the {project} data directly into 'EnSight' using the
+-  `ensight74FoamExec` module.
++'EnSight' by converting the {project} data to 'EnSight' format with the
++`foamToEnsight` utility.
+ 
+ ==== Converting data to 'EnSight' format
+ 
+@@ -31,69 +27,3 @@ normal means:
+ . the guilabel:[Format] selector should be set to guilabel:[Case], the
+   'EnSight' default setting;
+ . the user should click guibutton:[(Set) Case] and guibutton:[Okay].
+-
+-==== The `ensight74FoamExec` reader module
+-
+-'EnSight' provides the capability of using a user-defined module to read data
+-from a format other than the standard 'EnSight' format. {project} includes its
+-own reader module `ensight74FoamExec`(((`ensight74FoamExec` utility)))
+-(((utility,`ensight74FoamExec`))) that is compiled into a library named
+-filename:userd[]. It is this library that 'EnSight' needs to use which means
+-that it must be able to locate it on the filing system as described in the
+-following section.
+-
+-===== Configuration of 'EnSight' for the reader module
+-
+-In order to run the 'EnSight' reader, it is necessary to set some environment
+-variables correctly. The environment variables associated with 'EnSight' are
+-prefixed by `$CEI_` or `$ENSIGHT7_` and listed in <<tab_ensightEnvVariables>>.
+-With a standard user setup, only `$CEI_HOME` may need to be set manually, to
+-the path of the 'EnSight' installation.
+-
+-[[tab_ensightEnvVariables]]
+-.Environment variable settings for 'EnSight'
+-[grid="none",frame="topbot",options="header"]
+-|==============================================================================
+-| Environment variable | Description and options
+-| `$CEI_HOME`(((`CEI_HOME`,environment variable)))
+-(((environment variable,`CEI_HOME`))) | Path where 'EnSight' is installed,
+-'e.g.' filename:/usr/local/ensight[], added to the system path by default
+-| `$CEI_ARCH`(((`CEI_ARCH`,environment variable)))
+-(((environment variable,`CEI_ARCH`))) | Machine architecture, from a choice of
+-names corresponding to the machine directory names in
+-filename:$CEI_HOME/ensight74/machines[]; default settings include `linux_2.4`
+-and `sgi_6.5`
+-| `$ENSIGHT7_READER`(((`ENSIGHT7_READER`,environment variable)))
+-(((environment variable,`ENSIGHT7_READER`))) | Path that 'EnSight' searches for
+-the user defined filename:userd[] reader library
+-| `$ENSIGHT7_INPUT`(((`ENSIGHT7_INPUT`,environment variable)))
+-(((environment variable,`ENSIGHT7_INPUT`))) | Set by default to `dummy`
+-|==============================================================================
+-
+-===== Using the reader module
+-
+-The principal difficulty in using the 'EnSight' reader lies in the fact that
+-'EnSight' expects that a case to be defined by the contents of a particular
+-file, rather than a directory as it is in {project}. Therefore in following the
+-instructions for the using the reader below, the user should pay particular
+-attention to the details of case selection, since 'EnSight' does not permit
+-selection of a directory name.
+-
+-. from the 'EnSight' GUI, the user should select
+-  menuselection:[File --> Data (Reader)];
+-. The user should now be able to select the ++{project}++ from the
+-  guilabel:[Format] menu; if not, there is a problem with the configuration
+-  described above.
+-. The user should find their case directory from the guilabel:[File Selection]
+-  window, highlight one of top 2 entries in the guilabel:[Directories] box
+-  ending in dirname:/.[] or dirname:/..[] and click guibutton:[(Set) Geometry].
+-. The path field should now contain an entry for the case.
+-  The guilabel:[(Set) Geometry] text box should contain a `+/+'.
+-. The user may now click guibutton:[Okay] and 'EnSight' will begin reading the
+-  data.
+-. When the data is read, a new guilabel:[Data Part Loader] window will appear,
+-  asking which part(s) are to be read. The user should select
+-  guilabel:[Load all].
+-. When the mesh is displayed in the 'EnSight' window the user should close the
+-  guilabel:[Data Part Loader] window, since some features of 'EnSight' will not
+-  work with this window open.
+diff --git a/doc/UserGuide/postProcessing/fieldview.txt b/doc/UserGuide/postProcessing/fieldview.txt
+deleted file mode 100644
+index a5513c3..0000000
+--- a/doc/UserGuide/postProcessing/fieldview.txt
++++ /dev/null
+@@ -1,26 +0,0 @@
+-=== Post-processing with 'Fieldview'
+-
+-{project} offers the capability for post-processing {project} cases with
+-'Fieldview'. The method involves running a post-processing utility
+-`foamToFieldview` to convert case data from {project} to 'Fieldview'
+-filename:.uns[] file format. For a given case, `foamToFieldview` is executed
+-like any normal application. `foamToFieldview` creates a directory named
+-dirname:Fieldview[] in the case directory, 'deleting any existing'
+-dirname:Fieldview[] 'directory in the process'. By default the converter reads
+-the data in all time directories and writes into a set of files of the form
+-filename:<case>_<nn>.uns[], where '<nn>' is an incremental counter starting
+-from 1 for the first time directory, 2 for the second and so on. The user may
+-specify the conversion of a single time directory with the option
+-`-time <time>`, where '<time>' is a time in general, scientific or fixed
+-format.
+-
+-'Fieldview' provides certain functions that require information about boundary
+-conditions, 'e.g.' drawing streamlines that uses information about wall
+-boundaries. The converter tries, wherever possible, to include this information
+-in the converted files by default. The user can disable the inclusion of this
+-information by using the option:-noWall[] option in the execution command.
+-
+-The data files for 'Fieldview' have the filename:.uns[] extension as mentioned
+-already. If the original {project} case includes a dot `.', 'Fieldview' may
+-have problems interpreting a set of data files as a single case with multiple
+-time steps.
+diff --git a/doc/UserGuide/postProcessing/index.txt b/doc/UserGuide/postProcessing/index.txt
+index 59f70ec..c886574 100644
+--- a/doc/UserGuide/postProcessing/index.txt
++++ b/doc/UserGuide/postProcessing/index.txt
+@@ -7,15 +7,12 @@ supplied with a post-processing utility `para` that uses 'ParaView', an open
+ source visualisation application described in <<sec_paraFoam>>.
+ 
+ Other methods of post-processing using third party products are offered,
+-including 'EnSight', 'Fieldview' and the post-processing supplied with
+-'Fluent'.
++including 'EnSight', and the post-processing supplied with 'Fluent'.
+ 
+ include::para.txt[]
+ 
+ include::fluent.txt[]
+ 
+-include::fieldview.txt[]
+-
+ include::ensight.txt[]
+ 
+ include::sample.txt[]
+diff --git a/tutorials/basic/laplacianFoam/flange/Allrun.py.in b/tutorials/basic/laplacianFoam/flange/Allrun.py.in
+index f3ba02a..312da08 100755
+--- a/tutorials/basic/laplacianFoam/flange/Allrun.py.in
++++ b/tutorials/basic/laplacianFoam/flange/Allrun.py.in
+@@ -15,12 +15,10 @@ class laplacianFlangeRunner(FreeFOAM.tutorial.CaseRunner):
+             args=[os.path.join(self.case_dir, 'flange.ans'),
+                '-scale', '0.001'])
+       self.add_app_step('laplacian')
+-      self.add_app_step('foamToFieldview9')
+       self.add_app_step('foamToEnsight')
+ 
+    def clean(self):
+       FreeFOAM.tutorial.CaseRunner.clean(self)
+-      FreeFOAM.util.rmtree('Fieldview')
+       FreeFOAM.util.rmtree('EnSight')
+ 
+ if __name__ == '__main__':
+-- 
+1.7.9.5
+
