@@ -1,0 +1,52 @@
+From 9d32325d6680f30b6f510eeb8e27e562c868c7a8 Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Tue, 31 Jul 2012 07:31:26 +0200
+Subject: Update doc/Doxygen/FoamHeader.hmtl to Doxygen version 1.8.1.2
+Bug-Debian: #683369
+
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ doc/Doxygen/FoamHeader.html.in |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/doc/Doxygen/FoamHeader.html.in b/doc/Doxygen/FoamHeader.html.in
+index efa5b93..322d605 100644
+--- a/doc/Doxygen/FoamHeader.html.in
++++ b/doc/Doxygen/FoamHeader.html.in
+@@ -3,17 +3,20 @@
+ <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+   <head>
+     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+-    <meta name="generator" content="AsciiDoc 8.4.4-dev" />
++    <meta http-equiv="X-UA-Compatible" content="IE=9"/>
+     <meta name="description" content="The Cross-Platform CFD Toolkit" />
+     <meta name="description" content="This is the API-documentation of FreeFOAM, the cross-platform Toolkit for Computational Fluid Dynamics (CFD) based on OpenFOAM (R)." />
+     <meta name="keywords" content="FreeFOAM, Computational Fluid Dynamics, CFD, C++, Open Source" />
+-    <link rel="stylesheet" href="tabs.css" type="text/css"/>
+-    <link rel="stylesheet" href="search/search.css" type="text/css"/>
+-    <script type="text/javaScript" src="search/search.js"></script>
+-    <link rel="stylesheet" href="doxygen.css" type="text/css"/>
+-    <link rel="stylesheet" href="../css/xhtml11.css" type="text/css" />
+-    <link rel="stylesheet" href="../css/layout.css" type="text/css" />
+-    <link rel="stylesheet" href="../css/custom.css" type="text/css" />
++    <link rel="stylesheet" href="$relpath$tabs.css" type="text/css"/>
++    <link rel="stylesheet" href="$relpath$doxygen.css" type="text/css"/>
++    <link rel="stylesheet" href="$relpath$../css/xhtml11.css" type="text/css" />
++    <link rel="stylesheet" href="$relpath$../css/layout.css" type="text/css" />
++    <link rel="stylesheet" href="$relpath$../css/custom.css" type="text/css" />
++    <script type="text/javascript" src="$relpath$jquery.js"></script>
++    <script type="text/javascript" src="$relpath$dynsections.js"></script>
++    $treeview
++    $search
++    $mathjax
+     <title>FreeFOAM programmer's C++ documentation</title>
+   </head>
+   <body>
+@@ -62,3 +65,4 @@
+     </div>
+     <div id="layout-content-box">
+       <div id="layout-content">
++        <div id="top"> <!-- closed by doxygen! -->
+-- 
+1.7.9.5
+

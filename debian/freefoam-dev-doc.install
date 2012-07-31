@@ -1,1 +1,3 @@
 debian/tmp/usr/share/doc/freefoam/API/* /usr/share/doc/freefoam-dev-doc/api
+debian/tmp/usr/share/doc/freefoam/css debian/tmp/usr/share/doc/freefoam/img /usr/share/doc/freefoam-dev-doc
+debian/tmp/usr/share/freefoam/DoxyDocIndex /usr/share/freefoam
