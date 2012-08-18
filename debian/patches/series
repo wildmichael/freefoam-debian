@@ -9,3 +9,4 @@ correct-output-directory-for-freefoam-log.diff
 escape-meta-chars-for-doxygen-filter.diff
 fix-installation-dirs-for-template-files.diff
 update-doxygen-foamheader.diff
+allow-non-intel-arch-cpus.diff

@@ -1,0 +1,44 @@
+From 0de06fc1907d7d06e136af77a69acc922b582e91 Mon Sep 17 00:00:00 2001
+From: Michael Wild <themiwi@users.sourceforge.net>
+Date: Sat, 18 Aug 2012 13:28:36 +0200
+Subject: Allow non-Intel-architecture CPUs in FOAMDetermineArch.make
+
+Otherwise an empty -D flag gets injected into the compile commands, causing
+FTBFS on any non-Intel architecture.
+
+Last-Update: 2012-08-18
+Signed-off-by: Michael Wild <themiwi@users.sourceforge.net>
+---
+ CMake/FOAMDetermineArch.cmake |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/CMake/FOAMDetermineArch.cmake b/CMake/FOAMDetermineArch.cmake
+index 31ffcf0..69b79ca 100644
+--- a/CMake/FOAMDetermineArch.cmake
++++ b/CMake/FOAMDetermineArch.cmake
+@@ -72,7 +72,7 @@ endif()
+ 
+ # 64 bit possible?
+ set(FOAM_DEFAULT_64_BIT OFF)
+-if(FOAM_CPUNAME MATCHES ".*64" OR FOAM_OSNAME MATCHES ".*64")
++if(FOAM_CPUNAME MATCHES ".*64" OR FOAM_OSNAME MATCHES ".*64" OR CMAKE_SIZEOF_VOID_P EQUAL 8)
+   set(FOAM_DEFAULT_64_BIT ON)
+   option(FOAM_64_BIT "Compile ${CMAKE_PROJECT_NAME} in 64 bit." ${FOAM_DEFAULT_64_BIT})
+   mark_as_advanced(FOAM_64_BIT)
+@@ -97,7 +97,12 @@ if(FOAM_OSNAME STREQUAL Linux)
+   elseif(FOAM_CPUNAME STREQUAL mips64)
+     set(FOAM_OS SiCortex64)
+   else()
+-    message(STATUS  Unknown processor type ${FOAM_CPUNAME} for Linux)
++    message(STATUS  "Unknown processor type ${FOAM_CPUNAME} for Linux")
++    if (FOAM_64_BIT)
++      set(FOAM_OS linux64)
++    else()
++      set(FOAM_OS linux)
++    endif()
+   endif()
+ 
+   set(LINUX_LINK_OPTS)
+-- 
+1.7.9.5
+
