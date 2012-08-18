@@ -36,11 +36,11 @@ FF_CONFIG_PACK=						\
 	-DCPACK_SOURCE_ZIP=OFF				\
 
 FF_DOC=							\
-	-DFOAM_ENABLE_PDF_GUIDES=ON			\
+	-DFOAM_ENABLE_PDF_GUIDES=OFF			\
 	-DFOAM_ENABLE_XHTML_GUIDES=OFF			\
 	-DFOAM_ENABLE_XHTML_HELP=OFF			\
 	-DFOAM_ENABLE_MATHJAX=OFF			\
-	-DFOAM_ENABLE_DOXYGEN_DOCS=ON			\
+	-DFOAM_ENABLE_DOXYGEN_DOCS=OFF			\
 	-DFOAM_ENABLE_MANPAGE_HELP=OFF			\
 	-DFOAM_DOCS_FOR_SF=OFF				\
 
@@ -74,10 +74,24 @@ DEB_CMAKE_EXTRA_FLAGS= 					\
 	$(FF_DOC)					\
 	$(FF_INSTALL)
 
-
-
 DEB_DH_MAKESHLIBDEPS_ARGS_libfreefoam1=-X/usr/lib/$(FF_SUBDIR)
 
+TOP_BUILDDIR := $(DEB_BUILDDIR)
+
+# Re-configure for doc packages
+configure/freefoam-user-doc configure/freefoam-dev-doc:: debian/freefoam-enable-docs.stamp
+
+debian/freefoam-enable-docs.stamp:
+	cd $(TOP_BUILDDIR); \
+	cmake \
+	  -DFOAM_ENABLE_PDF_GUIDES=ON \
+	  -DFOAM_ENABLE_DOXYGEN_DOCS=ON \
+	  $(CURDIR)
+	touch $@
+
+build/freefoam-user-doc:: DEB_MAKE_BUILD_TARGET := UserGuide-pdf
+
+build/freefoam-dev-doc:: DEB_MAKE_BUILD_TARGET := apidoc-all
 
 install/libfreefoam1::
 	install -d $(CURDIR)/debian/libfreefoam1/usr/lib/$(FF_SUBDIR)
@@ -94,14 +108,22 @@ install/freefoam::
 	install -d $(CURDIR)/debian/freefoam/etc/bash_completion.d
 	cp $(CURDIR)/data/shellFunctions/bashCompletion/freefoam $(CURDIR)/debian/freefoam/etc/bash_completion.d/
 
-install/freefoam-user-doc::
-	install -d $(CURDIR)/debian/freefoam-user-doc/usr/share/doc/freefoam-user-doc/tutorials
-	rm $(CURDIR)/debian/tmp/usr/share/doc/freefoam/tutorials/multiphase/interFoam/les/nozzleFlow2D/0/data/Ubulk
-	rm $(CURDIR)/debian/tmp/usr/share/doc/freefoam/tutorials/multiphase/interFoam/les/nozzleFlow2D/0/data/ptrace
-	rmdir $(CURDIR)/debian/tmp/usr/share/doc/freefoam/tutorials/multiphase/interFoam/les/nozzleFlow2D/0/data
+install/freefoam-user-doc:: DEB_BUILDDIR_freefoam-user-doc := $(TOP_BUILDDIR)/doc/UserGuide
+install/freefoam-user-doc:: install-tutorials
+	+$(DEB_MAKE_INVOKE) $(DEB_MAKE_INSTALL_TARGET)
 
-install/freefoam-dev-doc::
-	rm $(CURDIR)/debian/tmp/usr/share/doc/freefoam/API/jquery.js
+install-tutorials: DEB_BUILDDIR_freefoam-user-doc := $(TOP_BUILDDIR)/tutorials
+install-tutorials: build/freefoam-user-doc
+	+$(DEB_MAKE_INVOKE) $(DEB_MAKE_INSTALL_TARGET)
+	install -d $(CURDIR)/debian/freefoam-user-doc/usr/share/doc/freefoam-user-doc/tutorials
+	rm -rf $(CURDIR)/debian/tmp/usr/share/doc/freefoam/tutorials/multiphase/interFoam/les/nozzleFlow2D/0/data
+
+# Depends on build/freefoam-user-doc because the installation is started in
+# $(DEB_BUILDDIR)/doc, which also requires the UserGuide to be built.
+install/freefoam-dev-doc:: DEB_BUILDDIR_freefoam-dev-doc := $(TOP_BUILDDIR)/doc
+install/freefoam-dev-doc:: build/freefoam-user-doc
+	+$(DEB_MAKE_INVOKE) $(DEB_MAKE_INSTALL_TARGET)
+	rm -f $(CURDIR)/debian/tmp/usr/share/doc/freefoam/API/jquery.js
 
 binary-install/libfreefoam1::
 	dh_pysupport -plibfreefoam1
@@ -111,3 +133,6 @@ binary-install/libfreefoam-dev::
 
 binary-install/freefoam::
 	dh_pysupport -pfreefoam
+
+clean::
+	rm -f debian/freefoam-enable-docs.stamp
